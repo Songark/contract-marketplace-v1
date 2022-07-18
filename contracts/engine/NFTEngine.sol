@@ -13,6 +13,10 @@ contract NFTEngine is Ownable, INFTEngine {
 
     address private immutable _nftContract;
 
+    address private _treasury;
+
+    uint256 public constant feeToTreasury = 5;
+
     mapping(uint256 => LTypes.AuctionNFT) private _nftAuctions;
 
     uint256[] private _nftIdsForAction;
@@ -42,21 +46,38 @@ contract NFTEngine is Ownable, INFTEngine {
         _;
     }
 
+    modifier onlySale(uint256 tokenId) {
+        require(_nftSells[tokenId].seller != address(0), 
+            "Not sale token");
+        _;
+    }
+
     modifier onlyTokenOwner(uint256 tokenId) {
         require(msg.sender == IERC721(_nftContract).ownerOf(tokenId),
             "Sender isn't owner of NFT");
         _;
     }
 
-    constructor(address nftContract) {
+    modifier onlyNotTokenOwner(uint256 tokenId) {
+        require(msg.sender != IERC721(_nftContract).ownerOf(tokenId),
+            "Sender is owner of NFT");
+        _;
+    }
+
+    constructor(address creator, address nftContract, address treasury) {
+        require(creator != address(0), "Invalid marketplace owner");
         require(nftContract != address(0), "Invalid nft contract");
+        require(treasury != address(0), "Invalid treasury address");
         
         _nftContract = nftContract;
+        _treasury = treasury;
 
         defaultBidIncRate = 100;
         minSettableIncRate = 86400;
         maxMinPriceRate = 100;
         defaultAuctionBidPeriod = 8000;
+
+        transferOwnership(creator);
     }
 
     function removeNftIdFromSells(uint256 nftId) 
@@ -83,6 +104,12 @@ contract NFTEngine is Ownable, INFTEngine {
             }
         }
         delete _nftAuctions[nftId];
+    }
+
+    function changeTreasury(address newTreasury)
+    external onlyOwner {
+        require(newTreasury != address(0), "Invalid new treasury");
+        _treasury = newTreasury;
     }
 
     function createAuction() external {
@@ -137,8 +164,57 @@ contract NFTEngine is Ownable, INFTEngine {
         return _nftSells[tokenId];
     }
 
-    function buyNFT(uint256 tokenId) external {
+    function buyNFT(uint256 tokenId) 
+    external 
+    payable
+    onlySale(tokenId)
+    onlyNotTokenOwner(tokenId) {
+        require(msg.sender != address(0), "Invalid nft buyer");
+        uint256 amount = _nftSells[tokenId].price;
+        uint256 toTreasury = amount * feeToTreasury / 100;
+        uint256 toSeller = amount - toTreasury;
+        
+        if (_nftSells[tokenId].erc20Token == address(0)) {
+            /// paying with ether
+            require(msg.value >= amount, "Insufficient Ether");
 
+            (bool bSent, ) = payable(_nftSells[tokenId].seller).call{
+                value: toSeller
+            }("");
+            if (!bSent) {
+                revert("Failed sending ether to seller");
+            }
+
+            (bSent, ) = payable(_treasury).call{
+                value: toTreasury
+            }("");
+            if (!bSent) {
+                revert("Failed sending ether to treasury");
+            }
+        }
+        else {
+            /// paying with erc20 token
+
+            if (!IERC20(_nftSells[tokenId].erc20Token).transferFrom(
+                msg.sender, _nftSells[tokenId].seller, toSeller)) {
+                revert("Failed sending erc20 to seller");
+            }
+
+            if (!IERC20(_nftSells[tokenId].erc20Token).transferFrom(
+                msg.sender, _treasury, toTreasury)) {
+                revert("Failed sending erc20 to treasury");
+            }
+        }
+
+        delete _nftSells[tokenId];
+        removeNftIdFromSells(tokenId);
+
+        emit NFTTokenSold(
+            _nftContract, 
+            tokenId, 
+            _nftSells[tokenId].seller, 
+            msg.sender, 
+            _nftSells[tokenId].price);        
     }
 
     function sellNFT(uint256 tokenId) external {

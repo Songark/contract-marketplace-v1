@@ -4,6 +4,8 @@ pragma solidity >=0.8.4;
 import "./engine/NFTEngine.sol";
 
 contract NFTEngineFactory {
+
+    event NFTEngineCreated(address nftEngine);
     
     mapping(address => address) nftEngines;
 
@@ -13,13 +15,14 @@ contract NFTEngineFactory {
 
     }
 
-    function createNFTEngine(address nftContract) external {
+    function createNFTEngine(address nftContract, address treasury) external {
+        require(nftEngines[nftContract] == address(0), "Already engine created");
 
-        address newEngine = address(new NFTEngine(nftContract));
-
+        address newEngine = address(new NFTEngine(msg.sender, nftContract, treasury));
         nftEngines[nftContract] = newEngine;
-
         ownEngines[msg.sender].push(newEngine);
+
+        emit NFTEngineCreated(newEngine);
     }
 
     function getNftEngineByContract(address nftContract) 
