@@ -3,6 +3,7 @@
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^1.0.2",
     "@openzeppelin/test-helpers": "^0.5.15",
+    "dotenv": "^16.0.1",
     "hardhat": "^2.10.0",
     "hardhat-contract-sizer": "^2.6.1"
   },

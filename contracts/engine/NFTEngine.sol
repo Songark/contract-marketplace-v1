@@ -58,6 +58,12 @@ contract NFTEngine is Ownable, INFTEngine {
         _;
     }
 
+    modifier onlyApprovedToken(uint256 tokenId) {
+        require(address(this) == IERC721(_nftContract).getApproved(tokenId),
+            "NFT is not approved by Marketplace");
+        _;
+    }
+
     modifier onlyNotTokenOwner(uint256 tokenId) {
         require(msg.sender != IERC721(_nftContract).ownerOf(tokenId),
             "Sender is owner of NFT");
@@ -140,6 +146,7 @@ contract NFTEngine is Ownable, INFTEngine {
         uint32[] memory feeRates
     ) external 
     onlyTokenOwner(tokenId)
+    onlyApprovedToken(tokenId)
     onlyValidPrice(sellPrice) 
     onlyNotSale(tokenId) {
 
@@ -150,6 +157,27 @@ contract NFTEngine is Ownable, INFTEngine {
         _nftSells[tokenId].price = sellPrice;        
         _nftSells[tokenId].feeRecipients = feeRecipients;
         _nftSells[tokenId].feeRates = feeRates;
+
+        emit NFTTokenSaleCreated(
+            _nftContract,
+            tokenId, 
+            msg.sender,
+            erc20Token,
+            sellPrice
+        );
+    }
+
+    function cancelSale(uint256 tokenId)
+    external
+    onlyTokenOwner(tokenId)
+    onlySale(tokenId) {
+        delete _nftSells[tokenId];
+        removeNftIdFromSells(tokenId);
+
+        emit NFTTokenSaleCanceled(
+            _nftContract, 
+            tokenId
+        );    
     }
 
     function getTokensOnSale() 
@@ -173,12 +201,13 @@ contract NFTEngine is Ownable, INFTEngine {
         uint256 amount = _nftSells[tokenId].price;
         uint256 toTreasury = amount * feeToTreasury / 100;
         uint256 toSeller = amount - toTreasury;
+        address seller = _nftSells[tokenId].seller;
         
         if (_nftSells[tokenId].erc20Token == address(0)) {
             /// paying with ether
             require(msg.value >= amount, "Insufficient Ether");
 
-            (bool bSent, ) = payable(_nftSells[tokenId].seller).call{
+            (bool bSent, ) = payable(seller).call{
                 value: toSeller
             }("");
             if (!bSent) {
@@ -196,7 +225,7 @@ contract NFTEngine is Ownable, INFTEngine {
             /// paying with erc20 token
 
             if (!IERC20(_nftSells[tokenId].erc20Token).transferFrom(
-                msg.sender, _nftSells[tokenId].seller, toSeller)) {
+                msg.sender, seller, toSeller)) {
                 revert("Failed sending erc20 to seller");
             }
 
@@ -204,24 +233,27 @@ contract NFTEngine is Ownable, INFTEngine {
                 msg.sender, _treasury, toTreasury)) {
                 revert("Failed sending erc20 to treasury");
             }
-        }
+        }    
 
         delete _nftSells[tokenId];
         removeNftIdFromSells(tokenId);
 
-        emit NFTTokenSold(
+        IERC721(_nftContract).safeTransferFrom(seller, msg.sender, tokenId);
+
+        emit NFTTokenSaleClosed(
             _nftContract, 
             tokenId, 
-            _nftSells[tokenId].seller, 
-            msg.sender, 
-            _nftSells[tokenId].price);        
+            msg.sender
+        );    
     }
 
-    function sellNFT(uint256 tokenId) external {
+    function mintNFT(uint256 tokenId) external {
 
     }
-
-    function nftOwner(uint256 tokenId) external {
-
+    
+    function nftOwner(uint256 tokenId) 
+    external 
+    view returns (address) {
+        return IERC721(_nftContract).ownerOf(tokenId);       
     }
 }

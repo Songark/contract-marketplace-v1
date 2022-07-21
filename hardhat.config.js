@@ -1,9 +1,32 @@
 require("@nomicfoundation/hardhat-toolbox");
 require('hardhat-contract-sizer');
+const dotenv = require("dotenv");
+dotenv.config();
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
-  solidity: "0.8.9",
+  solidity: {
+    version: "0.8.4",
+    settings: {
+        optimizer: {
+            enabled: true,
+            runs: 200,
+        },
+    },
+  },
+
+  networks: {
+    hardhat: {
+
+    },
+
+    rinkeby: {
+      url: process.env.RINKEBY_URL,
+      accounts: {
+        mnemonic: process.env.KEY_MNEMONIC
+      }
+    },
+  },
 
   contractSizer: {
     alphaSort: true,
