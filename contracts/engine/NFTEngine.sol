@@ -2,12 +2,12 @@
 pragma solidity ^0.8.4;
 
 import "hardhat/console.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+import "erc721a/contracts/interfaces/IERC721A.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../library/LTypes.sol";
 import "../interface/INFTEngine.sol";
+import "../interface/IERC721AMock.sol";
 
 contract NFTEngine is Ownable, INFTEngine {
 
@@ -53,19 +53,19 @@ contract NFTEngine is Ownable, INFTEngine {
     }
 
     modifier onlyTokenOwner(uint256 tokenId) {
-        require(msg.sender == IERC721(_nftContract).ownerOf(tokenId),
+        require(msg.sender == IERC721A(_nftContract).ownerOf(tokenId),
             "Sender isn't owner of NFT");
         _;
     }
 
     modifier onlyApprovedToken(uint256 tokenId) {
-        require(address(this) == IERC721(_nftContract).getApproved(tokenId),
+        require(address(this) == IERC721A(_nftContract).getApproved(tokenId),
             "NFT is not approved by Marketplace");
         _;
     }
 
     modifier onlyNotTokenOwner(uint256 tokenId) {
-        require(msg.sender != IERC721(_nftContract).ownerOf(tokenId),
+        require(msg.sender != IERC721A(_nftContract).ownerOf(tokenId),
             "Sender is owner of NFT");
         _;
     }
@@ -238,7 +238,7 @@ contract NFTEngine is Ownable, INFTEngine {
         delete _nftSells[tokenId];
         removeNftIdFromSells(tokenId);
 
-        IERC721(_nftContract).safeTransferFrom(seller, msg.sender, tokenId);
+        IERC721A(_nftContract).safeTransferFrom(seller, msg.sender, tokenId);
 
         emit NFTTokenSaleClosed(
             _nftContract, 
@@ -247,13 +247,13 @@ contract NFTEngine is Ownable, INFTEngine {
         );    
     }
 
-    function mintNFT(uint256 tokenId) external {
-
+    function mintNFT(uint256 quantity, uint8 tierIndex) external {        
+        IERC721AMock(_nftContract).safeMint(msg.sender, quantity, tierIndex);
     }
     
     function nftOwner(uint256 tokenId) 
     external 
     view returns (address) {
-        return IERC721(_nftContract).ownerOf(tokenId);       
+        return IERC721A(_nftContract).ownerOf(tokenId);       
     }
 }

@@ -15,8 +15,8 @@ describe("NFTEngine", function () {
   async function deployBaseContracts() {
     const [owner, seller, buyer, treasury] = await ethers.getSigners();
 
-    const ERC721Mock = await ethers.getContractFactory("ERC721Mock");
-    const erc721Mock = await ERC721Mock.deploy("Test NFT Token", "TNT");
+    const ERC721AMock = await ethers.getContractFactory("ERC721AMock");
+    const erc721AMock = await ERC721AMock.deploy("Test NFT Token", "TNT");
 
     const ERC20Mock = await ethers.getContractFactory("ERC20Mock");
     const erc20Mock = await ERC20Mock.deploy("Test ERC20 Token", "TET");
@@ -24,43 +24,46 @@ describe("NFTEngine", function () {
     const NFTEngineFactory = await ethers.getContractFactory("NFTEngineFactory");
     const nftEngineFactory = await NFTEngineFactory.deploy();
 
-    return { nftEngineFactory, erc721Mock, erc20Mock, owner, seller, buyer, treasury };
+    return { nftEngineFactory, erc721AMock, erc20Mock, owner, seller, buyer, treasury };
   }
 
   before('Create Marketplaces', async () => {
     engineInfo = await loadFixture(deployBaseContracts);
 
     console.log("factory:", engineInfo.nftEngineFactory.address);
-    console.log("erc721Mock:", engineInfo.erc721Mock.address);
+    console.log("erc721AMock:", engineInfo.erc721AMock.address);
     console.log("erc20Mock:", engineInfo.erc20Mock.address);
     console.log("seller:", engineInfo.seller.address);
     console.log("buyer:", engineInfo.buyer.address);
     console.log("treasury:", engineInfo.treasury.address);
 
     await engineInfo.nftEngineFactory.createNFTEngine(
-      engineInfo.erc721Mock.address, 
+      engineInfo.erc721AMock.address, 
       engineInfo.treasury.address
     );
     const engine = await engineInfo.nftEngineFactory.getNftEngineByContract(
-      engineInfo.erc721Mock.address
+      engineInfo.erc721AMock.address
     );
 
     const NFTEngine = await ethers.getContractFactory("NFTEngine");
     nftEngine = await NFTEngine.attach(engine);
 
+    await engineInfo.erc721AMock.setMarketplace(engine);
+
     console.log("marketplace:", nftEngine.address);    
   });
 
   it ("Should initialize NFT Token and ERC20 Token", async () => {
-    let tokenId = 1;
-    await engineInfo.erc721Mock.safeMint(engineInfo.seller.address, tokenId, "");
-    await expect(await engineInfo.erc721Mock.ownerOf(tokenId)).to.be.equal(
+    let quantity = 1;
+    let tokenId = 0;
+    await nftEngine.connect(engineInfo.seller).mintNFT(quantity, 0);
+    await expect(await engineInfo.erc721AMock.ownerOf(tokenId)).to.be.equal(
       engineInfo.seller.address,  "Failed to mint NFT Token 1"
     );
 
-    tokenId = 2;
-    await engineInfo.erc721Mock.safeMint(engineInfo.seller.address, tokenId, "");
-    await expect(await engineInfo.erc721Mock.ownerOf(tokenId)).to.be.equal(
+    tokenId = 1;
+    await nftEngine.connect(engineInfo.seller).mintNFT(quantity, 0);
+    await expect(await engineInfo.erc721AMock.ownerOf(tokenId)).to.be.equal(
       engineInfo.seller.address,  "Failed to mint NFT Token 2"
     );
 
@@ -75,10 +78,10 @@ describe("NFTEngine", function () {
   });
 
   it ("Should create two sales with two NFT tokens", async () => {
-    let tokenId = 1;
+    let tokenId = 0;
     let tokenPrice = ethers.utils.parseEther("10");
     
-    await engineInfo.erc721Mock.connect(engineInfo.seller).approve(
+    await engineInfo.erc721AMock.connect(engineInfo.seller).approve(
       nftEngine.address,
       tokenId);
 
@@ -90,8 +93,8 @@ describe("NFTEngine", function () {
       []
     );
 
-    tokenId = 2;
-    await engineInfo.erc721Mock.connect(engineInfo.seller).approve(
+    tokenId = 1;
+    await engineInfo.erc721AMock.connect(engineInfo.seller).approve(
       nftEngine.address,
       tokenId);
 
