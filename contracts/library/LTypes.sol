@@ -28,7 +28,7 @@ library LTypes {
         uint32 bidPeriod; 
         uint64 endTime;
         uint128 minPrice;
-        uint128 curPrice;
+        uint128 buyNowPrice;
         uint128 highestBid;
         address highestBidder;
         address seller;

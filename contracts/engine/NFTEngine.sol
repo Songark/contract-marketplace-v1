@@ -2,12 +2,12 @@
 pragma solidity ^0.8.4;
 
 import "hardhat/console.sol";
-import "erc721a/contracts/interfaces/IERC721A.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../library/LTypes.sol";
 import "../interface/INFTEngine.sol";
-import "../interface/IERC721AMock.sol";
+import "../interface/IERC721Mock.sol";
 
 contract NFTEngine is Ownable, INFTEngine {
 
@@ -53,20 +53,53 @@ contract NFTEngine is Ownable, INFTEngine {
     }
 
     modifier onlyTokenOwner(uint256 tokenId) {
-        require(msg.sender == IERC721A(_nftContract).ownerOf(tokenId),
+        require(msg.sender == IERC721(_nftContract).ownerOf(tokenId),
             "Sender isn't owner of NFT");
         _;
     }
 
     modifier onlyApprovedToken(uint256 tokenId) {
-        require(address(this) == IERC721A(_nftContract).getApproved(tokenId),
+        require(address(this) == IERC721(_nftContract).getApproved(tokenId),
             "NFT is not approved by Marketplace");
         _;
     }
 
     modifier onlyNotTokenOwner(uint256 tokenId) {
-        require(msg.sender != IERC721A(_nftContract).ownerOf(tokenId),
+        require(msg.sender != IERC721(_nftContract).ownerOf(tokenId),
             "Sender is owner of NFT");
+        _;
+    }
+
+    modifier minPriceNotExceedLimit(
+        uint128 buyNowPrice, uint128 minPrice 
+    ) {
+        require(
+            buyNowPrice == 0 ||
+                _getPortionOfBid(buyNowPrice, maxMinPriceRate) >=
+                minPrice,
+            "minPrice > 80% of buyNowPrice"
+        );
+        _;
+    }
+
+    modifier checkSizeRecipientsAndRates(
+        uint256 recipients, uint256 rates
+    ) {
+        require(
+            recipients == rates,
+            "Recipients != Rates"
+        );
+        _;
+    }
+
+    modifier checkFeeRatesLessThanMaximum(
+        uint32[] memory feeRates
+    ) {
+        uint32 totalPercent;
+        for (uint256 i = 0; i < feeRates.length; i++) {
+            totalPercent = totalPercent + feeRates[i];
+        }
+        require(totalPercent <= 10000, "Fee Rates exceed maximum, 10000");
         _;
     }
 
@@ -118,8 +151,38 @@ contract NFTEngine is Ownable, INFTEngine {
         _treasury = newTreasury;
     }
 
-    function createAuction() external {
+    function createAuction(
+        uint256 tokenId,
+        address erc20Token,
+        uint128 minPrice,
+        uint128 buyNowPrice,
+        address[] memory feeRecipients,
+        uint32[] memory feeRates
+    ) external {
+        
+        _setupAuction(
+            tokenId,
+            erc20Token,
+            minPrice,
+            buyNowPrice,
+            feeRecipients,
+            feeRates
+        );
 
+        emit NFTAuctionCreated(
+            _nftContract,
+            tokenId,
+            msg.sender,
+            erc20Token,
+            minPrice,
+            buyNowPrice,
+            _getAuctionBidPeriod(tokenId),
+            _getBidIncreasePercentage(tokenId),
+            feeRecipients,
+            feeRates
+        );
+
+        _updateOngoingAuction(_nftContractAddress, _tokenId);
     }
 
     function calcAuction() external {
@@ -238,7 +301,7 @@ contract NFTEngine is Ownable, INFTEngine {
         delete _nftSells[tokenId];
         removeNftIdFromSells(tokenId);
 
-        IERC721A(_nftContract).safeTransferFrom(seller, msg.sender, tokenId);
+        IERC721(_nftContract).safeTransferFrom(seller, msg.sender, tokenId);
 
         emit NFTTokenSaleClosed(
             _nftContract, 
@@ -247,13 +310,164 @@ contract NFTEngine is Ownable, INFTEngine {
         );    
     }
 
-    function mintNFT(uint256 quantity, uint8 tierIndex) external {        
-        IERC721AMock(_nftContract).safeMint(msg.sender, quantity, tierIndex);
+    function mintNFT(address erc20, uint256 price, uint256 royalty, string memory uri) 
+    external {        
+        IERC721Mock(_nftContract).safeMint(msg.sender, uri);
     }
     
     function nftOwner(uint256 tokenId) 
     external 
     view returns (address) {
-        return IERC721A(_nftContract).ownerOf(tokenId);       
+        return IERC721(_nftContract).ownerOf(tokenId);       
+    }
+
+
+    function _setupAuction(
+        uint256 tokenId,
+        address erc20Token,
+        uint128 minPrice,
+        uint128 buyNowPrice,
+        address[] memory feeRecipients,
+        uint32[] memory feeRates
+    )
+    internal
+    minPriceNotExceedLimit(buyNowPrice, minPrice)
+    checkSizeRecipientsAndRates(
+        feeRecipients.length, feeRates.length
+    )
+    checkFeeRatesLessThanMaximum(feeRates)
+    {
+        if (erc20Token != address(0)) {
+            _nftAuctions[tokenId].erc20Token = erc20Token;
+        }
+        _nftAuctions[tokenId].feeRecipients = feeRecipients;
+        _nftAuctions[tokenId].feeRates = feeRates;
+        _nftAuctions[tokenId].buyNowPrice = buyNowPrice;
+        _nftAuctions[tokenId].minPrice = minPrice;
+        _nftAuctions[tokenId].seller = msg.sender;
+    }
+
+    function _isAuctionOngoing(uint256 tokenId)
+    internal
+    view returns (bool)
+    {
+        // if the Auction's endTime is set to 0, the auction is technically on-going, however
+        // the minimum bid price (minPrice) has not yet been met.
+        return (_nftAuctions[tokenId].endTime == 0 ||
+            block.timestamp < _nftAuctions[tokenId].endTime);
+    }
+
+    function _isAlreadyBidMade(uint256 tokenId)
+    internal
+    view returns (bool)
+    {
+        return (_nftAuctions[tokenId].highestBid > 0);
+    }
+
+    function _isMinimumBidMade(uint256 tokenId)
+    internal
+    view returns (bool)
+    {
+        uint128 minPrice = _nftAuctions[tokenId].minPrice;
+        return ( minPrice > 0 &&
+            (_nftAuctions[tokenId].highestBid >= minPrice));
+    }
+
+    function _isBuyNowPriceMet(uint256 tokenId)
+    internal
+    view returns (bool)
+    {
+        uint128 buyNowPrice = _nftAuctions[tokenId].buyNowPrice;
+        return (buyNowPrice > 0 &&
+            _nftAuctions[tokenId].highestBid >= buyNowPrice);
+    }
+
+    /*
+     * Returns the percentage of the total bid (used to calculate fee payments)
+     */
+    function _getPortionOfBid(uint256 totalBid, uint256 rate)
+    internal
+    pure returns (uint256)
+    {
+        return (totalBid * rate) / 10000;
+    }
+
+    function _getAuctionBidPeriod(uint256 _tokenId)
+    internal
+    view
+    returns (uint32)
+    {
+        uint32 auctionBidPeriod = _nftAuctions[_tokenId].bidPeriod;
+
+        if (auctionBidPeriod == 0) {
+            return defaultAuctionBidPeriod;
+        } else {
+            return auctionBidPeriod;
+        }
+    }
+
+    function _getBidIncreasePercentage(
+        uint256 _tokenId
+    ) 
+    internal 
+    view returns (uint32) {
+        uint32 bidIncreasePercentage = _nftAuctions[_tokenId].bidIncRate;
+
+        if (bidIncreasePercentage == 0) {
+            return defaultBidIncRate;
+        } else {
+            return bidIncreasePercentage;
+        }
+    }
+
+    function _updateOngoingAuction(uint256 tokenId) 
+    internal {
+        if (_isBuyNowPriceMet(tokenId)) {
+            _transferNftToAuctionContract(tokenId);
+            _transferNftAndPaySeller(tokenId);
+            return;
+        }
+        //min price not set, nft not up for auction yet
+        if (_isMinimumBidMade(tokenId)) {
+            _transferNftToAuctionContract(tokenId);
+            _updateAuctionEnd(_nftContractAddress, _tokenId);
+        }
+    }
+
+    function _transferNftToAuctionContract(uint256 tokenId) internal {
+        address _nftSeller = _nftAuctions[tokenId].seller;
+
+        if (IERC721(_nftContract).ownerOf(tokenId) == _nftSeller) {
+            IERC721(_nftContract).transferFrom(
+                _nftSeller,
+                address(this),
+                tokenId
+            );
+            require(
+                IERC721(_nftContract).ownerOf(tokenId) == address(this),
+                "nft transfer failed"
+            );
+        } else {
+            require(
+                IERC721(_nftContract).ownerOf(tokenId) == address(this),
+                "Seller doesn't own NFT"
+            );
+        }
+    }
+
+    function _transferNftAndPaySeller(uint256 tokenId) internal {
+        
+    }
+
+    function _updateAuctionEnd(uint256 tokenId) internal {
+        //the auction end is always set to now + the bid period
+        _nftAuctions[tokenId].endTime =
+            _getAuctionBidPeriod(tokenId) + uint64(block.timestamp);
+
+        emit NFTAuctionUpdated(
+            _nftContract,
+            tokenId,
+            _nftAuctions[tokenId].endTime
+        );
     }
 }
