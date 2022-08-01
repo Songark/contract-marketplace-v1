@@ -24,5 +24,12 @@ The open source smart contract can be easily used in a permissionless and flexib
   - Buy an NFT by calling buyNFT function with token id
     
 ## NFT auction users' features:
+### NFT sellers can perform the following actions to auction their NFTs:
+- Create an auction for their single NFT and customize their auction
+- Create a default auction, which accepts all of the above parameters except for the bid increase percentage and auction bid period. These values are defaulted to the following
+- Create a sale for a single NFT by specifying the following for each sale
+### NFT bidders can perform the following actions using Marketplace contract:
+- Make a bid on an NFT put up for auction by specifying
+- Purchase an NFT put up for sale by specifying
 
 ## Development
