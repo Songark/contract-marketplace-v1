@@ -103,6 +103,23 @@ contract NFTEngine is Ownable, INFTEngine {
         _;
     }
 
+    modifier auctionOngoing(uint256 tokenId) {
+        require(
+            _isAuctionOngoing(tokenId),
+            "Auction has ended"
+        );
+        _;
+    }
+
+    modifier onlyApplicableBuyer(uint256 tokenId) {
+        require(
+            !_isWhitelistedSale(tokenId) ||
+                _nftAuctions[tokenId].whitelistedBuyer == msg.sender,
+            "Only the whitelisted buyer"
+        );
+        _;
+    }
+
     constructor(address creator, address nftContract, address treasury) {
         require(creator != address(0), "Invalid marketplace owner");
         require(nftContract != address(0), "Invalid nft contract");
@@ -182,7 +199,7 @@ contract NFTEngine is Ownable, INFTEngine {
             feeRates
         );
 
-        _updateOngoingAuction(_nftContractAddress, _tokenId);
+        _updateOngoingAuction(tokenId);
     }
 
     function calcAuction() external {
@@ -193,8 +210,16 @@ contract NFTEngine is Ownable, INFTEngine {
 
     }
 
-    function makeBid() external {
-
+    function makeBid(
+        uint256 tokenId,
+        address erc20Token,
+        uint128 amount
+    ) 
+    external 
+    payable 
+    auctionOngoing(tokenId) 
+    onlyApplicableBuyer(tokenId) {
+        
     }
 
     function withdrawBid() external {
@@ -406,6 +431,20 @@ contract NFTEngine is Ownable, INFTEngine {
         }
     }
 
+    function _getNftRecipient(uint256 tokenId)
+    internal
+    view
+    returns (address)
+    {
+        address nftRecipient = _nftAuctions[tokenId].recipient;
+
+        if (nftRecipient == address(0)) {
+            return _nftAuctions[tokenId].highestBidder;
+        } else {
+            return nftRecipient;
+        }
+    }
+
     function _getBidIncreasePercentage(
         uint256 _tokenId
     ) 
@@ -430,7 +469,7 @@ contract NFTEngine is Ownable, INFTEngine {
         //min price not set, nft not up for auction yet
         if (_isMinimumBidMade(tokenId)) {
             _transferNftToAuctionContract(tokenId);
-            _updateAuctionEnd(_nftContractAddress, _tokenId);
+            _updateAuctionEnd(tokenId);
         }
     }
 
@@ -456,7 +495,85 @@ contract NFTEngine is Ownable, INFTEngine {
     }
 
     function _transferNftAndPaySeller(uint256 tokenId) internal {
-        
+        address nftSeller = _nftAuctions[tokenId].seller;
+        address nftHighestBidder = _nftAuctions[tokenId].highestBidder;
+        address nftRecipient = _getNftRecipient(tokenId);
+        uint128 nftHighestBid = _nftAuctions[tokenId].highestBid;
+        _resetBids(tokenId);
+
+        _payFeesAndSeller(
+            tokenId,
+            nftSeller,
+            nftHighestBid
+        );
+        IERC721(_nftContract).transferFrom(
+            address(this),
+            nftRecipient,
+            tokenId
+        );
+
+        _resetAuction(tokenId);
+        emit NFTAuctionPaid(
+            _nftContract,
+            tokenId,
+            nftSeller,
+            nftHighestBid,
+            nftHighestBidder,
+            nftRecipient
+        );
+    }
+
+    function _payFeesAndSeller(
+        uint256 tokenId,
+        address nftSeller,
+        uint256 highestBid
+    ) internal {
+        uint256 feesPaid;
+        for (uint256 i = 0; i < _nftAuctions[tokenId] .feeRecipients.length; i++) {
+            uint256 fee = _getPortionOfBid(
+                highestBid,
+                _nftAuctions[tokenId].feeRates[i]
+            );
+            feesPaid = feesPaid + fee;
+            _payout(
+                tokenId,
+                _nftAuctions[tokenId].feeRecipients[i],
+                fee
+            );
+        }
+        _payout(
+            tokenId,
+            nftSeller,
+            (highestBid - feesPaid)
+        );
+    }
+
+    function _payout(
+        uint256 tokenId,
+        address recipient,
+        uint256 amount
+    ) internal {
+        address auctionERC20Token = _nftAuctions[tokenId].erc20Token;
+        if (_isERC20Auction(auctionERC20Token)) {
+            IERC20(auctionERC20Token).transfer(recipient, amount);
+        } else {
+            // attempt to send the funds to the recipient
+            (bool success, ) = payable(recipient).call{
+                value: amount,
+                gas: 20000
+            }("");
+            // if it failed, update their credit balance so they can pull it later
+            if (!success) {
+            }
+        }
+    }
+
+    function _isERC20Auction(address _auctionERC20Token)
+    internal
+    pure
+    returns (bool)
+    {
+        return _auctionERC20Token != address(0);
     }
 
     function _updateAuctionEnd(uint256 tokenId) internal {
@@ -469,5 +586,33 @@ contract NFTEngine is Ownable, INFTEngine {
             tokenId,
             _nftAuctions[tokenId].endTime
         );
+    }
+
+    function _resetAuction(uint256 tokenId)
+    internal
+    {
+        _nftAuctions[tokenId].minPrice = 0;
+        _nftAuctions[tokenId].buyNowPrice = 0;
+        _nftAuctions[tokenId].endTime = 0;
+        _nftAuctions[tokenId].bidPeriod = 0;
+        _nftAuctions[tokenId].bidIncRate = 0;
+        _nftAuctions[tokenId].seller = address(0);
+        _nftAuctions[tokenId].whitelistedBuyer = address(0);
+        _nftAuctions[tokenId].erc20Token = address(0);
+    }
+
+    function _resetBids(uint256 tokenId)
+    internal
+    {
+        _nftAuctions[tokenId].highestBidder = address(0);
+        _nftAuctions[tokenId].highestBid = 0;
+        _nftAuctions[tokenId].recipient = address(0);
+    }
+
+    function _isWhitelistedSale(uint256 tokenId)
+    internal
+    view returns (bool)
+    {
+        return (_nftAuctions[tokenId].whitelistedBuyer != address(0));
     }
 }

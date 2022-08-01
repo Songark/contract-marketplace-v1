@@ -70,6 +70,15 @@ interface INFTEngine {
         uint64 auctionEndPeriod
     );
 
+    event NFTAuctionPaid(
+        address nftContractAddress,
+        uint256 tokenId,
+        address seller,
+        uint128 highestBid,
+        address highestBidder,
+        address buyer
+    );
+
     event NFTAuctionSettled(
         address nftContract,
         uint256 tokenId,
