@@ -9,8 +9,6 @@ contract NFTEngineFactory {
     
     mapping(address => address) nftEngines;
 
-    mapping(address => address[]) ownEngines;
-
     constructor() {
 
     }
@@ -18,11 +16,17 @@ contract NFTEngineFactory {
     function createNFTEngine(address nftContract, address treasury) external {
         require(nftEngines[nftContract] == address(0), "Already engine created");
 
-        address newEngine = address(new NFTEngine(msg.sender, nftContract, treasury));
+        NFTEngine _engine = new NFTEngine();
+        _engine.initialize(msg.sender, nftContract, treasury);
+        address newEngine = address(_engine);
+
         nftEngines[nftContract] = newEngine;
-        ownEngines[msg.sender].push(newEngine);
 
         emit NFTEngineCreated(newEngine);
+    }
+
+    function upgradeNFTEngine(address nftContract, address treasury) external {
+
     }
 
     function getNftEngineByContract(address nftContract) 

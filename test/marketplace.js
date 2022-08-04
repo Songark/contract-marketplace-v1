@@ -5,8 +5,7 @@ const {
 const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
 const { expect } = require("chai");
 const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
-const { ethers } = require("hardhat");
-
+const { ethers, upgrades } = require("hardhat");
 
 describe("NFTEngine", function () {
   let engineInfo;
@@ -23,6 +22,7 @@ describe("NFTEngine", function () {
 
     const NFTEngineFactory = await ethers.getContractFactory("NFTEngineFactory");
     const nftEngineFactory = await NFTEngineFactory.deploy();
+    await nftEngineFactory.deployed();
 
     return { nftEngineFactory, erc721Mock, erc20Mock, owner, seller, buyer, treasury };
   }

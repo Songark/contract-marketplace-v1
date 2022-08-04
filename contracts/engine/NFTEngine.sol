@@ -4,14 +4,15 @@ pragma solidity ^0.8.4;
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "../library/LTypes.sol";
 import "../interface/INFTEngine.sol";
 import "../interface/IERC721Mock.sol";
 
-contract NFTEngine is Ownable, INFTEngine {
+contract NFTEngine is Initializable, OwnableUpgradeable, INFTEngine {
 
-    address private immutable _nftContract;
+    address private _nftContract;
 
     address private _treasury;
 
@@ -27,13 +28,13 @@ contract NFTEngine is Ownable, INFTEngine {
 
     mapping(uint256 => LTypes.MintNFT) private _nftMints;
 
-    uint32 public immutable defaultBidIncRate;
+    uint32 public constant defaultBidIncRate = 100;
 
-    uint32 public immutable minSettableIncRate;
+    uint32 public constant minSettableIncRate = 86400;
 
-    uint32 public immutable maxMinPriceRate;
+    uint32 public constant maxMinPriceRate = 100;
 
-    uint32 public immutable defaultAuctionBidPeriod;
+    uint32 public constant defaultAuctionBidPeriod = 8000;
 
     modifier onlyValidPrice(uint256 price) {
         require(price > 0, "Price cannot be 0");
@@ -120,19 +121,16 @@ contract NFTEngine is Ownable, INFTEngine {
         _;
     }
 
-    constructor(address creator, address nftContract, address treasury) {
+    function initialize(address creator, address nftContract, address treasury) 
+    initializer public {
         require(creator != address(0), "Invalid marketplace owner");
         require(nftContract != address(0), "Invalid nft contract");
         require(treasury != address(0), "Invalid treasury address");
         
+        __Ownable_init();
+
         _nftContract = nftContract;
         _treasury = treasury;
-
-        defaultBidIncRate = 100;
-        minSettableIncRate = 86400;
-        maxMinPriceRate = 100;
-        defaultAuctionBidPeriod = 8000;
-
         transferOwnership(creator);
     }
 
