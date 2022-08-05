@@ -13,26 +13,27 @@ contract NFTEngineFactory {
 
     }
 
-    function createNFTEngine(address nftContract, address treasury) external {
-        require(nftEngines[nftContract] == address(0), "Already engine created");
+    function createNFTEngine(address admin, address treasury) external {
+        require(admin != address(0), "Invalid admin address");
+        require(nftEngines[admin] == address(0), "Already marketplace was created");
 
-        NFTEngine _engine = new NFTEngine();
-        _engine.initialize(msg.sender, nftContract, treasury);
-        address newEngine = address(_engine);
+        NFTEngine _marketplace = new NFTEngine();
+        _marketplace.initialize(admin, treasury);
+        address newMarketplace = address(_marketplace);
 
-        nftEngines[nftContract] = newEngine;
+        nftEngines[admin] = newMarketplace;
 
-        emit NFTEngineCreated(newEngine);
+        emit NFTEngineCreated(newMarketplace);
     }
 
-    function upgradeNFTEngine(address nftContract, address treasury) external {
+    function upgradeNFTEngine(address admin, address treasury) external {
 
     }
 
-    function getNftEngineByContract(address nftContract) 
+    function getNftEngineByAdmin(address admin) 
     external 
     view returns (address) {
-        return nftEngines[nftContract];
+        return nftEngines[admin];
     }
 
 }

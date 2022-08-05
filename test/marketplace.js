@@ -14,23 +14,27 @@ describe("NFTEngine", function () {
   async function deployBaseContracts() {
     const [owner, seller, buyer, treasury] = await ethers.getSigners();
 
-    const ERC721Mock = await ethers.getContractFactory("ERC721Mock");
-    const erc721Mock = await ERC721Mock.deploy("Test NFT Token", "TNT");
+    const CustomNFTMock = await ethers.getContractFactory("CustomNFTMock");
+    const customNFTMock = await CustomNFTMock.deploy("Custom NFT Token", "CNT");
 
-    const ERC20Mock = await ethers.getContractFactory("ERC20Mock");
-    const erc20Mock = await ERC20Mock.deploy("Test ERC20 Token", "TET");
+    const OwndTokenMock = await ethers.getContractFactory("OwndTokenMock");
+    const erc20Mock = await OwndTokenMock.deploy();
+
+    const MembershipNFTMock = await ethers.getContractFactory("MembershipNFTMock");
+    const erc721Mock = await MembershipNFTMock.deploy();
 
     const NFTEngineFactory = await ethers.getContractFactory("NFTEngineFactory");
     const nftEngineFactory = await NFTEngineFactory.deploy();
     await nftEngineFactory.deployed();
 
-    return { nftEngineFactory, erc721Mock, erc20Mock, owner, seller, buyer, treasury };
+    return { nftEngineFactory, customNFTMock, erc721Mock, erc20Mock, owner, seller, buyer, treasury };
   }
 
   before('Create Marketplaces', async () => {
     engineInfo = await loadFixture(deployBaseContracts);
 
     console.log("factory:", engineInfo.nftEngineFactory.address);
+    console.log("customNFTMock:", engineInfo.customNFTMock.address);
     console.log("erc721Mock:", engineInfo.erc721Mock.address);
     console.log("erc20Mock:", engineInfo.erc20Mock.address);
     console.log("seller:", engineInfo.seller.address);
@@ -38,17 +42,17 @@ describe("NFTEngine", function () {
     console.log("treasury:", engineInfo.treasury.address);
 
     await engineInfo.nftEngineFactory.createNFTEngine(
-      engineInfo.erc721Mock.address, 
+      engineInfo.owner.address, 
       engineInfo.treasury.address
     );
-    const engine = await engineInfo.nftEngineFactory.getNftEngineByContract(
-      engineInfo.erc721Mock.address
+    const engine = await engineInfo.nftEngineFactory.getNftEngineByAdmin(
+      engineInfo.owner.address
     );
 
     const NFTEngine = await ethers.getContractFactory("NFTEngine");
     nftEngine = await NFTEngine.attach(engine);
 
-    await engineInfo.erc721Mock.setMarketplace(engine);
+    await engineInfo.customNFTMock.setMarketplace(engine);
 
     console.log("marketplace:", nftEngine.address);    
   });

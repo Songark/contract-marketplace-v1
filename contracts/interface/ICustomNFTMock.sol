@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.4;
 
-interface IERC721Mock {
+interface ICustomNFTMock {
     
     function safeMint(address to, string memory uri) external;
     

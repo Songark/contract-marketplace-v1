@@ -5,9 +5,9 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "../interface/IERC721Mock.sol";
+import "../interface/ICustomNFTMock.sol";
 
-contract ERC721Mock is ERC721, ERC721URIStorage, Ownable, IERC721Mock {
+contract CustomNFTMock is ERC721, ERC721URIStorage, Ownable, ICustomNFTMock {
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;
