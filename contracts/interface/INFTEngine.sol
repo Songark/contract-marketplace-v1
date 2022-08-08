@@ -21,7 +21,7 @@ interface INFTEngine {
     /// @notice when user canceled an NFT token sale from marketplace, this event would be emit.
     /// @param nftContract nft contract address
     /// @param tokenId nft token id
-    event NFTTokenSaleCanceled(
+    event NFTTokenSaleWithdrawn(
         address nftContract, 
         uint256 tokenId
     );
