@@ -4,21 +4,56 @@
 // You can also run a script with `npx hardhat run <script>`. If you do that, Hardhat
 // will compile your contracts, add the Hardhat Runtime Environment's members to the
 // global scope, and execute the script.
+const { ethers, network } = require("hardhat");
 const hre = require("hardhat");
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
-  const unlockTime = currentTimestampInSeconds + ONE_YEAR_IN_SECS;
+  const [deployer, admin, treasury] = await ethers.getSigners();
 
-  const lockedAmount = hre.ethers.utils.parseEther("1");
+  console.log("Deploying contracts with this \nAccount address:", deployer.address,
+    "\nAccount balance:", (await deployer.getBalance()).toString());
 
-  const Lock = await hre.ethers.getContractFactory("Lock");
-  const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
+  console.log("Network:", network.name, network.config.chainId);
+  let membershipNFTMock = 0x0;
+  let owndTokenMock = 0x0;
+  let fractionalizedNFTMock = 0x0;
+  let customNFTMock = 0x0;
 
-  await lock.deployed();
+  if (network.config.chainId == 31337) {
+    // hardhat test chain
+    const MembershipNFTMock = await ethers.getContractFactory("MembershipNFTMock");
+    const OwndTokenMock = await ethers.getContractFactory("OwndTokenMock");
+    const FractionalizedNFTMock = await ethers.getContractFactory("FractionalizedNFTMock");
+    const CustomNFTMock = await ethers.getContractFactory("CustomNFTMock");
+  
+    membershipNFTMock = (await MembershipNFTMock.deploy()).address;
+    owndTokenMock = (await OwndTokenMock.deploy()).address;
+    fractionalizedNFTMock = (await FractionalizedNFTMock.deploy()).address;
+    customNFTMock = (await CustomNFTMock.deploy("Custom NFT", "CNFT")).address;  
+  }
+  else if (network.config.chainId == 4) {
+    // rinkeby test chain
 
-  console.log("Lock with 1 ETH deployed to:", lock.address);
+  }
+
+  if (membershipNFTMock != 0) {
+    const NFTEngineFactory = await ethers.getContractFactory("NFTEngineFactory");
+    const nftEngineFactory = await NFTEngineFactory.deploy();
+    await nftEngineFactory.deployed();
+
+    const _tx = await nftEngineFactory.createNFTEngine(admin.address, treasury.address);
+    const _receipt = await _tx.wait();
+    let _events = _receipt.events.filter((x) => {return x.event == "NFTEngineCreated"});   
+    for (let i = 0; i < _events.length; i++){
+      console.log("Emitted NFTEngineCreated:", _events[i].args[0]);
+
+      const NFTEngine = await ethers.getContractFactory("NFTEngine");
+      let nftEngine = await NFTEngine.attach(_events[i].args[0]);
+      await nftEngine.setNFTContracts(
+        customNFTMock, fractionalizedNFTMock, membershipNFTMock, owndTokenMock
+      );
+    }
+  }
 }
 
 // We recommend this pattern to be able to use async/await everywhere

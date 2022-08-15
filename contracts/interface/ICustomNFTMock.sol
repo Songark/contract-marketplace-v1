@@ -4,6 +4,6 @@ pragma solidity ^0.8.4;
 
 interface ICustomNFTMock {
     
-    function safeMint(address to, string memory uri) external;
+    function safeMint(address to, uint256 count) external;
     
 }

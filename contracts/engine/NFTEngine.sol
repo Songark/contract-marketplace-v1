@@ -12,7 +12,7 @@ import "../interface/ICustomNFTMock.sol";
 
 contract NFTEngine is Initializable, OwnableUpgradeable, INFTEngine {
 
-    address[] private _nftContracts;
+    mapping(LTypes.NFTTypes => address) private _nftContracts;
 
     mapping(address => mapping(uint256 => LTypes.AuctionNFT)) private _nftAuctions;
 
@@ -30,11 +30,11 @@ contract NFTEngine is Initializable, OwnableUpgradeable, INFTEngine {
 
     uint32 public constant defaultBidIncRate = 100;
 
-    uint32 public constant minSettableIncRate = 86400;
+    uint32 public constant minSettableIncRate = 100;
 
-    uint32 public constant maxMinPriceRate = 100;
+    uint32 public constant maxMinPriceRate = 8000;
 
-    uint32 public constant defaultAuctionBidPeriod = 8000;
+    uint32 public constant defaultAuctionBidPeriod = 86400;    // 1 day
 
     modifier onlyValidPrice(uint256 price) {
         require(price > 0, "Price cannot be 0");
@@ -155,6 +155,25 @@ contract NFTEngine is Initializable, OwnableUpgradeable, INFTEngine {
         transferOwnership(admin);
     }
 
+    function setNFTContracts(
+        address customNFT, 
+        address fractionalNFT,
+        address membershipNFT,
+        address owndNFT)
+    external {
+        require(
+            customNFT != address(0) && 
+            fractionalNFT != address(0) && 
+            membershipNFT != address(0) && 
+            owndNFT != address(0), "Invalid nft contracts' address" 
+        );
+
+        _nftContracts[LTypes.NFTTypes.customNFT] = customNFT;
+        _nftContracts[LTypes.NFTTypes.fractionalNFT] = fractionalNFT;
+        _nftContracts[LTypes.NFTTypes.membershipNFT] = membershipNFT;
+        _nftContracts[LTypes.NFTTypes.owndNFT] = owndNFT;
+    }
+
     function removeNftIdFromSells(address nftContract, uint256 nftId) 
     internal {
         for (uint256 i = 0; i < _nftIdsForSale[nftContract].length; i++) {
@@ -178,7 +197,6 @@ contract NFTEngine is Initializable, OwnableUpgradeable, INFTEngine {
                 _nftIdsForAction[nftContract].pop();
             }
         }
-        delete _nftAuctions[nftContract][nftId];
     }
 
     function changeTreasury(address newTreasury)
@@ -206,7 +224,9 @@ contract NFTEngine is Initializable, OwnableUpgradeable, INFTEngine {
         address[] memory feeRecipients,
         uint32[] memory feeRates
     ) external {
-        
+        require(_nftAuctions[nftContract][tokenId].seller == address(0),
+            "The token's auction has started");
+
         _setupAuction(
             nftContract,
             tokenId,
@@ -236,8 +256,12 @@ contract NFTEngine is Initializable, OwnableUpgradeable, INFTEngine {
     function settleAuction(address nftContract, uint256 tokenId) 
     external {
         require(
+            IERC721(nftContract).ownerOf(tokenId) == msg.sender,
+            "Not NFT owner"
+        );
+        require(
             !_isAuctionOngoing(nftContract, tokenId),
-            "Auction is not over yet"
+            "Auction is finished or not created yet"
         );
 
         _transferNftAndPaySeller(nftContract, tokenId);
@@ -318,8 +342,7 @@ contract NFTEngine is Initializable, OwnableUpgradeable, INFTEngine {
     external
     onlyTokenOwner(nftContract, tokenId)
     onlySale(nftContract, tokenId) {
-        delete _nftSales[nftContract][tokenId];
-        removeNftIdFromSells(nftContract, tokenId);
+        _resetSale(nftContract, tokenId);
 
         emit NFTTokenSaleWithdrawn(
             nftContract, 
@@ -327,10 +350,10 @@ contract NFTEngine is Initializable, OwnableUpgradeable, INFTEngine {
         );    
     }
 
-    function getNFTContracts()
+    function getNFTContract(uint256 nftType)
     external
-    view returns (address[] memory) {
-        return _nftContracts;
+    view returns (address) {
+        return _nftContracts[LTypes.NFTTypes(nftType)];
     }
 
     function getTokensOnSale(address nftContract) 
@@ -343,6 +366,18 @@ contract NFTEngine is Initializable, OwnableUpgradeable, INFTEngine {
     external 
     view returns (LTypes.SellNFT memory) {
         return _nftSales[nftContract][tokenId];
+    }
+
+    function getTokensOnAuction(address nftContract) 
+    external 
+    view returns (uint256[] memory) {
+        return _nftIdsForAction[nftContract];
+    }
+
+    function getTokenAuctionInfo(address nftContract, uint256 tokenId) 
+    external 
+    view returns (LTypes.AuctionNFT memory) {
+        return _nftAuctions[nftContract][tokenId];
     }
 
     function buyNFT(address nftContract, uint256 tokenId) 
@@ -419,21 +454,21 @@ contract NFTEngine is Initializable, OwnableUpgradeable, INFTEngine {
         address[] memory feeRecipients,
         uint32[] memory feeRates
     )
-    internal
+    internal    
     minPriceNotExceedLimit(buyNowPrice, minPrice)
     checkSizeRecipientsAndRates(
         feeRecipients.length, feeRates.length
     )
     checkFeeRatesLessThanMaximum(feeRates)
-    {
-        if (erc20Token != address(0)) {
-            _nftAuctions[nftContract][tokenId].erc20Token = erc20Token;
-        }
+    {        
+        _nftAuctions[nftContract][tokenId].erc20Token = erc20Token;            
         _nftAuctions[nftContract][tokenId].feeRecipients = feeRecipients;
         _nftAuctions[nftContract][tokenId].feeRates = feeRates;
         _nftAuctions[nftContract][tokenId].buyNowPrice = buyNowPrice;
         _nftAuctions[nftContract][tokenId].minPrice = minPrice;
         _nftAuctions[nftContract][tokenId].seller = msg.sender;
+
+        _nftIdsForAction[nftContract].push(tokenId);
     }
 
     function _isAuctionOngoing(address nftContract, uint256 tokenId)
@@ -441,7 +476,7 @@ contract NFTEngine is Initializable, OwnableUpgradeable, INFTEngine {
     view returns (bool)
     {
         // if the Auction's endTime is set to 0, the auction is technically on-going, however
-        // the minimum bid price (minPrice) has not yet been met.
+        // the minimum bid price (minPrice) has not yet been met.        
         return (_nftAuctions[nftContract][tokenId].endTime == 0 ||
             block.timestamp < _nftAuctions[nftContract][tokenId].endTime);
     }
@@ -748,7 +783,6 @@ contract NFTEngine is Initializable, OwnableUpgradeable, INFTEngine {
 
     function _resetSale(address nftContract, uint256 tokenId) 
     internal {
-        delete _nftSales[nftContract][tokenId];
         removeNftIdFromSells(nftContract, tokenId);
     }
 
@@ -763,6 +797,8 @@ contract NFTEngine is Initializable, OwnableUpgradeable, INFTEngine {
         _nftAuctions[nftContract][tokenId].seller = address(0);
         _nftAuctions[nftContract][tokenId].whitelistedBuyer = address(0);
         _nftAuctions[nftContract][tokenId].erc20Token = address(0);
+
+        removeNftIdFromAuctions(nftContract, tokenId);
     }
 
     function _resetBids(address nftContract, uint256 tokenId)

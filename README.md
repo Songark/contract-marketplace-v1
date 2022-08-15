@@ -33,3 +33,9 @@ The open source smart contract can be easily used in a permissionless and flexib
 - Purchase an NFT put up for sale by specifying
 
 ## Development
+### Build, deploy and test
+```shell
+npx hardhat clean
+npx hardhat compile
+npx hardhat test
+```

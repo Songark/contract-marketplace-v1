@@ -4,6 +4,13 @@ pragma solidity ^0.8.4;
 
 library LTypes {
 
+    enum NFTTypes {
+        customNFT, 
+        fractionalNFT,
+        membershipNFT,
+        owndNFT
+    } 
+
     enum Action {
         MINT,
         BUY,

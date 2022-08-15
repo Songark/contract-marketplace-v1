@@ -24,13 +24,16 @@ contract CustomNFTMock is ERC721, ERC721URIStorage, Ownable, ICustomNFTMock {
         ERC721(name_, symbol_)
     {}
 
-    function safeMint(address to, string memory uri) 
+    function safeMint(address to, uint256 count) 
     external 
-    override onlyMarketplace {
-        uint256 tokenId = _tokenIdCounter.current();
-        _tokenIdCounter.increment();
-        _safeMint(to, tokenId);
-        _setTokenURI(tokenId, uri);
+    override onlyOwner {
+        require(count > 0, "Invalid count for mint");
+        require(to != address(0), "Invalid address for minter");
+        for (uint256 i = 0; i < count; i++) {
+            uint256 tokenId = _tokenIdCounter.current();
+            _tokenIdCounter.increment();
+            _safeMint(to, tokenId);
+        }
     }
 
     function setTokenURI(uint256 tokenId, string memory uri)
