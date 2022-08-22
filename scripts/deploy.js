@@ -7,6 +7,13 @@
 const { ethers, network } = require("hardhat");
 const hre = require("hardhat");
 
+const {
+  nftMints, 
+  ownedMints,
+  chainHardhat,
+  chainRinkeby
+} = require("./constants");
+
 async function main() {
   const [deployer, admin, treasury] = await ethers.getSigners();
 
@@ -14,26 +21,39 @@ async function main() {
     "\nAccount balance:", (await deployer.getBalance()).toString());
 
   console.log("Network:", network.name, network.config.chainId);
-  let membershipNFTMock = 0x0;
-  let owndTokenMock = 0x0;
-  let fractionalizedNFTMock = 0x0;
-  let customNFTMock = 0x0;
+  let membershipNFTMock;
+  let owndTokenMock;
+  let fractionalizedNFTMock;
+  let customNFTMock;
 
-  if (network.config.chainId == 31337) {
+  if (network.config.chainId == chainHardhat) {
     // hardhat test chain
     const MembershipNFTMock = await ethers.getContractFactory("MembershipNFTMock");
     const OwndTokenMock = await ethers.getContractFactory("OwndTokenMock");
     const FractionalizedNFTMock = await ethers.getContractFactory("FractionalizedNFTMock");
     const CustomNFTMock = await ethers.getContractFactory("CustomNFTMock");
   
-    membershipNFTMock = (await MembershipNFTMock.deploy()).address;
-    owndTokenMock = (await OwndTokenMock.deploy()).address;
-    fractionalizedNFTMock = (await FractionalizedNFTMock.deploy()).address;
-    customNFTMock = (await CustomNFTMock.deploy("Custom NFT", "CNFT")).address;  
+    membershipNFTMock = (await MembershipNFTMock.deploy());
+    owndTokenMock = (await OwndTokenMock.deploy());
+    fractionalizedNFTMock = (await FractionalizedNFTMock.deploy());
+    customNFTMock = (await CustomNFTMock.deploy("Custom NFT", "CNFT"));
   }
-  else if (network.config.chainId == 4) {
+  else if (network.config.chainId == chainRinkeby) {
     // rinkeby test chain
+    const MembershipNFTMock = await ethers.getContractFactory("MembershipNFTMock");
+    const OwndTokenMock = await ethers.getContractFactory("OwndTokenMock");
+    const FractionalizedNFTMock = await ethers.getContractFactory("FractionalizedNFTMock");
+    const CustomNFTMock = await ethers.getContractFactory("CustomNFTMock");
+  
+    membershipNFTMock = (await MembershipNFTMock.deploy());
+    owndTokenMock = (await OwndTokenMock.deploy());
+    fractionalizedNFTMock = (await FractionalizedNFTMock.deploy());
+    customNFTMock = (await CustomNFTMock.deploy("Custom NFT", "CNFT"));
 
+    console.log("membershipNFTMock:", membershipNFTMock.address);
+    console.log("fractionalizedNFTMock:", fractionalizedNFTMock.address);
+    console.log("customNFTMock:", customNFTMock.address);
+    console.log("owndTokenMock:", owndTokenMock.address);
   }
 
   if (membershipNFTMock != 0) {
@@ -50,8 +70,16 @@ async function main() {
       const NFTEngine = await ethers.getContractFactory("NFTEngine");
       let nftEngine = await NFTEngine.attach(_events[i].args[0]);
       await nftEngine.setNFTContracts(
-        customNFTMock, fractionalizedNFTMock, membershipNFTMock, owndTokenMock
+        customNFTMock.address, 
+        fractionalizedNFTMock.address, 
+        membershipNFTMock.address, 
+        owndTokenMock.address
       );
+
+      await customNFTMock.setMarketplace(nftEngine.address);
+      await customNFTMock.safeMint(admin.address, nftMints);
+      await membershipNFTMock.mint(admin.address, nftMints);      
+      await owndTokenMock.mint(admin.address, ethers.utils.parseEther(ownedMints.toString()));
     }
   }
 }

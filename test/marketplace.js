@@ -101,12 +101,13 @@ describe("NFT Marketplace", function () {
     // mint custom nft tokens
     let tokenOwner = engineInfo.seller.address;
     let tokenCount = 10;
-    await engineInfo.customNFTMock.safeMint(
+    let tx = await engineInfo.customNFTMock.safeMint(
       tokenOwner, tokenCount
     );
+    console.log("gas used (customNFTMock.safeMint):", (await tx.wait()).gasUsed.toString());
     await expect(await engineInfo.customNFTMock.balanceOf(tokenOwner)).to.be.equal(
       tokenCount,  "Failed to mint customNFT Token"
-    );
+    );    
   });
 
   it ("Should mint fractionalizedNFT tokens", async () => {
@@ -118,9 +119,10 @@ describe("NFT Marketplace", function () {
     // mint membership nft tokens
     let tokenOwner = engineInfo.seller.address;
     let tokenCount = 10;
-    await engineInfo.membershipNFTMock.mint(
+    let tx = await engineInfo.membershipNFTMock.mint(
       tokenOwner, tokenCount
     );
+    console.log("gas used (membershipNFTMock.mint):", (await tx.wait()).gasUsed.toString());
     await expect(await engineInfo.membershipNFTMock.balanceOf(tokenOwner)).to.be.equal(
       tokenCount,  "Failed to mint membershipNFTMock Token"
     );
@@ -157,7 +159,7 @@ describe("NFT Marketplace", function () {
       tokenId
     );
 
-    await nftEngine.connect(seller).createSale(
+    let tx = await nftEngine.connect(seller).createSale(
       nftContract.address,
       tokenId,
       getZeroAddress(),
@@ -165,6 +167,7 @@ describe("NFT Marketplace", function () {
       [],
       []
     );
+    console.log("gas used (nftEngine.createSale):", (await tx.wait()).gasUsed.toString());
 
     let tokenSales = await nftEngine.getTokensOnSale(nftContract.address);
     await expect(tokenSales.length).to.be.equal(1, "Failed to create sales, invalid sales count");
@@ -184,7 +187,7 @@ describe("NFT Marketplace", function () {
       tokenId
     );
 
-    await nftEngine.connect(seller).createSale(
+    let tx = await nftEngine.connect(seller).createSale(
       nftContract.address,
       tokenId,
       engineInfo.owndTokenMock.address,
@@ -192,6 +195,7 @@ describe("NFT Marketplace", function () {
       [],
       []
     );
+    console.log("gas used (nftEngine.createSale):", (await tx.wait()).gasUsed.toString());
 
     let tokenSales = await nftEngine.getTokensOnSale(nftContract.address);
     await expect(tokenSales.length).to.be.equal(2, "Failed to create sales, invalid sales count");
@@ -207,10 +211,12 @@ describe("NFT Marketplace", function () {
       const saleInfo = await nftEngine.getTokenSaleInfo(nftContract.address, tokenSales[i]);
       if (saleInfo.erc20Token == 0) 
       {
-        await nftEngine.connect(engineInfo.buyer1).buyNFT(
+        let tx = await nftEngine.connect(engineInfo.buyer1).buyNFT(
           nftContract.address, 
           tokenSales[i], 
-          {value: saleInfo.price});        
+          {value: saleInfo.price});     
+        console.log("gas used (nftEngine.buyNFT):", (await tx.wait()).gasUsed.toString());
+
         await expect(await nftContract.ownerOf(tokenSales[i])).to.be.equal(
           engineInfo.buyer1.address, "Failed to buy NFT using 1 eth"
         );
@@ -220,10 +226,12 @@ describe("NFT Marketplace", function () {
           nftEngine.address,
           saleInfo.price
         );
-        await nftEngine.connect(engineInfo.buyer2).buyNFT(
+        let tx = await nftEngine.connect(engineInfo.buyer2).buyNFT(
           nftContract.address, 
           tokenSales[i]
         );
+        console.log("gas used (nftEngine.buyNFT):", (await tx.wait()).gasUsed.toString());
+
         await expect(await nftContract.ownerOf(tokenSales[i])).to.be.equal(
           engineInfo.buyer2.address, "Failed to buy NFT using 10 ownedTokens"
         );
@@ -245,7 +253,7 @@ describe("NFT Marketplace", function () {
       tokenId
     );
 
-    await nftEngine.connect(seller).createAuction(
+    let tx = await nftEngine.connect(seller).createAuction(
       nftContract.address,
       tokenId,
       engineInfo.owndTokenMock.address,
@@ -254,7 +262,8 @@ describe("NFT Marketplace", function () {
       [],
       []
     );      
-    
+    console.log("gas used (nftEngine.createAuction):", (await tx.wait()).gasUsed.toString());
+
     /// creating an auction with 0.1 ~ 1 eth pricing
     tokenId = 4;
     minPrice = ethers.utils.parseEther("0.1");
@@ -265,7 +274,7 @@ describe("NFT Marketplace", function () {
       tokenId
     );
 
-    await nftEngine.connect(seller).createAuction(
+    tx = await nftEngine.connect(seller).createAuction(
       nftContract.address,
       tokenId,
       getZeroAddress(),
@@ -274,6 +283,7 @@ describe("NFT Marketplace", function () {
       [],
       []
     );  
+    console.log("gas used (nftEngine.createAuction):", (await tx.wait()).gasUsed.toString());
 
     let tokenAuctions = await nftEngine.getTokensOnAuction(nftContract.address);
     await expect(tokenAuctions.length).to.be.equal(2, "Failed to create auctions, invalid auctions count");
@@ -294,12 +304,15 @@ describe("NFT Marketplace", function () {
       tokenAmount
     );
 
-    await expect(nftEngine.connect(engineInfo.buyer1).makeBid(
+    let tx = await nftEngine.connect(engineInfo.buyer1).makeBid(
       nftContract.address,
       tokenId,
       erc20Contract.address,
       tokenAmount
-    ))
+    );
+    console.log("gas used (nftEngine.makeBid):", (await tx.wait()).gasUsed.toString());
+
+    expect(tx)
     .to.emit(nftEngine, 'NFTAuctionBidMade')
     .withArgs(
       nftContract.address, 
@@ -309,6 +322,7 @@ describe("NFT Marketplace", function () {
       erc20Contract.address,
       tokenAmount
     ); 
+   
 
     // make bid with 90 owned token with buyer 2
     tokenAmount = ethers.utils.parseEther("90");
@@ -317,12 +331,15 @@ describe("NFT Marketplace", function () {
       tokenAmount
     );
 
-    await expect(nftEngine.connect(engineInfo.buyer2).makeBid(
+    tx = await nftEngine.connect(engineInfo.buyer2).makeBid(
       nftContract.address,
       tokenId,
       erc20Contract.address,
       tokenAmount
-    ))
+    );
+    console.log("gas used (nftEngine.makeBid):", (await tx.wait()).gasUsed.toString());
+
+    expect(tx)
     .to.emit(nftEngine, 'NFTAuctionBidMade')
     .withArgs(
       nftContract.address, 
@@ -346,12 +363,15 @@ describe("NFT Marketplace", function () {
       tokenAmount
     );
 
-    await expect(nftEngine.connect(engineInfo.buyer1).makeBid(
+    let tx = await nftEngine.connect(engineInfo.buyer1).makeBid(
       nftContract.address,
       tokenId,
       erc20Contract.address,
       tokenAmount
-    ))
+    );
+    console.log("gas used (nftEngine.makeBid):", (await tx.wait()).gasUsed.toString());
+
+    expect(tx)
     .to.emit(nftEngine, 'NFTAuctionPaid')
     .withArgs(
       nftContract.address, 
@@ -374,13 +394,16 @@ describe("NFT Marketplace", function () {
     let ethAmount = ethers.utils.parseEther("0.5");
     
     // make bid with 0.5 eth with buyer 1
-    await expect(nftEngine.connect(engineInfo.buyer1).makeBid(
+    let tx = await nftEngine.connect(engineInfo.buyer1).makeBid(
       nftContract.address,
       tokenId,
       getZeroAddress(),
       0,
       {value: ethAmount}
-    ))
+    );
+    console.log("gas used (nftEngine.makeBid):", (await tx.wait()).gasUsed.toString());
+
+    expect(tx)
     .to.emit(nftEngine, 'NFTAuctionBidMade')
     .withArgs(
       nftContract.address, 
@@ -393,13 +416,16 @@ describe("NFT Marketplace", function () {
 
     // make bid with 0.9 eth with buyer 2
     ethAmount = ethers.utils.parseEther("0.9");
-    await expect(nftEngine.connect(engineInfo.buyer1).makeBid(
+    tx = await nftEngine.connect(engineInfo.buyer1).makeBid(
       nftContract.address,
       tokenId,
       getZeroAddress(),
       0,
       {value: ethAmount}
-    ))
+    );
+    console.log("gas used (nftEngine.makeBid):", (await tx.wait()).gasUsed.toString());
+    
+    expect(tx)
     .to.emit(nftEngine, 'NFTAuctionBidMade')
     .withArgs(
       nftContract.address, 
