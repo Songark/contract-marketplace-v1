@@ -1,9 +1,9 @@
 //SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.4;
 
 library LTypes {
 
+    /// @dev 4 types available nft contract
     enum NFTTypes {
         customNFT, 
         fractionalNFT,
@@ -11,6 +11,7 @@ library LTypes {
         owndNFT
     } 
 
+    /// @dev 4 actions in marketplace
     enum Action {
         MINT,
         BUY,
@@ -18,10 +19,12 @@ library LTypes {
         AUCTION
     }
 
+    /// @dev mint nft request structure
     struct MintNFT {
         uint256 price;
     }
 
+    /// @dev sell nft request structure
     struct SellNFT {
         address erc20Token;
         address seller;
@@ -30,6 +33,7 @@ library LTypes {
         uint32[] feeRates;
     }
 
+    /// @dev auction nft request structure
     struct AuctionNFT {
         uint32 bidIncRate;
         uint32 bidPeriod; 

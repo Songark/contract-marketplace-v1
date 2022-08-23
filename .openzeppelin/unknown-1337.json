@@ -1,121 +1,20 @@
 {
   "manifestVersion": "3.2",
   "admin": {
-    "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-    "txHash": "0x80dbd9715776e069f66fb916af60e7e4dd1a97cb1a057179e7ff9f7100d604ec"
+    "address": "0x3f8c307203B2652A39461884bb042FF127e994a7",
+    "txHash": "0xdb749792e09a9bd4089f4b2c2761954b08db2cc0705e62785ea9bb9e9c6dc0e9"
   },
   "proxies": [
     {
-      "address": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
-      "txHash": "0x81e5b0fa9af5a72ac645b8e8c2c7c1f18ee0075fc5b1405d2e6de98ab196725d",
-      "kind": "transparent"
-    },
-    {
-      "address": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
-      "txHash": "0xccbad30c80942e5721c6f7d63985d244115d7536ea55a37bffceef0d02326eae",
-      "kind": "transparent"
-    },
-    {
-      "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-      "txHash": "0x32f67f7f2a8eabcff9290ad9867d5b4579f87897c11c8ecea06f98d8132f31de",
+      "address": "0x55DA14288c3f81BEBeCe29F593864Ea46a0985D7",
+      "txHash": "0xed6e13abf60c0aa5ac04193b45b048f2c24ba82dc6fa97f69a4e37f90aca8b53",
       "kind": "transparent"
     }
   ],
   "impls": {
-    "d1f04d974474aa4f738a158ac5d20e47ebf36138b12ff76097bcfc39c3aaf1c3": {
-      "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-      "txHash": "0xdadbc46aecaf7673069b7fc4147f75609e5a2293039a3a36bc3cb5b4fe1b64d3",
-      "layout": {
-        "storage": [
-          {
-            "label": "_initialized",
-            "offset": 0,
-            "slot": "0",
-            "type": "t_uint8",
-            "contract": "Initializable",
-            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:62",
-            "retypedFrom": "bool"
-          },
-          {
-            "label": "_initializing",
-            "offset": 1,
-            "slot": "0",
-            "type": "t_bool",
-            "contract": "Initializable",
-            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:67"
-          },
-          {
-            "label": "_status",
-            "offset": 0,
-            "slot": "1",
-            "type": "t_uint256",
-            "contract": "ReentrancyGuardUpgradeable",
-            "src": "@openzeppelin\\contracts-upgradeable\\security\\ReentrancyGuardUpgradeable.sol:38"
-          },
-          {
-            "label": "__gap",
-            "offset": 0,
-            "slot": "2",
-            "type": "t_array(t_uint256)49_storage",
-            "contract": "ReentrancyGuardUpgradeable",
-            "src": "@openzeppelin\\contracts-upgradeable\\security\\ReentrancyGuardUpgradeable.sol:74"
-          },
-          {
-            "label": "nftEngines",
-            "offset": 0,
-            "slot": "51",
-            "type": "t_mapping(t_address,t_address)",
-            "contract": "NFTEngineFactory",
-            "src": "contracts\\NFTEngineFactory.sol:11"
-          },
-          {
-            "label": "ownEngines",
-            "offset": 0,
-            "slot": "52",
-            "type": "t_mapping(t_address,t_array(t_address)dyn_storage)",
-            "contract": "NFTEngineFactory",
-            "src": "contracts\\NFTEngineFactory.sol:13"
-          }
-        ],
-        "types": {
-          "t_address": {
-            "label": "address",
-            "numberOfBytes": "20"
-          },
-          "t_array(t_address)dyn_storage": {
-            "label": "address[]",
-            "numberOfBytes": "32"
-          },
-          "t_array(t_uint256)49_storage": {
-            "label": "uint256[49]",
-            "numberOfBytes": "1568"
-          },
-          "t_bool": {
-            "label": "bool",
-            "numberOfBytes": "1"
-          },
-          "t_mapping(t_address,t_address)": {
-            "label": "mapping(address => address)",
-            "numberOfBytes": "32"
-          },
-          "t_mapping(t_address,t_array(t_address)dyn_storage)": {
-            "label": "mapping(address => address[])",
-            "numberOfBytes": "32"
-          },
-          "t_uint256": {
-            "label": "uint256",
-            "numberOfBytes": "32"
-          },
-          "t_uint8": {
-            "label": "uint8",
-            "numberOfBytes": "1"
-          }
-        }
-      }
-    },
     "4eeff82c017797a85e7da05cc53d062ef5a8db048102d227d5bb0770c4bbb731": {
-      "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-      "txHash": "0x6e5490f0303aca3b6afb80b843177721054bd7692aaac866f29a8a7d03815bc9",
+      "address": "0x1885faD01C97FD6050eDff3A84E65f2b4ef935cD",
+      "txHash": "0x7565e41285b49c9e8ded49d7e322a380e3c069ad7fba2d1d22a87686786f9ed1",
       "layout": {
         "storage": [
           {
@@ -164,56 +63,56 @@
             "offset": 0,
             "slot": "101",
             "type": "t_mapping(t_enum(NFTTypes)10010,t_address)",
-            "contract": "NFTEngineV2",
-            "src": "contracts\\engine\\NFTEngineV2.sol:17"
+            "contract": "NFTEngineV1",
+            "src": "contracts\\engine\\NFTEngineV1.sol:17"
           },
           {
             "label": "_nftAuctions",
             "offset": 0,
             "slot": "102",
             "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(AuctionNFT)10062_storage))",
-            "contract": "NFTEngineV2",
-            "src": "contracts\\engine\\NFTEngineV2.sol:19"
+            "contract": "NFTEngineV1",
+            "src": "contracts\\engine\\NFTEngineV1.sol:19"
           },
           {
             "label": "_nftIdsForAction",
             "offset": 0,
             "slot": "103",
             "type": "t_mapping(t_address,t_array(t_uint256)dyn_storage)",
-            "contract": "NFTEngineV2",
-            "src": "contracts\\engine\\NFTEngineV2.sol:21"
+            "contract": "NFTEngineV1",
+            "src": "contracts\\engine\\NFTEngineV1.sol:21"
           },
           {
             "label": "_nftSales",
             "offset": 0,
             "slot": "104",
             "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(SellNFT)10031_storage))",
-            "contract": "NFTEngineV2",
-            "src": "contracts\\engine\\NFTEngineV2.sol:23"
+            "contract": "NFTEngineV1",
+            "src": "contracts\\engine\\NFTEngineV1.sol:23"
           },
           {
             "label": "_nftIdsForSale",
             "offset": 0,
             "slot": "105",
             "type": "t_mapping(t_address,t_array(t_uint256)dyn_storage)",
-            "contract": "NFTEngineV2",
-            "src": "contracts\\engine\\NFTEngineV2.sol:25"
+            "contract": "NFTEngineV1",
+            "src": "contracts\\engine\\NFTEngineV1.sol:25"
           },
           {
             "label": "_nftMints",
             "offset": 0,
             "slot": "106",
             "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(MintNFT)10018_storage))",
-            "contract": "NFTEngineV2",
-            "src": "contracts\\engine\\NFTEngineV2.sol:27"
+            "contract": "NFTEngineV1",
+            "src": "contracts\\engine\\NFTEngineV1.sol:27"
           },
           {
             "label": "_treasury",
             "offset": 0,
             "slot": "107",
             "type": "t_address",
-            "contract": "NFTEngineV2",
-            "src": "contracts\\engine\\NFTEngineV2.sol:29"
+            "contract": "NFTEngineV1",
+            "src": "contracts\\engine\\NFTEngineV1.sol:29"
           }
         ],
         "types": {

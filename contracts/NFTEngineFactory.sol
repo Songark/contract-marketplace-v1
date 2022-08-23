@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-pragma solidity >=0.8.4;
+pragma solidity ^0.8.4;
 
-import "./engine/NFTEngine.sol";
+import "./engine/NFTEngineV1.sol";
 import "./interface/INFTEngineFactory.sol";
 
 ///@title NFT Marketplace Engine Factory for PlayEstates
@@ -26,7 +26,7 @@ contract NFTEngineFactory is INFTEngineFactory {
         require(admin != address(0), "Invalid admin address");
         require(nftEngines[admin] == address(0), "Already marketplace was created");
 
-        NFTEngine _marketplace = new NFTEngine();
+        NFTEngineV1 _marketplace = new NFTEngineV1();
         _marketplace.initialize(admin, treasury);
         address newMarketplace = address(_marketplace);
 

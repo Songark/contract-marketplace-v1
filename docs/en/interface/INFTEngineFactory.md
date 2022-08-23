@@ -8,7 +8,7 @@ Name: Interface for the NFT Marketplace Factory
 <!-- START doctoc -->
 <!-- END doctoc -->
 
-## 2.Globals
+## 2.Variables
 
 ## 3.Modifiers
 
@@ -29,7 +29,7 @@ function createNFTEngine(
 
 
 ### getNftEngineByAdmin
-check more details about parameters and return value, in {NFTEngineFactory::createNFTEngine}
+check more details about parameters and return value, in {NFTEngineFactory::getNftEngineByAdmin}
 > get a marketplace engine's address from administrator's address
 
 
@@ -53,4 +53,8 @@ function getNftEngineByAdmin(
 *Params:*
 | Param | Type | Indexed | Description |
 | --- | --- | :---: | --- |
-|`nftEngine` | address |  | address of new created marketplace engine
+|`nftEngine` | address | :white_check_mark: | address of new created marketplace engine
+
+## 6.Structs
+
+## 7.Enums

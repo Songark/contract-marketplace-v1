@@ -11,8 +11,8 @@ import "../interface/INFTEngine.sol";
 import "../interface/ICustomNFTMock.sol";
 
 ///@title NFT Marketplace Engine for PlayEstates
-///@dev NFTEngine is used to create sales & auctions and manage them effectively for seller,  buyers and bidders.
-contract NFTEngine is Initializable, OwnableUpgradeable, INFTEngine {
+///@dev NFTEngineV2 is used to create sales & auctions and manage them effectively for seller,  buyers and bidders.
+contract NFTEngineV2 is Initializable, OwnableUpgradeable, INFTEngine {
 
     mapping(LTypes.NFTTypes => address) private _nftContracts;
 

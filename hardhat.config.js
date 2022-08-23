@@ -22,6 +22,10 @@ module.exports = {
 
     },
 
+    localhost: {
+      chainId: 1337
+    },
+
     rinkeby: {
       url: process.env.RINKEBY_URL,
       accounts: {

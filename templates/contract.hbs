@@ -8,17 +8,13 @@
 <!-- START doctoc -->
 <!-- END doctoc -->
 
-## 2.Globals
+## 2.Variables
 {{#if ownVariables}}
 
-> Note this contains internal vars as well due to a bug in the docgen procedure
-
-| Var | Type |
-| --- | --- |
+| Arg | Type | Description |
+| --- | --- | --- |
 {{#ownVariables}}
-{{#unless (eq visibility "internal")}}
-| {{name}} | {{ type }} |
-{{/unless}}
+{{name}} | {{ type }} | {{natspec.userdoc}}
 {{/ownVariables}}
 {{/if}}
 
@@ -117,3 +113,19 @@ indexed}}:white_check_mark:{{/if}}{{/with}} | {{description}} {{~-~}}
 
 {{/ownEvents}}
 {{/if}}
+
+## 6.Structs
+{{#each ownStructs}}
+### `{{name}}`
+{{#each members}}
+{{type}} {{name}}
+{{/each}}
+{{/each}}
+
+## 7.Enums
+{{#each ownEnums}}
+### `{{name}}`
+{{#each members}}
+{{name}}
+{{/each}}
+{{/each}}

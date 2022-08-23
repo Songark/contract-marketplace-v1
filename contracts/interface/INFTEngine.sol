@@ -1,5 +1,4 @@
 //SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.4;
 
 ///@title Interface for the NFT Marketplace Engine
@@ -141,7 +140,7 @@ interface INFTEngine {
     /// @dev when the owner of NFT auction requests to update buyNowPrie, this event would be emitted.
     /// @param nftContract nft contract's address
     /// @param tokenId nft token's id
-    /// @param newBuyNowPrice new value of buyNowPrie
+    /// @param newBuyNowPrice new value of buyNowPrice
     event NFTAuctionBuyNowPriceUpdated(
         address nftContract,
         uint256 tokenId,

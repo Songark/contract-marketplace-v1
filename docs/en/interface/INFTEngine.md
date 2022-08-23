@@ -8,7 +8,7 @@ Name: Interface for the NFT Marketplace Engine
 <!-- START doctoc -->
 <!-- END doctoc -->
 
-## 2.Globals
+## 2.Variables
 
 ## 3.Modifiers
 
@@ -169,7 +169,7 @@ Name: Interface for the NFT Marketplace Engine
 | --- | --- | :---: | --- |
 |`nftContract` | address |  | nft contract's address
 |`tokenId` | uint256 |  | nft token's id
-|`newBuyNowPrice` | uint128 |  | new value of buyNowPrie
+|`newBuyNowPrice` | uint128 |  | new value of buyNowPrice
 ### NFTAuctionHighestBidTaken
 
 > when the NFT seller ends an auction by taking the current highest bid, this event would be emitted.
@@ -181,3 +181,7 @@ Name: Interface for the NFT Marketplace Engine
 | --- | --- | :---: | --- |
 |`nftContract` | address |  | nft contract's address
 |`tokenId` | uint256 |  | nft token's id
+
+## 6.Structs
+
+## 7.Enums

@@ -8,13 +8,11 @@ Name: NFT Marketplace Engine Factory for PlayEstates
 <!-- START doctoc -->
 <!-- END doctoc -->
 
-## 2.Globals
+## 2.Variables
 
-> Note this contains internal vars as well due to a bug in the docgen procedure
-
-| Var | Type |
-| --- | --- |
-| nftEngines | mapping(address => address) |
+| Arg | Type | Description |
+| --- | --- | --- |
+nftEngines | mapping(address => address) | 
 
 ## 3.Modifiers
 
@@ -79,3 +77,7 @@ address admin
 |`nftEngine` | marketplace engine's address owned by admin
 
 ## 5.Events
+
+## 6.Structs
+
+## 7.Enums

@@ -38,7 +38,7 @@ describe("NFT Marketplace", function () {
     for (let i = 0; i < _events.length; i++){
       console.log("NFTEngine Created:", _events[i].args[0]);
 
-      const NFTEngine = await ethers.getContractFactory("NFTEngine");
+      const NFTEngine = await ethers.getContractFactory("NFTEngineV1");
       let nftEngine = await NFTEngine.attach(_events[i].args[0]);
 
       await nftEngine.setNFTContracts(
@@ -73,7 +73,8 @@ describe("NFT Marketplace", function () {
   }
 
   before('Create Marketplaces', async () => {
-    engineInfo = await loadFixture(deployBaseContracts);
+    // engineInfo = await loadFixture(deployBaseContracts);
+    engineInfo = await deployBaseContracts();
 
     console.log("factory:", engineInfo.nftEngineFactory.address);
     console.log("customNFTMock:", engineInfo.customNFTMock.address);
@@ -89,7 +90,7 @@ describe("NFT Marketplace", function () {
       engineInfo.owner.address
     );
 
-    const NFTEngine = await ethers.getContractFactory("NFTEngine");
+    const NFTEngine = await ethers.getContractFactory("NFTEngineV1");
     nftEngine = await NFTEngine.attach(engine);
 
     await engineInfo.customNFTMock.setMarketplace(engine);

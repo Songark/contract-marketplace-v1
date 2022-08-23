@@ -1,6 +1,6 @@
-# NFTEngine
+# NFTEngineV2
 
-> NFTEngine is used to create sales & auctions and manage them effectively for seller,  buyers and bidders.
+> NFTEngineV2 is used to create sales & auctions and manage them effectively for seller,  buyers and bidders.
 
 ## 1.Contents
 Name: NFT Marketplace Engine for PlayEstates
@@ -8,17 +8,15 @@ Name: NFT Marketplace Engine for PlayEstates
 <!-- START doctoc -->
 <!-- END doctoc -->
 
-## 2.Globals
+## 2.Variables
 
-> Note this contains internal vars as well due to a bug in the docgen procedure
-
-| Var | Type |
-| --- | --- |
-| feeToTreasury | uint256 |
-| defaultBidIncRate | uint32 |
-| minSettableIncRate | uint32 |
-| maxMinPriceRate | uint32 |
-| defaultAuctionBidPeriod | uint32 |
+| Arg | Type | Description |
+| --- | --- | --- |
+feeToTreasury | uint256 | 
+defaultBidIncRate | uint32 | 
+minSettableIncRate | uint32 | 
+maxMinPriceRate | uint32 | 
+defaultAuctionBidPeriod | uint32 | 
 
 ## 3.Modifiers
 ### onlyValidPrice
@@ -848,3 +846,7 @@ function _reversePreviousBidAndUpdateHighestBid(
 
 
 ## 5.Events
+
+## 6.Structs
+
+## 7.Enums

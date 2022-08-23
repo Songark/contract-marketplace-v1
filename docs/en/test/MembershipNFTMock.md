@@ -7,7 +7,7 @@
 <!-- START doctoc -->
 <!-- END doctoc -->
 
-## 2.Globals
+## 2.Variables
 
 ## 3.Modifiers
 
@@ -31,3 +31,7 @@ function mint(
 
 
 ## 5.Events
+
+## 6.Structs
+
+## 7.Enums

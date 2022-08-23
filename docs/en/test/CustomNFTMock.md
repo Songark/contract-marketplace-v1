@@ -7,7 +7,7 @@
 <!-- START doctoc -->
 <!-- END doctoc -->
 
-## 2.Globals
+## 2.Variables
 
 ## 3.Modifiers
 ### onlyMarketplace
@@ -115,3 +115,7 @@ function tokenURI(
 
 
 ## 5.Events
+
+## 6.Structs
+
+## 7.Enums

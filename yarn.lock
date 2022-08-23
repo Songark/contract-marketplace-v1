@@ -720,12 +720,12 @@
   "resolved" "https://registry.npmjs.org/@openzeppelin/contracts/-/contracts-4.7.0.tgz"
   "version" "4.7.0"
 
-"@openzeppelin/hardhat-upgrades@^1.19.1":
-  "integrity" "sha512-LvUClx+c8DIS6T5ZEPsz+HSRztvY9wjAI4qZH8IaTswjPAT/mqXZWmuQF96fFopR+jKpUNmI4IUo5wLt2TkdKQ=="
-  "resolved" "https://registry.npmjs.org/@openzeppelin/hardhat-upgrades/-/hardhat-upgrades-1.19.1.tgz"
-  "version" "1.19.1"
+"@openzeppelin/hardhat-upgrades@^1.20.0":
+  "integrity" "sha512-ign7fc/ZdPe+KAYCB91619o+wlBr7sIEEt1nqLhoXAJ9f0qVuXkwAaTdLB0MTSWH85TzlUUT2fTJp1ZnZ1o4LQ=="
+  "resolved" "https://registry.npmjs.org/@openzeppelin/hardhat-upgrades/-/hardhat-upgrades-1.20.0.tgz"
+  "version" "1.20.0"
   dependencies:
-    "@openzeppelin/upgrades-core" "^1.16.0"
+    "@openzeppelin/upgrades-core" "^1.18.0"
     "chalk" "^4.1.0"
     "debug" "^4.1.1"
     "proper-lockfile" "^4.1.1"
@@ -746,10 +746,10 @@
     "web3" "^1.2.5"
     "web3-utils" "^1.2.5"
 
-"@openzeppelin/upgrades-core@^1.16.0":
-  "integrity" "sha512-GaR3XiJ5PUKrHwz+EFJ9gtj2/taiFRWufbUaCgc1JEit1ERB9fI8PWEO0VTL+KzCZPl6meyT7RIhKNBRcX6jsA=="
-  "resolved" "https://registry.npmjs.org/@openzeppelin/upgrades-core/-/upgrades-core-1.17.0.tgz"
-  "version" "1.17.0"
+"@openzeppelin/upgrades-core@^1.18.0":
+  "integrity" "sha512-fFp5sscGC876yhq7BU595LG45yky21sZFa6cDJigluUjAyJSPoLwF7GD9bSwQMMo4jC7ii1UJBtLipUxN6PVTA=="
+  "resolved" "https://registry.npmjs.org/@openzeppelin/upgrades-core/-/upgrades-core-1.18.0.tgz"
+  "version" "1.18.0"
   dependencies:
     "cbor" "^8.0.0"
     "chalk" "^4.1.0"
