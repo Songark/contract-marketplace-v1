@@ -6,6 +6,10 @@ Smart contracts that allow the flexible auction and sell, buy of NFTs.
 This repository contains the smart contracts source code of the full featured NFT Marketplace for PlayEstates. 
 The repository uses Hardhat as development enviroment for compilation, testing and deployment tasks.
 
+If you want to learn about the core concepts and engineering structure of the marketplace engine, please explore developer's documents in the /docs/en folder, you can understand about smart contracts and test scripts.
+
+You can see the class diagram [link](classDiagram.svg) for smart contracts to understand the structure.
+
 ## NFT Marketplace functionality work
 
 The open source smart contract can be easily used in a permissionless and flexible manner to auction (or simply buy/sell) NFTs. Sellers and bidders are able to make customized auctions and bids that allow for a holistic NFT auction/sale mechanism.
@@ -33,9 +37,22 @@ The open source smart contract can be easily used in a permissionless and flexib
 - Purchase an NFT put up for sale by specifying
 
 ## Development
-### Build, deploy and test
+### Build, deploy, test
 ```shell
 npx hardhat clean
 npx hardhat compile
 npx hardhat test
+npx hardhat coverage  
+yarn solidity-docgen --solc-module solc-0.8 -t ./templates -o ./docs/en
+```
+
+### Code coverage and generate documents
+```shell
+npx hardhat coverage  
+yarn solidity-docgen --solc-module solc-0.8 -t ./templates -o ./docs/en
+```
+
+### Generate Class Diagram
+```shell
+sol2uml ./contracts
 ```

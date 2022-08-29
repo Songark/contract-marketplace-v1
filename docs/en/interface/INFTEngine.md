@@ -24,10 +24,10 @@ Name: Interface for the NFT Marketplace Engine
 *Params:*
 | Param | Type | Indexed | Description |
 | --- | --- | :---: | --- |
-|`nftContract` | address |  | nft contract's address
+|`nftContract` | address | :white_check_mark: | nft contract's address
 |`tokenId` | uint256 |  | nft token's id
-|`from` | address |  | seller's address
-|`erc20Token` | address |  | ERC20 token's address for payment, if address(0), seller needs payment using ether
+|`from` | address | :white_check_mark: | seller's address
+|`erc20Token` | address | :white_check_mark: | ERC20 token's address for payment, if address(0), seller needs payment using ether
 |`price` | uint256 |  | nft's price for sale
 ### NFTTokenSaleWithdrawn
 
@@ -38,7 +38,7 @@ Name: Interface for the NFT Marketplace Engine
 *Params:*
 | Param | Type | Indexed | Description |
 | --- | --- | :---: | --- |
-|`nftContract` | address |  | nft contract's address
+|`nftContract` | address | :white_check_mark: | nft contract's address
 |`tokenId` | uint256 |  | nft token's id
 ### NFTTokenSaleClosed
 
@@ -49,9 +49,9 @@ Name: Interface for the NFT Marketplace Engine
 *Params:*
 | Param | Type | Indexed | Description |
 | --- | --- | :---: | --- |
-|`nftContract` | address |  | nft contract's address
+|`nftContract` | address | :white_check_mark: | nft contract's address
 |`tokenId` | uint256 |  | nft token id
-|`to` | address |  | buyer's address
+|`to` | address | :white_check_mark: | buyer's address
 ### NFTAuctionCreated
 
 > when owner creates auction using his NFT token on marketplace, this event would be emitted.
@@ -61,10 +61,10 @@ Name: Interface for the NFT Marketplace Engine
 *Params:*
 | Param | Type | Indexed | Description |
 | --- | --- | :---: | --- |
-|`nftContract` | address |  | nft contract's address
+|`nftContract` | address | :white_check_mark: | nft contract's address
 |`tokenId` | uint256 |  | nft token's id
-|`seller` | address |  | nft owner's address
-|`erc20Token` | address |  | ERC20 token's address for payment, if address(0), seller needs payment using ether
+|`seller` | address | :white_check_mark: | nft owner's address
+|`erc20Token` | address | :white_check_mark: | ERC20 token's address for payment, if address(0), seller needs payment using ether
 |`minPrice` | uint128 |  | minimum price of auction
 |`buyNowPrice` | uint128 |  | maximum price of auction, if someone will bid with buyNoPrice, this auction will end immediately
 |`auctionBidPeriod` | uint32 |  | valid period's seconds of auction, where someone can bid and purchase NFTs
@@ -78,11 +78,11 @@ Name: Interface for the NFT Marketplace Engine
 *Params:*
 | Param | Type | Indexed | Description |
 | --- | --- | :---: | --- |
-|`nftContract` | address |  | nft contract's address
+|`nftContract` | address | :white_check_mark: | nft contract's address
 |`tokenId` | uint256 |  | nft token's id
-|`bidder` | address |  | address of offer to buy an NFT from the auction at a specific price.
+|`bidder` | address | :white_check_mark: | address of offer to buy an NFT from the auction at a specific price.
 |`ethAmount` | uint256 |  | offered price with ether
-|`erc20Token` | address |  | ERC20 token's address for payment
+|`erc20Token` | address | :white_check_mark: | ERC20 token's address for payment
 |`tokenAmount` | uint256 |  | offered price with ERC20 token amount
 ### NFTAuctionBidWithdrawn
 
@@ -93,9 +93,9 @@ Name: Interface for the NFT Marketplace Engine
 *Params:*
 | Param | Type | Indexed | Description |
 | --- | --- | :---: | --- |
-|`nftContract` | address |  | nft contract's address
+|`nftContract` | address | :white_check_mark: | nft contract's address
 |`tokenId` | uint256 |  | nft token's id
-|`highestBidder` | address |  | address of highest bidder in this auction
+|`highestBidder` | address | :white_check_mark: | address of highest bidder in this auction
 ### NFTAuctionUpdated
 
 > when someone bid on this action at first time, this event would be emitted.
@@ -105,7 +105,7 @@ Name: Interface for the NFT Marketplace Engine
 *Params:*
 | Param | Type | Indexed | Description |
 | --- | --- | :---: | --- |
-|`nftContract` | address |  | nft contract's address
+|`nftContract` | address | :white_check_mark: | nft contract's address
 |`tokenId` | uint256 |  | nft token's id
 |`auctionEndPeriod` | uint64 |  | end timestamp of valid period for this auction
 ### NFTAuctionPaid
@@ -117,11 +117,11 @@ Name: Interface for the NFT Marketplace Engine
 *Params:*
 | Param | Type | Indexed | Description |
 | --- | --- | :---: | --- |
-|`nftContract` | address |  | nft contract's address
+|`nftContract` | address | :white_check_mark: | nft contract's address
 |`tokenId` | uint256 |  | nft token's id
-|`seller` | address |  |  nft old owner's address
+|`seller` | address | :white_check_mark: |  nft old owner's address
 |`highestBid` | uint128 |  | highest bid price in this auction
-|`highestBidder` | address |  | address of highest bidder in this auction
+|`highestBidder` | address | :white_check_mark: | address of highest bidder in this auction
 |`buyer` | address |  |  nft new owner's address
 ### NFTAuctionSettled
 
@@ -132,9 +132,9 @@ Name: Interface for the NFT Marketplace Engine
 *Params:*
 | Param | Type | Indexed | Description |
 | --- | --- | :---: | --- |
-|`nftContract` | address |  | nft contract's address
+|`nftContract` | address | :white_check_mark: | nft contract's address
 |`tokenId` | uint256 |  | nft token's id
-|`settler` | address |  |  nft old owner's address
+|`settler` | address | :white_check_mark: |  nft old owner's address
 ### NFTAuctionWithdrawn
 
 > when the owner of NFT auction requests withdrawal to cancel this auction, this event would be emitted.
@@ -144,7 +144,7 @@ Name: Interface for the NFT Marketplace Engine
 *Params:*
 | Param | Type | Indexed | Description |
 | --- | --- | :---: | --- |
-|`nftContract` | address |  | nft contract's address
+|`nftContract` | address | :white_check_mark: | nft contract's address
 |`tokenId` | uint256 |  | nft token's id
 ### NFTAuctionMinPriceUpdated
 
@@ -155,7 +155,7 @@ Name: Interface for the NFT Marketplace Engine
 *Params:*
 | Param | Type | Indexed | Description |
 | --- | --- | :---: | --- |
-|`nftContract` | address |  | nft contract's address
+|`nftContract` | address | :white_check_mark: | nft contract's address
 |`tokenId` | uint256 |  | nft token's id
 |`newMinPrice` | uint256 |  | new value of minPrice
 ### NFTAuctionBuyNowPriceUpdated
@@ -167,7 +167,7 @@ Name: Interface for the NFT Marketplace Engine
 *Params:*
 | Param | Type | Indexed | Description |
 | --- | --- | :---: | --- |
-|`nftContract` | address |  | nft contract's address
+|`nftContract` | address | :white_check_mark: | nft contract's address
 |`tokenId` | uint256 |  | nft token's id
 |`newBuyNowPrice` | uint128 |  | new value of buyNowPrice
 ### NFTAuctionHighestBidTaken
@@ -179,7 +179,7 @@ Name: Interface for the NFT Marketplace Engine
 *Params:*
 | Param | Type | Indexed | Description |
 | --- | --- | :---: | --- |
-|`nftContract` | address |  | nft contract's address
+|`nftContract` | address | :white_check_mark: | nft contract's address
 |`tokenId` | uint256 |  | nft token's id
 
 ## 6.Structs

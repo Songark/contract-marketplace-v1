@@ -1,4 +1,5 @@
 require("@nomicfoundation/hardhat-toolbox");
+require("@nomicfoundation/hardhat-chai-matchers");
 require('hardhat-contract-sizer');
 require('@openzeppelin/hardhat-upgrades');
 
@@ -7,12 +8,17 @@ dotenv.config();
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
+
+  gasReporter: {
+    enabled: true
+  },
+  
   solidity: {
     version: "0.8.4",
     settings: {
         optimizer: {
             enabled: true,
-            runs: 200,
+            runs: 1000000,  // https://github.com/NomicFoundation/hardhat/issues/2657
         },
     },
   },

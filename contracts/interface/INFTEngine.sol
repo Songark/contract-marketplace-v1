@@ -12,10 +12,10 @@ interface INFTEngine {
     /// @param erc20Token ERC20 token's address for payment, if address(0), seller needs payment using ether
     /// @param price nft's price for sale
     event NFTTokenSaleCreated(
-        address nftContract, 
+        address indexed nftContract, 
         uint256 tokenId, 
-        address from, 
-        address erc20Token, 
+        address indexed from, 
+        address indexed erc20Token, 
         uint256 price
     );
 
@@ -23,7 +23,7 @@ interface INFTEngine {
     /// @param nftContract nft contract's address
     /// @param tokenId nft token's id
     event NFTTokenSaleWithdrawn(
-        address nftContract, 
+        address indexed nftContract, 
         uint256 tokenId
     );
 
@@ -32,9 +32,9 @@ interface INFTEngine {
     /// @param tokenId nft token id
     /// @param to buyer's address
     event NFTTokenSaleClosed(
-        address nftContract, 
+        address indexed nftContract, 
         uint256 tokenId, 
-        address to
+        address indexed to
     );
 
     /// @dev when owner creates auction using his NFT token on marketplace, this event would be emitted.
@@ -47,10 +47,10 @@ interface INFTEngine {
     /// @param auctionBidPeriod valid period's seconds of auction, where someone can bid and purchase NFTs
     /// @param bidIncRate bid increment for next bid request, valid value is between 0 and 10000
     event NFTAuctionCreated(
-        address nftContract,
+        address indexed nftContract,
         uint256 tokenId,
-        address seller,
-        address erc20Token,
+        address indexed seller,
+        address indexed erc20Token,
         uint128 minPrice,
         uint128 buyNowPrice,
         uint32 auctionBidPeriod,
@@ -65,11 +65,11 @@ interface INFTEngine {
     /// @param erc20Token ERC20 token's address for payment
     /// @param tokenAmount offered price with ERC20 token amount
     event NFTAuctionBidMade(
-        address nftContract,
+        address indexed nftContract,
         uint256 tokenId,
-        address bidder,
+        address indexed bidder,
         uint256 ethAmount,
-        address erc20Token,
+        address indexed erc20Token,
         uint256 tokenAmount
     );
 
@@ -78,9 +78,9 @@ interface INFTEngine {
     /// @param tokenId nft token's id
     /// @param highestBidder address of highest bidder in this auction
     event NFTAuctionBidWithdrawn(
-        address nftContract,
+        address indexed nftContract,
         uint256 tokenId,
-        address highestBidder
+        address indexed highestBidder
     );
 
     /// @dev when someone bid on this action at first time, this event would be emitted.
@@ -88,7 +88,7 @@ interface INFTEngine {
     /// @param tokenId nft token's id
     /// @param auctionEndPeriod end timestamp of valid period for this auction
     event NFTAuctionUpdated(
-        address nftContract,
+        address indexed nftContract,
         uint256 tokenId,
         uint64 auctionEndPeriod
     );
@@ -101,11 +101,11 @@ interface INFTEngine {
     /// @param highestBidder address of highest bidder in this auction
     /// @param buyer  nft new owner's address
     event NFTAuctionPaid(
-        address nftContract,
+        address indexed nftContract,
         uint256 tokenId,
-        address seller,
+        address indexed seller,
         uint128 highestBid,
-        address highestBidder,
+        address indexed highestBidder,
         address buyer
     );
 
@@ -114,16 +114,16 @@ interface INFTEngine {
     /// @param tokenId nft token's id
     /// @param settler  nft old owner's address
     event NFTAuctionSettled(
-        address nftContract,
+        address indexed nftContract,
         uint256 tokenId,
-        address settler
+        address indexed settler
     );
 
     /// @dev when the owner of NFT auction requests withdrawal to cancel this auction, this event would be emitted.
     /// @param nftContract nft contract's address
     /// @param tokenId nft token's id
     event NFTAuctionWithdrawn(
-        address nftContract,
+        address indexed nftContract,
         uint256 tokenId
     );
 
@@ -132,7 +132,7 @@ interface INFTEngine {
     /// @param tokenId nft token's id
     /// @param newMinPrice new value of minPrice
     event NFTAuctionMinPriceUpdated(
-        address nftContract,
+        address indexed nftContract,
         uint256 tokenId,
         uint256 newMinPrice
     );
@@ -142,7 +142,7 @@ interface INFTEngine {
     /// @param tokenId nft token's id
     /// @param newBuyNowPrice new value of buyNowPrice
     event NFTAuctionBuyNowPriceUpdated(
-        address nftContract,
+        address indexed nftContract,
         uint256 tokenId,
         uint128 newBuyNowPrice
     );
@@ -151,7 +151,7 @@ interface INFTEngine {
     /// @param nftContract nft contract's address
     /// @param tokenId nft token's id
     event NFTAuctionHighestBidTaken(
-        address nftContract, 
+        address indexed nftContract, 
         uint256 tokenId
     );
 }

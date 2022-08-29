@@ -79,16 +79,6 @@ modifier onlyTokenOwner
 ```
 
 
-### onlyApprovedToken
-
-> throws if nft token is not approved by marketplace
-
-*Declaration:*
-```solidity
-modifier onlyApprovedToken
-```
-
-
 ### onlyNotTokenOwner
 
 > throws if called by nft token owner
@@ -96,6 +86,16 @@ modifier onlyApprovedToken
 *Declaration:*
 ```solidity
 modifier onlyNotTokenOwner
+```
+
+
+### onlyApprovedToken
+
+> throws if nft token is not approved by marketplace
+
+*Declaration:*
+```solidity
+modifier onlyApprovedToken
 ```
 
 
@@ -318,8 +318,13 @@ settle progressing auction for nft token
 function settleAuction(
 address nftContract,
 uint256 tokenId
-) external
+) external onlyTokenOwner auctionOngoing
 ```
+*Modifiers:*
+| Modifier |
+| --- |
+| onlyTokenOwner |
+| auctionOngoing |
 
 *Args:*
 | Arg | Type | Description |
@@ -339,8 +344,12 @@ withdraw progressing auction for nft token
 function withdrawAuction(
 address nftContract,
 uint256 tokenId
-) external
+) external onlyTokenOwner
 ```
+*Modifiers:*
+| Modifier |
+| --- |
+| onlyTokenOwner |
 
 *Args:*
 | Arg | Type | Description |
@@ -665,12 +674,20 @@ function nftOwner(
 
 
 ### _setupAuction
+Setup parameters applicable to all auctions and whitelised sales:
 
 
 
 *Declaration:*
 ```solidity
 function _setupAuction(
+address nftContract,
+uint256 tokenId,
+address erc20Token,
+uint128 minPrice,
+uint128 buyNowPrice,
+address[] feeRecipients,
+uint32[] feeRates
 ) internal minPriceNotExceedLimit checkSizeRecipientsAndRates checkFeeRatesLessThanMaximum
 ```
 *Modifiers:*
@@ -680,7 +697,16 @@ function _setupAuction(
 | checkSizeRecipientsAndRates |
 | checkFeeRatesLessThanMaximum |
 
-
+*Args:*
+| Arg | Type | Description |
+| --- | --- | --- |
+|`nftContract` | address | NFT collection's contract address
+|`tokenId` | uint256 | NFT token id for auction
+|`erc20Token` | address | ERC20 Token for payment (if specified by the seller)
+|`minPrice` | uint128 | minimum price
+|`buyNowPrice` | uint128 | buy now price
+|`feeRecipients` | address[] | fee recipients addresses
+|`feeRates` | uint32[] | respective fee percentages for each recipients
 
 
 ### _isAuctionOngoing
@@ -698,7 +724,9 @@ function _isAuctionOngoing(
 
 
 ### _makeBid
-
+Make bids with ETH or an ERC20 Token specified by the NFT seller.*
+Additionally, a buyer can pay the asking price to conclude a sale*
+of an NFT.
 
 
 *Declaration:*
@@ -716,7 +744,9 @@ function _makeBid(
 
 
 ### _isAlreadyBidMade
-
+Check if a bid has been made. This is applicable in the early bid scenario
+to ensure that if an auction is created after an early bid, the auction
+begins appropriately or is settled if the buy now price is met.
 
 
 *Declaration:*
@@ -730,7 +760,7 @@ function _isAlreadyBidMade(
 
 
 ### _isMinimumBidMade
-
+If the minPrice is set by the seller, check that the highest bid meets or exceeds that price.
 
 
 *Declaration:*
@@ -744,7 +774,7 @@ function _isMinimumBidMade(
 
 
 ### _isBuyNowPriceMet
-
+If the buy now price is set by the seller, check that the highest bid meets that price.
 
 
 *Declaration:*
@@ -774,7 +804,7 @@ function _doesBidMeetBidRequirements(
 
 
 ### _getPortionOfBid
-
+Returns the percentage of the total bid (used to calculate fee payments)
 
 
 *Declaration:*
@@ -802,7 +832,7 @@ function _getAuctionBidPeriod(
 
 
 ### _getNftRecipient
-
+The default value for the NFT recipient is the highest bidder.
 
 
 *Declaration:*
@@ -830,7 +860,8 @@ function _getBidIncreasePercentage(
 
 
 ### _updateOngoingAuction
-
+Settle an auction or sale if the buyNowPrice is met or set
+auction period to begin if the minimum price has been met.
 
 
 *Declaration:*
@@ -895,7 +926,11 @@ function _payout(
 
 
 ### _isPaymentAccepted
-
+Payment is accepted in the following scenarios:
+(1) Auction already created - can accept ETH or Specified Token
+ --------> Cannot bid with ETH & an ERC20 Token together in any circumstance<------
+(2) Auction not created - only ETH accepted (cannot early bid with an ERC20 Token
+(3) Cannot make a zero bid (no ETH or Token amount)
 
 
 *Declaration:*
@@ -936,7 +971,8 @@ function _updateAuctionEnd(
 
 
 ### _resetSale
-
+Reset all sale related parameters for an NFT.
+This effectively removes an EFT as an item up for sale
 
 
 *Declaration:*
@@ -949,7 +985,8 @@ function _resetSale(
 
 
 ### _resetAuction
-
+Reset all auction related parameters for an NFT.
+This effectively removes an EFT as an item up for auction
 
 
 *Declaration:*
