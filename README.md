@@ -12,7 +12,7 @@ You can see the class diagram [link](classDiagram.svg) for smart contracts to un
 
 ## NFT Marketplace functionality work
 
-The open source smart contract can be easily used in a permissionless and flexible manner to auction (or simply buy/sell) NFTs. Sellers and bidders are able to make customized auctions and bids that allow for a holistic NFT auction/sale mechanism.
+These smart contracts can be easily used in a permissionless and flexible manner to auction (or simply buy/sell) NFTs. Sellers and bidders are able to make customized auctions and bids that allow for a holistic NFT auction/sale mechanism.
 
 ## NFT sellers' features:
 - Create an sale for their single NFT and customize their sell option by specifying the following:
@@ -37,22 +37,20 @@ The open source smart contract can be easily used in a permissionless and flexib
 - Purchase an NFT put up for sale by specifying
 
 ## Development
-### Build, deploy, test
+### Build, deploy, test this project
 ```shell
 npx hardhat clean
 npx hardhat compile
 npx hardhat test
-npx hardhat coverage  
-yarn solidity-docgen --solc-module solc-0.8 -t ./templates -o ./docs/en
 ```
 
-### Code coverage and generate documents
+### Code coverage and generate the documents
 ```shell
 npx hardhat coverage  
 yarn solidity-docgen --solc-module solc-0.8 -t ./templates -o ./docs/en
 ```
 
-### Generate Class Diagram
+### Generate the class diagram
 ```shell
 sol2uml ./contracts
 ```

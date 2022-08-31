@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract MembershipNFTMock is ERC721A, Ownable {
     constructor() ERC721A("Genesis Owner Key", "OWNK") {}
 
-    function mint(address to, uint256 quantity) external payable onlyOwner {
+    function mint(address to, uint256 quantity) external onlyOwner {
         // `_mint`'s second argument now takes in a `quantity`, not a `tokenId`.
         _mint(to, quantity);
     }

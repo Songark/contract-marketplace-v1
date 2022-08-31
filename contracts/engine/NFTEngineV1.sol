@@ -3,8 +3,10 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "../library/LTypes.sol";
 import "../interface/INFTEngine.sol";
 import "../interface/ICustomNFTMock.sol";
@@ -12,7 +14,7 @@ import "../interface/ICustomNFTMock.sol";
 
 ///@title NFT Marketplace Engine for PlayEstates
 ///@dev NFTEngineV1 is used to create sales & auctions and manage them effectively for seller,  buyers and bidders.
-contract NFTEngineV1 is Initializable, OwnableUpgradeable, INFTEngine {
+contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, IERC721Receiver, INFTEngine {
     /// @notice Emitted when invalid basket address will be inputed
     error NFTEngineInvalidPrice(uint256 price);
 
@@ -61,8 +63,11 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, INFTEngine {
     /// @notice Emitted when not highest bidder will try to withdraw funds
     error NFTEngineNotHighestBidder(address nftContract, uint256 tokenId);
 
-        /// @notice Emitted when nft transfer failed
+    /// @notice Emitted when nft transfer failed
     error NFTEngineTokenTransferFailed(address nftContract, uint256 tokenId);
+
+    /// @notice Emitted when erc20 token transfer failed in payout
+    error NFTEngineERC20TransferFailed(address erc20token, uint256 amount);
 
     /// @dev mapping of each NFT types and nft contracts
     mapping(LTypes.NFTTypes => address) private _nftContracts;
@@ -230,8 +235,23 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, INFTEngine {
         require(treasury != address(0));
         
         __Ownable_init();
+        __ReentrancyGuard_init();
         _treasury = treasury;
         transferOwnership(admin);
+    }
+
+    /// @dev Whenever an {IERC721} `tokenId` token is transferred to this contract via {IERC721-safeTransferFrom}
+    /// by `operator` from `from`, this function is called.
+    /// It must return its Solidity selector to confirm the token transfer.
+    /// If any other value is returned or the interface is not implemented by the recipient, the transfer will be reverted.
+    /// The selector can be obtained in Solidity with `IERC721Receiver.onERC721Received.selector`.
+    function onERC721Received(
+        address operator,
+        address from,
+        uint256 tokenId,
+        bytes calldata data
+    ) external override returns (bytes4) {
+        return this.onERC721Received.selector;
     }
 
     /// @notice set nft contracts address to marketplace engine
@@ -318,7 +338,7 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, INFTEngine {
         uint128 buyNowPrice,
         address[] memory feeRecipients,
         uint32[] memory feeRates
-    ) external {
+    ) external nonReentrant {
         if (msg.sender != IERC721(nftContract).ownerOf(tokenId))
             revert NFTEngineNotTokenOwner(nftContract, tokenId);
         
@@ -354,7 +374,7 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, INFTEngine {
     /// @param nftContract NFT collection's contract address
     /// @param tokenId NFT token id for settle auction
     function settleAuction(address nftContract, uint256 tokenId) 
-    external 
+    external nonReentrant
     onlyTokenOwner(nftContract, tokenId) 
     auctionOngoing(nftContract, tokenId) {
 
@@ -367,7 +387,7 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, INFTEngine {
     /// @param nftContract NFT collection's contract address
     /// @param tokenId NFT token id for withdraw auction
     function withdrawAuction(address nftContract, uint256 tokenId)
-    external 
+    external nonReentrant
     onlyTokenOwner(nftContract, tokenId) {
         _resetAuction(nftContract, tokenId);
         emit NFTAuctionWithdrawn(nftContract, tokenId);
@@ -378,7 +398,7 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, INFTEngine {
     /// @param nftContract NFT collection's contract address
     /// @param tokenId NFT token id for complete auction
     function takeHighestBid(address nftContract, uint256 tokenId)
-    external
+    external nonReentrant
     onlyAuctionSeller(nftContract, tokenId)
     {
         if (!_isAlreadyBidMade(nftContract, tokenId))
@@ -402,6 +422,7 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, INFTEngine {
         uint128 amount
     ) 
     external 
+    nonReentrant
     payable 
     auctionOngoing(nftContract, tokenId) 
     onlyApplicableBuyer(nftContract, tokenId) {
@@ -413,7 +434,7 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, INFTEngine {
     /// @param nftContract NFT collection's contract address
     /// @param tokenId NFT token id for making bid
     function withdrawBid(address nftContract, uint256 tokenId) 
-    external {
+    external nonReentrant {
         address nftHighestBidder = _nftAuctions[nftContract][
             tokenId
         ].highestBidder;
@@ -446,7 +467,7 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, INFTEngine {
         uint128 sellPrice,
         address[] memory feeRecipients,
         uint32[] memory feeRates
-    ) external 
+    ) external nonReentrant
     onlyTokenOwner(nftContract, tokenId)
     onlyApprovedToken(nftContract, tokenId)
     onlyValidPrice(sellPrice) 
@@ -476,7 +497,7 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, INFTEngine {
     /// @param nftContract NFT collection's contract address
     /// @param tokenId NFT token id for withdraw sale
     function withdrawSale(address nftContract, uint256 tokenId)
-    external
+    external nonReentrant
     onlyTokenOwner(nftContract, tokenId)
     onlySale(nftContract, tokenId) {
         _resetSale(nftContract, tokenId);
@@ -550,14 +571,17 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, INFTEngine {
     function buyNFT(address nftContract, uint256 tokenId) 
     external 
     payable
+    nonReentrant
     onlySale(nftContract, tokenId)
     onlyNotTokenOwner(nftContract, tokenId) {
         uint256 amount = _nftSales[nftContract][tokenId].price;
+        address seller = _nftSales[nftContract][tokenId].seller;
+        address erc20Token = _nftSales[nftContract][tokenId].erc20Token;
         uint256 toTreasury = amount * feeToTreasury / 100;
         uint256 toSeller = amount - toTreasury;
-        address seller = _nftSales[nftContract][tokenId].seller;
-        
-        if (_nftSales[nftContract][tokenId].erc20Token == address(0)) {
+        _resetSale(nftContract, tokenId);
+
+        if (erc20Token == address(0)) {
             /// paying with ether
             require(msg.value >= amount, "Insufficient Ether");
 
@@ -577,18 +601,12 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, INFTEngine {
         }
         else {
             /// paying with erc20 token
-            if (!IERC20(_nftSales[nftContract][tokenId].erc20Token).transferFrom(
-                msg.sender, seller, toSeller)) {
-                revert("Failed sending erc20 to seller");
-            }
+            if (!IERC20(erc20Token).transferFrom(msg.sender, seller, toSeller)) 
+                revert NFTEngineERC20TransferFailed(erc20Token, amount);
 
-            if (!IERC20(_nftSales[nftContract][tokenId].erc20Token).transferFrom(
-                msg.sender, _treasury, toTreasury)) {
-                revert("Failed sending erc20 to treasury");
-            }
-        }    
-
-        _resetSale(nftContract, tokenId);
+            if (!IERC20(erc20Token).transferFrom(msg.sender, _treasury, toTreasury)) 
+                revert NFTEngineERC20TransferFailed(erc20Token, amount);
+        }            
 
         IERC721(nftContract).safeTransferFrom(
             address(this), 
@@ -686,6 +704,9 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, INFTEngine {
             tokenId,
             tokenAmount
         );
+        
+        _updateOngoingAuction(nftContract, tokenId);
+
         emit NFTAuctionBidMade(
             nftContract,
             tokenId,
@@ -694,8 +715,6 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, INFTEngine {
             erc20Token,
             tokenAmount
         );
-
-        _updateOngoingAuction(nftContract, tokenId);
     }
 
     /// @notice Check if a bid has been made. This is applicable in the early bid scenario
@@ -818,15 +837,15 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, INFTEngine {
         }
         //min price not set, nft not up for auction yet
         if (_isMinimumBidMade(nftContract, tokenId)) {
-            _transferNftToAuctionContract(nftContract, tokenId, nftSeller);
             _updateAuctionEnd(nftContract, tokenId);
+            _transferNftToAuctionContract(nftContract, tokenId, nftSeller);
         }
     }
 
     function _transferNftToAuctionContract(address nftContract, uint256 tokenId, address nftSeller) 
     internal {
         if (IERC721(nftContract).ownerOf(tokenId) == nftSeller) {
-            IERC721(nftContract).transferFrom(
+            IERC721(nftContract).safeTransferFrom(
                 nftSeller,
                 address(this),
                 tokenId
@@ -845,6 +864,7 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, INFTEngine {
         address nftRecipient = _getNftRecipient(nftContract, tokenId);
         uint128 nftHighestBid = _nftAuctions[nftContract][tokenId].highestBid;
         _resetBids(nftContract, tokenId);
+        _resetAuction(nftContract, tokenId);
 
         _payFeesAndSeller(
             nftContract,
@@ -852,13 +872,12 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, INFTEngine {
             nftSeller,
             nftHighestBid
         );
-        IERC721(nftContract).transferFrom(
+        IERC721(nftContract).safeTransferFrom(
             address(this),
             nftRecipient,
             tokenId
         );
-
-        _resetAuction(nftContract, tokenId);
+        
         emit NFTAuctionPaid(
             nftContract,
             tokenId,
@@ -905,7 +924,9 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, INFTEngine {
     ) internal {
         address auctionERC20Token = _nftAuctions[nftContract][tokenId].erc20Token;
         if (_isERC20Auction(auctionERC20Token)) {
-            IERC20(auctionERC20Token).transfer(recipient, amount);
+            if (!IERC20(auctionERC20Token).transfer(recipient, amount)) {
+                revert NFTEngineERC20TransferFailed(auctionERC20Token, amount);
+            }
         } else {
             // attempt to send the funds to the recipient
             (bool success, ) = payable(recipient).call{
@@ -1009,11 +1030,13 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, INFTEngine {
     ) internal {
         address auctionERC20Token = _nftAuctions[nftContract][tokenId].erc20Token;
         if (_isERC20Auction(auctionERC20Token)) {
-            IERC20(auctionERC20Token).transferFrom(
+            if (!IERC20(auctionERC20Token).transferFrom(
                 msg.sender,
                 address(this),
                 tokenAmount
-            );
+            )) {
+                revert NFTEngineERC20TransferFailed(auctionERC20Token, tokenAmount);
+            }
             _nftAuctions[nftContract][tokenId].highestBid = tokenAmount;
         } else {
             _nftAuctions[nftContract][tokenId].highestBid = uint128(msg.value);

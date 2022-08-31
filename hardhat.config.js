@@ -18,7 +18,7 @@ module.exports = {
     settings: {
         optimizer: {
             enabled: true,
-            runs: 1000000,  // https://github.com/NomicFoundation/hardhat/issues/2657
+            runs: 200,  // https://github.com/NomicFoundation/hardhat/issues/2657
         },
     },
   },

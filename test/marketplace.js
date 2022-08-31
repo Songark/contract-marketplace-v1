@@ -6,6 +6,8 @@ const { ethers, upgrades } = require("hardhat");
 describe("NFT Marketplace", function () {
   let engineInfo;
   let nftEngine;
+  const emptyFeeRecipients = [];
+  const emptyFeePercentages = [];
 
   async function deployBaseContracts() {
     const [owner, seller, buyer1, buyer2, treasury] = await ethers.getSigners();
@@ -143,8 +145,8 @@ describe("NFT Marketplace", function () {
       tokenId,
       getZeroAddress(),
       tokenPrice,
-      [],
-      []
+      emptyFeeRecipients,
+      emptyFeePercentages
     );
     console.log("\tgas used (nftEngine.createSale):", (await tx.wait()).gasUsed.toString());
 
@@ -166,8 +168,8 @@ describe("NFT Marketplace", function () {
       tokenId,
       engineInfo.owndTokenMock.address,
       tokenPrice,
-      [],
-      []
+      emptyFeeRecipients,
+      emptyFeePercentages
     )).to.be.reverted;  // onlyApprovedToken
     
     await nftContract.connect(seller).approve(
@@ -180,8 +182,8 @@ describe("NFT Marketplace", function () {
       tokenId,
       engineInfo.owndTokenMock.address,
       0,
-      [],
-      []
+      emptyFeeRecipients,
+      emptyFeePercentages
     )).to.be.reverted;  // onlyValidPrice
 
     tokenId = 1;
@@ -190,8 +192,8 @@ describe("NFT Marketplace", function () {
       tokenId,
       engineInfo.owndTokenMock.address,
       tokenPrice,
-      [],
-      []
+      emptyFeeRecipients,
+      emptyFeePercentages
     )).to.be.reverted;  // onlyNotSale
   });
 
@@ -211,8 +213,8 @@ describe("NFT Marketplace", function () {
       tokenId,
       engineInfo.owndTokenMock.address,
       tokenPrice,
-      [],
-      []
+      emptyFeeRecipients,
+      emptyFeePercentages
     );
     console.log("\tgas used (nftEngine.createSale):", (await tx.wait()).gasUsed.toString());
 
@@ -278,10 +280,11 @@ describe("NFT Marketplace", function () {
       engineInfo.owndTokenMock.address,
       minPrice,
       buyNowPrice,
-      [],
-      []
+      emptyFeeRecipients,
+      emptyFeePercentages
     );      
     console.log("\tgas used (nftEngine.createAuction):", (await tx.wait()).gasUsed.toString());
+    expect(await nftContract.ownerOf(tokenId)).to.equal(seller.address);
 
     /// creating an auction with 0.1 ~ 1 eth pricing
     tokenId = 4;
@@ -299,8 +302,8 @@ describe("NFT Marketplace", function () {
       getZeroAddress(),
       minPrice,
       buyNowPrice,
-      [],
-      []
+      emptyFeeRecipients,
+      emptyFeePercentages
     );  
     console.log("\tgas used (nftEngine.createAuction):", (await tx.wait()).gasUsed.toString());
 
@@ -324,8 +327,8 @@ describe("NFT Marketplace", function () {
       engineInfo.owndTokenMock.address,
       minPrice,
       buyNowPrice,
-      [],
-      []
+      emptyFeeRecipients,
+      emptyFeePercentages
     )).to.be.reverted;     
 
     await nftContract.connect(seller).approve(
@@ -339,8 +342,8 @@ describe("NFT Marketplace", function () {
       engineInfo.owndTokenMock.address,
       minPrice,
       buyNowPrice,
-      [],
-      []
+      emptyFeeRecipients,
+      emptyFeePercentages
     )).to.be.reverted;            
   });
 
@@ -542,24 +545,6 @@ describe("NFT Marketplace", function () {
   async function getEtherBalance(wallet) {
     const balance = await ethers.provider.getBalance(wallet);
     return ethers.utils.formatEther(balance);
-  }
-
-  async function showBalances() {
-    console.log("[Checking balances]");
-    console.log("\tSeller Erc20:", 
-      await getERC20Balance(engineInfo.seller.address));
-    console.log("\tBuyer Erc20:", 
-      await getERC20Balance(engineInfo.buyer.address));
-    console.log("\tTreasury Erc20:", 
-      await getERC20Balance(engineInfo.treasury.address));
-
-    const provider = ethers.provider;
-    console.log("\tSeller Ether:", 
-      await getEtherBalance(engineInfo.seller.address));
-    console.log("\tBuyer Ether:", 
-      await getEtherBalance(engineInfo.buyer.address));
-    console.log("\tTreasury Ether:", 
-      await getEtherBalance(engineInfo.treasury.address));
   }
   
 });
