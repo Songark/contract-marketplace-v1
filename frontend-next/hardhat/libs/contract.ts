@@ -161,10 +161,63 @@ export async function getTokensOnSale(
     return tokenSales;
 }
 
+export async function getTokenSaleInfo(
+    provider, 
+    nftType: nftContractType,
+    tokenId: number) 
+{
+    let tokenSaleInfo;
+    if (provider !== undefined) {
+        const nftEngineV1 = new ethers.Contract(nftEngine, NFTEngineV1.abi, provider);
+        tokenSaleInfo = await nftEngineV1.getTokenSaleInfo(nftContracts[nftType], tokenId);
+    }
+    return tokenSaleInfo;
+}
+
+export async function getTokensOnAuction(
+    provider, 
+    nftType: nftContractType) 
+{
+    let tokenAuctions = [];
+    if (provider !== undefined) {
+        const nftEngineV1 = new ethers.Contract(nftEngine, NFTEngineV1.abi, provider);
+        tokenAuctions = await nftEngineV1.getTokensOnAuction(nftContracts[nftType]);
+    }
+    return tokenAuctions
+}
+
+export async function getTokenAuctionInfo(
+    provider, 
+    nftType: nftContractType,
+    tokenId: number) 
+{
+    let tokenAuctionInfo;
+    if (provider !== undefined) {
+        const nftEngineV1 = new ethers.Contract(nftEngine, NFTEngineV1.abi, provider);
+        tokenAuctionInfo = await nftEngineV1.getTokenAuctionInfo(nftContracts[nftType], tokenId);
+    }
+    return tokenAuctionInfo;
+}
+
+export async function buyNFT(
+    provider, 
+    nftType: nftContractType, 
+    tokenId: number) 
+{
+    if (provider !== undefined) {
+        const nftEngineV1 = new ethers.Contract(nftEngine, NFTEngineV1.abi, provider);
+        await nftEngineV1.buyNFT(
+            nftContracts[nftType],
+            tokenId
+        );
+    }
+}
+
 async function getEventObject(transaction, eventName: string) {
     const receipt = await transaction.wait();
     const events = receipt.events.filter((v) => {return v.event === eventName;});
-    for (let i = 0; i < events.length; i++) {
-        console.log(events);
-    }
+    let eventObj;
+    if (events.length > 0)
+        eventObj = events[0].args;
+    return eventObj;
 }
