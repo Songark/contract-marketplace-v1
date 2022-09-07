@@ -42,6 +42,7 @@ These smart contracts can be easily used in a permissionless and flexible manner
 npx hardhat clean
 npx hardhat compile
 npx hardhat test
+npx hardhat run scripts/deploy.js
 ```
 
 ### Code coverage and generate the documents

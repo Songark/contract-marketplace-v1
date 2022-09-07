@@ -2,12 +2,21 @@ require("@nomicfoundation/hardhat-toolbox");
 require("@nomicfoundation/hardhat-chai-matchers");
 require('hardhat-contract-sizer');
 require('@openzeppelin/hardhat-upgrades');
+require('hardhat-deploy-ethers');
+require('hardhat-deploy');
 
 const dotenv = require("dotenv");
 dotenv.config();
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
+  react: {
+    providerPriority: ["web3modal", "hardhat"],
+  },
+
+  paths: {
+    "artifacts": './frontend-next/hardhat/artifacts',
+  },
 
   gasReporter: {
     enabled: true
