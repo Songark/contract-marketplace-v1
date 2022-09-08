@@ -1,7 +1,7 @@
 const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
 const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require("chai");
-const { ethers, upgrades } = require("hardhat");
+const { ethers, network, upgrades } = require("hardhat");
 
 describe("NFT Marketplace", function () {
   let engineInfo;
@@ -19,10 +19,10 @@ describe("NFT Marketplace", function () {
     const fractionalizedNFTMock = await FractionalizedNFTMock.deploy();
 
     const OwndTokenMock = await ethers.getContractFactory("OwndTokenMock");
-    const owndTokenMock = await OwndTokenMock.deploy();
+    const owndTokenMock = await OwndTokenMock.deploy("Owned Token", "OWND");
 
     const MembershipNFTMock = await ethers.getContractFactory("MembershipNFTMock");
-    const membershipNFTMock = await MembershipNFTMock.deploy();    
+    const membershipNFTMock = await MembershipNFTMock.deploy("Genesis Owner Key", "MNFT");    
 
     const NFTEngineV1 = await ethers.getContractFactory("NFTEngineV1");
     const nftEngine = await upgrades.deployProxy(
@@ -82,7 +82,7 @@ describe("NFT Marketplace", function () {
     // mint custom nft tokens
     let tokenOwner = engineInfo.seller.address;
     let tokenCount = 10;
-    let tx = await engineInfo.customNFTMock.safeMint(
+    let tx = await engineInfo.customNFTMock.mint(
       tokenOwner, tokenCount
     );
     console.log("\tgas used (customNFTMock.safeMint):", (await tx.wait()).gasUsed.toString());
@@ -112,12 +112,12 @@ describe("NFT Marketplace", function () {
   it ("Should mint ownd tokens", async () => {
     // mint fractionalized nft tokens
     let tokenOwner = engineInfo.buyer1.address;
-    let tokenBalance = ethers.utils.parseEther("1000");
+    let tokenBalance = 1000;
     await engineInfo.owndTokenMock.mint(
       tokenOwner, tokenBalance
     );
     await expect(await engineInfo.owndTokenMock.balanceOf(tokenOwner)).to.be.equal(
-      tokenBalance,  "Failed to mint owndTokenMock Token for buyer 1"
+      ethers.utils.parseEther(tokenBalance.toString()),  "Failed to mint owndTokenMock Token for buyer 1"
     );
 
     tokenOwner = engineInfo.buyer2.address;
@@ -125,7 +125,7 @@ describe("NFT Marketplace", function () {
       tokenOwner, tokenBalance
     );
     await expect(await engineInfo.owndTokenMock.balanceOf(tokenOwner)).to.be.equal(
-      tokenBalance,  "Failed to mint owndTokenMock Token for buyer 2"
+      ethers.utils.parseEther(tokenBalance.toString()),  "Failed to mint owndTokenMock Token for buyer 2"
     );
   });
 

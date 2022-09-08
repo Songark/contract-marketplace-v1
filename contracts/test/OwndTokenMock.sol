@@ -5,9 +5,9 @@ import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract OwndTokenMock is ERC20 {
-    constructor() ERC20("OWNED", "OWND") {}
+    constructor(string memory name_, string memory symbol_) ERC20(name_, symbol_) {}
 
     function mint(address to, uint256 amount) external {
-        _mint(to, amount);
+        _mint(to, amount * 10 ** decimals());
     }
 }

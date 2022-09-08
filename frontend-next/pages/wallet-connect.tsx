@@ -14,7 +14,7 @@ import { toHex, truncateAddress } from "../components/blockchain/utils";
 import NetworkLists from '../components/layouts/NetworkLists';
 
 import { getTokensOnSale } from '../hardhat/libs/contract';
-import { nftContractType } from '../hardhat/libs/constants';
+import { contractType } from '../hardhat/libs/constants';
 
 const WalletConnect = () => {
     const {
@@ -63,7 +63,7 @@ const WalletConnect = () => {
     const itemClick = async (conn) => {
         activate(connectors[conn]);        
         setProvider(conn);
-        await getTokensOnSale(library, nftContractType.membershipNFT);
+        await getTokensOnSale(library, contractType.membershipNFT);
     }
     
     return (

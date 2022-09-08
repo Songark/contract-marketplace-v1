@@ -5,9 +5,8 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "../interface/ICustomNFTMock.sol";
 
-contract CustomNFTMock is ERC721, ERC721URIStorage, Ownable, ICustomNFTMock {
+contract CustomNFTMock is ERC721, ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;
@@ -24,9 +23,9 @@ contract CustomNFTMock is ERC721, ERC721URIStorage, Ownable, ICustomNFTMock {
         ERC721(name_, symbol_)
     {}
 
-    function safeMint(address to, uint256 count) 
+    function mint(address to, uint256 count) 
     external 
-    override onlyOwner {
+    onlyMarketplace {
         require(count > 0, "Invalid count for mint");
         require(to != address(0), "Invalid address for minter");
         for (uint256 i = 0; i < count; i++) {

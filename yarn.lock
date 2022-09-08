@@ -9,6 +9,11 @@
   dependencies:
     "regenerator-runtime" "^0.13.4"
 
+"@chainlink/contracts@^0.4.0":
+  "integrity" "sha512-eC8biY6Ks8k9kZKVt5305veCP3z57yyiy6Os5aR6auta6Bp34xWQ/s4qvrifcW4FNgWw1HJPwMPXDGfiehcLjg=="
+  "resolved" "https://registry.npmjs.org/@chainlink/contracts/-/contracts-0.4.1.tgz"
+  "version" "0.4.1"
+
 "@colors/colors@1.5.0":
   "integrity" "sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ=="
   "resolved" "https://registry.npmjs.org/@colors/colors/-/colors-1.5.0.tgz"
@@ -1050,12 +1055,12 @@
     "find-up" "^4.1.0"
     "fs-extra" "^8.1.0"
 
-"@openzeppelin/contracts-upgradeable@^4.7.2":
+"@openzeppelin/contracts-upgradeable@^4.5.1", "@openzeppelin/contracts-upgradeable@^4.7.2":
   "integrity" "sha512-3dgc6qVmFch/uOmlmKnw5/v3JxwXcZD4T10/9CI1OUbX8AqjoZrBGKfxN1z3QxnIXRU/X31/BItJezJSDDTe7Q=="
   "resolved" "https://registry.npmjs.org/@openzeppelin/contracts-upgradeable/-/contracts-upgradeable-4.7.2.tgz"
   "version" "4.7.2"
 
-"@openzeppelin/contracts@^4.7.0":
+"@openzeppelin/contracts@^4.4.2", "@openzeppelin/contracts@^4.7.0":
   "integrity" "sha512-52Qb+A1DdOss8QvJrijYYPSf32GUg2pGaG/yCxtaA3cu4jduouTdg4XZSMLW9op54m1jH7J8hoajhHKOPsoJFw=="
   "resolved" "https://registry.npmjs.org/@openzeppelin/contracts/-/contracts-4.7.0.tgz"
   "version" "4.7.0"
@@ -3060,6 +3065,16 @@
   "integrity" "sha512-b3MCLFMKQ+gVlRr7BUP6p4li5+ujbVZR6bSdOPtwZ6+9gAgYxXxHp0yaUPPvFpVQQVdlU8/LKQmGrrPhESGwWg=="
   "resolved" "https://registry.npmjs.org/erc721a/-/erc721a-4.2.0.tgz"
   "version" "4.2.0"
+
+"erc721psi@^0.6.1":
+  "integrity" "sha512-1EmIWOQXYAfPnQxeWi8h9gFZ49jKUVCXO/H/sGYQKr32SJxT1vnYihmEO6Mql1zeXviQKn4OHKS38iRwStnjDg=="
+  "resolved" "https://registry.npmjs.org/erc721psi/-/erc721psi-0.6.1.tgz"
+  "version" "0.6.1"
+  dependencies:
+    "@chainlink/contracts" "^0.4.0"
+    "@openzeppelin/contracts" "^4.4.2"
+    "@openzeppelin/contracts-upgradeable" "^4.5.1"
+    "solidity-bits" "^0.3.2"
 
 "errno@~0.1.1":
   "integrity" "sha512-dJ6oBr5SQ1VSd9qkk7ByRgb/1SH4JZjCHSW/mr63/QcXO9zLVxvJ6Oy13nio03rxpSnVDDjFor75SjVeZWPW/A=="
@@ -6737,6 +6752,11 @@
   "integrity" "sha512-F5bTDLh3rmDxRmLSrs3qt3nvxJprWSEkS7h2KmuXDx7XTfJ6ZKVTV1rtPIYCqJAuPsU/qa8YUeFn7jdOAZcTPA=="
   "resolved" "https://registry.npmjs.org/solidity-ast/-/solidity-ast-0.4.35.tgz"
   "version" "0.4.35"
+
+"solidity-bits@^0.3.2":
+  "integrity" "sha512-RpqHF9g5i3bW6gr0KxKTsuYNJqZfPko6EFhq5z1V19Wsj/xatZNdq/Z9W4wFZRfhKijxbEyQXj9ePbcJM3tBkg=="
+  "resolved" "https://registry.npmjs.org/solidity-bits/-/solidity-bits-0.3.2.tgz"
+  "version" "0.3.2"
 
 "solidity-coverage@^0.7.21":
   "integrity" "sha512-O8nuzJ9yXiKUx3NdzVvHrUW0DxoNVcGzq/I7NzewNO9EZE3wYAQ4l8BwcnV64r4aC/HB6Vnw/q2sF0BQHv/3fg=="

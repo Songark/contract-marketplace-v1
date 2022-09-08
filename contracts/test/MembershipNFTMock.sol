@@ -1,15 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "erc721a/contracts/ERC721A.sol";
+import "erc721psi/contracts/ERC721Psi.sol";
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract MembershipNFTMock is ERC721A, Ownable {
-    constructor() ERC721A("Genesis Owner Key", "OWNK") {}
+contract MembershipNFTMock is ERC721Psi, Ownable {
+    constructor(string memory name_, string memory symbol_) 
+        ERC721Psi(name_, symbol_) {}
 
-    function mint(address to, uint256 quantity) external onlyOwner {
-        // `_mint`'s second argument now takes in a `quantity`, not a `tokenId`.
-        _mint(to, quantity);
+    function mint(address to, uint256 quantity) 
+    external 
+    onlyOwner {
+        // _safeMint's second argument now takes in a quantity, not a tokenId. (same as ERC721A)
+        _safeMint(to, quantity);
     }
 }
