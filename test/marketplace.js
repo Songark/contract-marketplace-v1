@@ -225,6 +225,33 @@ describe("NFT Marketplace", function () {
     await expect(tokenSaleInfo.price).to.be.equal(tokenPrice, "Failed to create a sale, invalid token price");
   });
 
+  it ("Should test to create batch sale for several nfts using same parameters", async () => {
+    let seller = engineInfo.seller;
+    let nftContract = engineInfo.membershipNFTMock;
+    let tokenIds = [5,6,7,8,9];
+    let tokenPrice = ethers.utils.parseEther("10");
+    
+    for (let i = 0; i < tokenIds.length; i++) {
+      await nftContract.connect(seller).approve(
+        nftEngine.address,
+        tokenIds[i]
+      );  
+    }
+
+    let tx = await nftEngine.connect(seller).createBatchSale(
+      nftContract.address,
+      tokenIds,
+      engineInfo.owndTokenMock.address,
+      tokenPrice,
+      emptyFeeRecipients,
+      emptyFeePercentages
+    );
+    console.log("\tgas used (nftEngine.createBatchSale):", (await tx.wait()).gasUsed.toString());
+
+    let tokenSales = await nftEngine.getTokensOnSale(nftContract.address);
+    await expect(tokenSales.length).to.be.equal(7, "Failed to create batch sales, invalid sales count");
+  });
+
   it ("Should buy two NFTs from sales using 1 eth and 10 owndTokens", async () => {
     let nftContract = engineInfo.membershipNFTMock;    
     let tokenSales = await nftEngine.getTokensOnSale(nftContract.address);

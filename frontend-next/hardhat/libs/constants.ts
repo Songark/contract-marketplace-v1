@@ -1,3 +1,7 @@
+import { EvmChain } from '@moralisweb3/evm-utils';
+
+export const chain = EvmChain.RINKEBY;
+export const moralis_apikey = "LZ0l9LCHbzG9IaN9ltkswy1voYRgcUBWDWZ5Ar5tFaAVKT5ctwHqlCUJ9y7tNZHd";
 export const nftEngine = "0xCC57ddD4B4D666F8587E8dD21Ecb7C4b99c5b8C1"; 
 
 export enum contractType {

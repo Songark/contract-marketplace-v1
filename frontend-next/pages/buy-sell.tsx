@@ -4,6 +4,8 @@ import Header from '../components/header/Header';
 import Footer from '../components/footer/Footer';
 import BuySellSection from '../components/layouts/explore-02/BuySellSection'
 import { useWeb3React } from "@web3-react/core";
+import { getMyNFTs, getTokenInfo } from '../hardhat/libs/nftmoralis';
+import { contractType } from '../hardhat/libs/constants';
 
 const Buysell = () => {
     const {
@@ -16,7 +18,17 @@ const Buysell = () => {
     } = useWeb3React();
 
     useEffect(() => {
-        console.log(account);
+        const fetch_data = async () => {
+            console.log(account);
+            if (account !== undefined) {
+                const nfts = await getMyNFTs(contractType.membershipNFT, account);
+                console.log(nfts);
+                const tokenInfo = await getTokenInfo(contractType.membershipNFT, "1")
+                console.log(tokenInfo);    
+            }
+        }
+
+        fetch_data();        
     }, []);
 
     return (

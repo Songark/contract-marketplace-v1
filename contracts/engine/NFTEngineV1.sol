@@ -249,7 +249,7 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
         address from,
         uint256 tokenId,
         bytes calldata data
-    ) external override returns (bytes4) {
+    ) external override pure returns (bytes4) {
         return this.onERC721Received.selector;
     }
 
@@ -471,7 +471,50 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
     onlyApprovedToken(nftContract, tokenId)
     onlyValidPrice(sellPrice) 
     onlyNotSale(nftContract, tokenId) {
+        
+        _createSale(nftContract, tokenId, erc20Token, sellPrice, feeRecipients, feeRates);
+        
+    }
 
+    /// @notice create a number of sales request with parameters
+    /// @dev NFT owners can create sales using this function
+    /// @param nftContract NFT collection's contract address
+    /// @param tokenIds array of NFT token id for auction
+    /// @param erc20Token ERC20 Token for payment (if specified by the seller)
+    /// @param sellPrice sell price
+    /// @param feeRecipients fee recipients addresses
+    /// @param feeRates respective fee percentages for each recipients
+    function createBatchSale(
+        address nftContract,
+        uint256[] memory tokenIds,
+        address erc20Token,
+        uint128 sellPrice,
+        address[] memory feeRecipients,
+        uint32[] memory feeRates
+    ) external nonReentrant
+    onlyValidPrice(sellPrice) {
+
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            uint256 tokenId = tokenIds[i];
+            if (msg.sender != IERC721(nftContract).ownerOf(tokenId))
+                revert NFTEngineNotTokenOwner(nftContract, tokenId);
+            if (address(this) != IERC721(nftContract).getApproved(tokenId))
+                revert NFTEngineNotApprovedToken(nftContract, tokenId);
+            if (address(0) != _nftSales[nftContract][tokenId].seller) 
+                revert NFTEngineAlreadySalingToken(nftContract, tokenId);
+
+            _createSale(nftContract, tokenId, erc20Token, sellPrice, feeRecipients, feeRates);
+        }        
+    }
+
+    function _createSale(
+        address nftContract,
+        uint256 tokenId,
+        address erc20Token,
+        uint128 sellPrice,
+        address[] memory feeRecipients,
+        uint32[] memory feeRates
+    ) internal {
         _transferNftToAuctionContract(nftContract, tokenId, msg.sender);
 
         _nftIdsForSale[nftContract].push(tokenId);
