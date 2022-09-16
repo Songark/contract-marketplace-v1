@@ -2,6 +2,10 @@ import Moralis  from 'moralis';
 import { EvmChain } from '@moralisweb3/evm-utils';
 import { contractType, contractAddress, chain, moralis_apikey } from './constants';
 
+Moralis.start({
+    apiKey: moralis_apikey,
+});
+
 export async function getMyNFTs(type: contractType, address: string) {
     if (address !== undefined) {
         await Moralis.start({
@@ -17,7 +21,7 @@ export async function getMyNFTs(type: contractType, address: string) {
             chain,
             tokenAddresses: [tokenAddress]
         });
-        return response.data.result;
+        return response;
     }
     return [];
 }
@@ -36,7 +40,7 @@ export async function getTokenInfo(type: contractType, tokenId: string) {
             chain,
             tokenId,
         });
-        return response.data;
+        return response;
     }
     return null;
 }

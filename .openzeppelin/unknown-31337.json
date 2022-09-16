@@ -2,7 +2,7 @@
   "manifestVersion": "3.2",
   "admin": {
     "address": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
-    "txHash": "0x249dbb5f980023041def7d0d3144d8a41de5fd8b19a6db571028f0568cf2e093"
+    "txHash": "0x6bd5f5e1ed54f60ce3612faa916a7b7137cf6d3a0a82e60c9b22646dbaea604b"
   },
   "proxies": [
     {
@@ -17,7 +17,7 @@
     },
     {
       "address": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
-      "txHash": "0x9fffad3713863290a80201c21639738d7697f6dd586784087a39bf605217fe6c",
+      "txHash": "0x7f127705d664f00349c1ca78a86de311046cb590affa1e42057507aeb0e13a8c",
       "kind": "transparent"
     }
   ],
@@ -448,9 +448,9 @@
         }
       }
     },
-    "8cca48731b42eaff883331fea583e0bd366915172a877aaa120a166bab58153f": {
+    "7a721b5b244b0d71a3890654adc6595e85c8f536555234192903b251faf0266b": {
       "address": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
-      "txHash": "0xad44fef3efafabd6687c7721643c29bfc94bb9e56188a02e9470ed63c544c09e",
+      "txHash": "0x3ee2f0f5c119a4ff1d71e7c95b87cdc85b10441e0c24fc2b69439a2b55dea665",
       "layout": {
         "storage": [
           {
@@ -514,7 +514,7 @@
             "label": "_nftContracts",
             "offset": 0,
             "slot": "151",
-            "type": "t_mapping(t_enum(NFTTypes)7787,t_address)",
+            "type": "t_mapping(t_enum(NFTTypes)9269,t_address)",
             "contract": "NFTEngineV1",
             "src": "contracts\\engine\\NFTEngineV1.sol:72"
           },
@@ -522,12 +522,12 @@
             "label": "_nftAuctions",
             "offset": 0,
             "slot": "152",
-            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(AuctionNFT)7839_storage))",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(AuctionNFT)9321_storage))",
             "contract": "NFTEngineV1",
             "src": "contracts\\engine\\NFTEngineV1.sol:75"
           },
           {
-            "label": "_nftIdsForAction",
+            "label": "_nftIdsForAuction",
             "offset": 0,
             "slot": "153",
             "type": "t_mapping(t_address,t_array(t_uint256)dyn_storage)",
@@ -538,7 +538,7 @@
             "label": "_nftSales",
             "offset": 0,
             "slot": "154",
-            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(SellNFT)7808_storage))",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(SellNFT)9290_storage))",
             "contract": "NFTEngineV1",
             "src": "contracts\\engine\\NFTEngineV1.sol:81"
           },
@@ -554,7 +554,7 @@
             "label": "_nftMints",
             "offset": 0,
             "slot": "156",
-            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(MintNFT)7795_storage))",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(MintNFT)9277_storage))",
             "contract": "NFTEngineV1",
             "src": "contracts\\engine\\NFTEngineV1.sol:87"
           },
@@ -596,7 +596,7 @@
             "label": "bool",
             "numberOfBytes": "1"
           },
-          "t_enum(NFTTypes)7787": {
+          "t_enum(NFTTypes)9269": {
             "label": "enum LTypes.NFTTypes",
             "members": [
               "customNFT",
@@ -610,35 +610,35 @@
             "label": "mapping(address => uint256[])",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_address,t_mapping(t_uint256,t_struct(AuctionNFT)7839_storage))": {
+          "t_mapping(t_address,t_mapping(t_uint256,t_struct(AuctionNFT)9321_storage))": {
             "label": "mapping(address => mapping(uint256 => struct LTypes.AuctionNFT))",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_address,t_mapping(t_uint256,t_struct(MintNFT)7795_storage))": {
+          "t_mapping(t_address,t_mapping(t_uint256,t_struct(MintNFT)9277_storage))": {
             "label": "mapping(address => mapping(uint256 => struct LTypes.MintNFT))",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_address,t_mapping(t_uint256,t_struct(SellNFT)7808_storage))": {
+          "t_mapping(t_address,t_mapping(t_uint256,t_struct(SellNFT)9290_storage))": {
             "label": "mapping(address => mapping(uint256 => struct LTypes.SellNFT))",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_enum(NFTTypes)7787,t_address)": {
+          "t_mapping(t_enum(NFTTypes)9269,t_address)": {
             "label": "mapping(enum LTypes.NFTTypes => address)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(AuctionNFT)7839_storage)": {
+          "t_mapping(t_uint256,t_struct(AuctionNFT)9321_storage)": {
             "label": "mapping(uint256 => struct LTypes.AuctionNFT)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(MintNFT)7795_storage)": {
+          "t_mapping(t_uint256,t_struct(MintNFT)9277_storage)": {
             "label": "mapping(uint256 => struct LTypes.MintNFT)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(SellNFT)7808_storage)": {
+          "t_mapping(t_uint256,t_struct(SellNFT)9290_storage)": {
             "label": "mapping(uint256 => struct LTypes.SellNFT)",
             "numberOfBytes": "32"
           },
-          "t_struct(AuctionNFT)7839_storage": {
+          "t_struct(AuctionNFT)9321_storage": {
             "label": "struct LTypes.AuctionNFT",
             "members": [
               {
@@ -728,7 +728,7 @@
             ],
             "numberOfBytes": "288"
           },
-          "t_struct(MintNFT)7795_storage": {
+          "t_struct(MintNFT)9277_storage": {
             "label": "struct LTypes.MintNFT",
             "members": [
               {
@@ -740,7 +740,7 @@
             ],
             "numberOfBytes": "32"
           },
-          "t_struct(SellNFT)7808_storage": {
+          "t_struct(SellNFT)9290_storage": {
             "label": "struct LTypes.SellNFT",
             "members": [
               {

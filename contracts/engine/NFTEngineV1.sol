@@ -9,7 +9,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "../library/LTypes.sol";
 import "../interface/INFTEngine.sol";
-
+// import "hardhat/console.sol";
 
 ///@title NFT Marketplace Engine for PlayEstates
 ///@dev NFTEngineV1 is used to create sales & auctions and manage them effectively for seller,  buyers and bidders.
@@ -75,7 +75,7 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
     mapping(address => mapping(uint256 => LTypes.AuctionNFT)) private _nftAuctions;
 
     /// @dev array mapping of nft contract and tokenIds for auction
-    mapping(address => uint256[]) private _nftIdsForAction;
+    mapping(address => uint256[]) private _nftIdsForAuction;
 
     /// @dev nested mapping of nft contract address vs tokenId vs sale item
     mapping(address => mapping(uint256 => LTypes.SellNFT)) private _nftSales;
@@ -301,12 +301,12 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
     /// @param nftId NFT token id 
     function removeNftIdFromAuctions(address nftContract, uint256 nftId) 
     internal {
-        for (uint256 i = 0; i < _nftIdsForAction[nftContract].length; i++) {
-            if (_nftIdsForAction[nftContract][i] == nftId) {
-                for (uint256 j = i; j < _nftIdsForAction[nftContract].length - 1; j++) {
-                    _nftIdsForAction[nftContract][j] = _nftIdsForAction[nftContract][j + 1];
+        for (uint256 i = 0; i < _nftIdsForAuction[nftContract].length; i++) {
+            if (_nftIdsForAuction[nftContract][i] == nftId) {
+                for (uint256 j = i; j < _nftIdsForAuction[nftContract].length - 1; j++) {
+                    _nftIdsForAuction[nftContract][j] = _nftIdsForAuction[nftContract][j + 1];
                 }
-                _nftIdsForAction[nftContract].pop();
+                _nftIdsForAuction[nftContract].pop();
             }
         }
     }
@@ -504,7 +504,7 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
                 revert NFTEngineAlreadySalingToken(nftContract, tokenId);
 
             _createSale(nftContract, tokenId, erc20Token, sellPrice, feeRecipients, feeRates);
-        }        
+        }      
     }
 
     function _createSale(
@@ -564,11 +564,35 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
         return _nftContracts[LTypes.NFTTypes(nftType)];
     }
 
+    /// @notice get saling nft tokens array from contract address
+    /// @dev NFT buyers can get list of sale nfts using this function
+    /// @param nftContract nft contract address
+    /// @param pageBegin begin index of pagenation
+    /// @param pageSize size of pagenation
+    /// @return tokenInfos nftToken Info's array of nft tokenIds
+    function getTokenInfosOnSale(address nftContract, uint256 pageBegin, uint256 pageSize) 
+    external 
+    view returns (LTypes.SellNFT[] memory tokenInfos) {
+        if (pageBegin < _nftIdsForSale[nftContract].length) {
+            if (pageSize > _nftIdsForSale[nftContract].length - pageBegin) {
+                pageSize = (_nftIdsForSale[nftContract].length - pageBegin);
+            }
+
+            if (pageSize > 0) {   
+                tokenInfos = new LTypes.SellNFT[] (pageSize);
+                for (uint256 i = pageBegin; i < pageBegin + pageSize; i++) {
+                    tokenInfos[i - pageBegin] = 
+                        _nftSales[nftContract][_nftIdsForSale[nftContract][i]];
+                }
+            }
+        }
+    }
+
     /// @notice get saling nft tokens from contract address
     /// @dev NFT buyers can get list of sale nfts using this function
     /// @param nftContract nft contract address
     /// @return nftTokenIds array of nft tokenIds
-    function getTokensOnSale(address nftContract) 
+    function getTokensIdsOnSale(address nftContract) 
     external 
     view returns (uint256[] memory) {
         return _nftIdsForSale[nftContract];
@@ -585,14 +609,38 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
         return _nftSales[nftContract][tokenId];
     }
 
+    /// @notice get auction nft tokens array from contract address
+    /// @dev NFT bidders can get list of auction nfts using this function
+    /// @param nftContract nft contract address
+    /// @param pageBegin begin index of pagenation
+    /// @param pageSize size of pagenation
+    /// @return tokenInfos nftToken Info's array of nft tokenIds
+    function getTokenInfosOnAuction(address nftContract, uint256 pageBegin, uint256 pageSize) 
+    external 
+    view returns (LTypes.AuctionNFT[] memory tokenInfos) {
+        if (pageBegin < _nftIdsForAuction[nftContract].length) {
+            if (pageSize > _nftIdsForAuction[nftContract].length - pageBegin) {
+                pageSize = (_nftIdsForAuction[nftContract].length - pageBegin);
+            }
+
+            if (pageSize > 0) {
+                tokenInfos = new LTypes.AuctionNFT[] (pageSize);
+                for (uint256 i = pageBegin; i < pageBegin + pageSize; i++) {
+                    tokenInfos[i - pageBegin] = 
+                        _nftAuctions[nftContract][_nftIdsForAuction[nftContract][i]];
+                }
+            }
+        }
+    }
+
     /// @notice get auction nft tokens from contract address
     /// @dev NFT bidders can get list of auction nfts using this function
     /// @param nftContract nft contract address
     /// @return nftTokenIds array of nft tokenIds
-    function getTokensOnAuction(address nftContract) 
+    function getTokenIdsOnAuction(address nftContract) 
     external 
     view returns (uint256[] memory) {
-        return _nftIdsForAction[nftContract];
+        return _nftIdsForAuction[nftContract];
     }
 
     /// @notice get details information about nft token auction from contract and tokenId
@@ -705,7 +753,7 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
         _nftAuctions[nftContract][tokenId].minPrice = minPrice;
         _nftAuctions[nftContract][tokenId].seller = msg.sender;
 
-        _nftIdsForAction[nftContract].push(tokenId);
+        _nftIdsForAuction[nftContract].push(tokenId);
     }
 
     function _isAuctionOngoing(address nftContract, uint256 tokenId)
@@ -936,6 +984,16 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
         address nftSeller,
         uint256 highestBid
     ) internal {
+        uint256 toTreasury = highestBid * feeToTreasury / 100;
+        highestBid = highestBid - toTreasury;
+
+        _payout(
+            nftContract,
+            tokenId,
+            _treasury,
+            toTreasury
+        );
+
         uint256 feesPaid;
         for (uint256 i = 0; i < _nftAuctions[nftContract][tokenId] .feeRecipients.length; i++) {
             uint256 fee = _getPortionOfBid(

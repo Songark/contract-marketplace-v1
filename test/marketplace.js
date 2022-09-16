@@ -101,7 +101,7 @@ describe("NFT Marketplace", function () {
     let tokenOwner = engineInfo.seller.address;
     let tokenCount = 10;
     let tx = await engineInfo.membershipNFTMock.mint(
-      tokenOwner, tokenCount
+      tokenOwner, tokenCount, 0
     );
     console.log("\tgas used (membershipNFTMock.mint):", (await tx.wait()).gasUsed.toString());
     await expect(await engineInfo.membershipNFTMock.balanceOf(tokenOwner)).to.be.equal(
@@ -150,7 +150,7 @@ describe("NFT Marketplace", function () {
     );
     console.log("\tgas used (nftEngine.createSale):", (await tx.wait()).gasUsed.toString());
 
-    let tokenSales = await nftEngine.getTokensOnSale(nftContract.address);
+    let tokenSales = await nftEngine.getTokensIdsOnSale(nftContract.address);
     await expect(tokenSales.length).to.be.equal(1, "Failed to create sales, invalid sales count");
 
     const tokenSaleInfo = await nftEngine.getTokenSaleInfo(nftContract.address, tokenSales[0]);
@@ -218,7 +218,7 @@ describe("NFT Marketplace", function () {
     );
     console.log("\tgas used (nftEngine.createSale):", (await tx.wait()).gasUsed.toString());
 
-    let tokenSales = await nftEngine.getTokensOnSale(nftContract.address);
+    let tokenSales = await nftEngine.getTokensIdsOnSale(nftContract.address);
     await expect(tokenSales.length).to.be.equal(2, "Failed to create sales, invalid sales count");
 
     const tokenSaleInfo = await nftEngine.getTokenSaleInfo(nftContract.address, tokenSales[1]);
@@ -248,13 +248,24 @@ describe("NFT Marketplace", function () {
     );
     console.log("\tgas used (nftEngine.createBatchSale):", (await tx.wait()).gasUsed.toString());
 
-    let tokenSales = await nftEngine.getTokensOnSale(nftContract.address);
+    let tokenSales = await nftEngine.getTokensIdsOnSale(nftContract.address);
     await expect(tokenSales.length).to.be.equal(7, "Failed to create batch sales, invalid sales count");
   });
+  
+  it ("Should test get tokensinfo for sale", async () => {
+    let nftContract = engineInfo.membershipNFTMock;
+    
+    const tokenSales = await nftEngine.getTokenInfosOnSale(
+      nftContract.address,
+      0,
+      10);
+    
+    console.log(tokenSales);
+  }); 
 
   it ("Should buy two NFTs from sales using 1 eth and 10 owndTokens", async () => {
     let nftContract = engineInfo.membershipNFTMock;    
-    let tokenSales = await nftEngine.getTokensOnSale(nftContract.address);
+    let tokenSales = await nftEngine.getTokensIdsOnSale(nftContract.address);
     for (let i = 0; i < tokenSales.length; i++) {
       const saleInfo = await nftEngine.getTokenSaleInfo(nftContract.address, tokenSales[i]);
       if (saleInfo.erc20Token == 0) 
@@ -334,12 +345,23 @@ describe("NFT Marketplace", function () {
     );  
     console.log("\tgas used (nftEngine.createAuction):", (await tx.wait()).gasUsed.toString());
 
-    let tokenAuctions = await nftEngine.getTokensOnAuction(nftContract.address);
+    let tokenAuctions = await nftEngine.getTokenIdsOnAuction(nftContract.address);
     await expect(tokenAuctions.length).to.be.equal(2, "Failed to create auctions, invalid auctions count");
 
     const tokenAuctionInfo = await nftEngine.getTokenAuctionInfo(nftContract.address, tokenAuctions[1]);
     await expect(tokenAuctionInfo.minPrice).to.be.equal(minPrice, "Failed to create an auction, invalid minPrice");
   });
+
+  it ("Should test get tokensinfo for auction", async () => {
+    let nftContract = engineInfo.membershipNFTMock;
+    
+    const tokenSales = await nftEngine.getTokenInfosOnAuction(
+      nftContract.address,
+      0,
+      10);
+    
+    console.log(tokenSales);
+  }); 
 
   it ("Should revert the create auction because of several reasons", async () => {
     let seller = engineInfo.seller;
@@ -556,8 +578,7 @@ describe("NFT Marketplace", function () {
       nftContract.address,
       tokenId
     )).to.be.reverted;
-  });  
-
+  });   
   
 
   function getZeroAddress() {
