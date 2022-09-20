@@ -4,7 +4,8 @@ import {
     contractType,
     contractAddress,
     paymentType,
-    infuraApiKey
+    infuraApiKey,
+    chainName
 } from "./constants";
 import NFTEngineV1 from '../artifacts/contracts/engine/NFTEngineV1.sol/NFTEngineV1.json';
 import MembershipNFTMock from '../artifacts/contracts/test/MembershipNFTMock.sol/MembershipNFTMock.json';
@@ -192,7 +193,7 @@ export async function getTokenInfosOnSale(
 {
     let tokenInfos = [];
     const _provider = await new ethers.providers.InfuraProvider(
-        "rinkeby", 
+        chainName, 
         infuraApiKey);
     const nftEngineV1 = new ethers.Contract(nftEngine, NFTEngineV1.abi, _provider);
     tokenInfos = await nftEngineV1.getTokenInfosOnSale(
@@ -207,7 +208,7 @@ export async function getTokenIdsOnSale(
 {
     let tokenIds = [];
     const _provider = await new ethers.providers.InfuraProvider(
-        "rinkeby", 
+        chainName, 
         infuraApiKey);
     const nftEngineV1 = new ethers.Contract(nftEngine, NFTEngineV1.abi, _provider);
     tokenIds = await nftEngineV1.getTokensIdsOnSale(contractAddress[nftType]);
@@ -220,7 +221,7 @@ export async function getTokenSaleInfo(
 {
     let tokenSaleInfo;
     const _provider = await new ethers.providers.InfuraProvider(
-        "rinkeby", 
+        chainName, 
         infuraApiKey);
     const nftEngineV1 = new ethers.Contract(nftEngine, NFTEngineV1.abi, _provider);
     tokenSaleInfo = await nftEngineV1.getTokenSaleInfo(contractAddress[nftType], tokenId);    
@@ -234,7 +235,7 @@ export async function getTokenInfosOnAuction(
 {
     let tokenInfos = [];
     const _provider = await new ethers.providers.InfuraProvider(
-        "rinkeby", 
+        chainName, 
         infuraApiKey);
     const nftEngineV1 = new ethers.Contract(nftEngine, NFTEngineV1.abi, _provider);
     tokenInfos = await nftEngineV1.getTokenInfosOnAuction(
@@ -249,7 +250,7 @@ export async function getTokenIdsOnAuction(
 {
     let tokenIds = [];
     const _provider = await new ethers.providers.InfuraProvider(
-        "rinkeby", 
+        chainName, 
         infuraApiKey);
     const nftEngineV1 = new ethers.Contract(nftEngine, NFTEngineV1.abi, _provider);
     tokenIds = await nftEngineV1.getTokenIdsOnAuction(contractAddress[nftType]);    
@@ -262,7 +263,7 @@ export async function getTokenAuctionInfo(
 {
     let tokenAuctionInfo;
     const _provider = await new ethers.providers.InfuraProvider(
-        "rinkeby", 
+        chainName, 
         infuraApiKey);
     const nftEngineV1 = new ethers.Contract(nftEngine, NFTEngineV1.abi, _provider);
     tokenAuctionInfo = await nftEngineV1.getTokenAuctionInfo(contractAddress[nftType], tokenId);    
@@ -324,7 +325,7 @@ export async function getEventObject(transaction, eventName: string) {
 export async function getContractAddress(_type: contractType) {
     let contractAddress: any;
     const _provider = await new ethers.providers.InfuraProvider(
-        "rinkeby", 
+        chainName, 
         infuraApiKey);
     const nftEngineV1 = new ethers.Contract(nftEngine, NFTEngineV1.abi, _provider);
     contractAddress = await nftEngineV1.getNFTContract(_type);

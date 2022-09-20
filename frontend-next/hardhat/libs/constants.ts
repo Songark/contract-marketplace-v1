@@ -2,6 +2,8 @@ import { EvmChain } from '@moralisweb3/evm-utils';
 import Moralis  from 'moralis';
 
 export const chain = EvmChain.RINKEBY;
+export const chainName = "rinkeby";
+
 export const moralis_apikey = "7ppyBj1nGG2aydKjrga4UyBTSoj6enVAU0n25zcYLbnYFA4oA4Cn7h6fuYgKg3xw";
 export const nftEngine = "0x009E6D5F57982a77C3cd5C312C7c128C545FeC4a"; //"0xCC57ddD4B4D666F8587E8dD21Ecb7C4b99c5b8C1"; 
 

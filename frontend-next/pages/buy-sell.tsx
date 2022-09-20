@@ -32,12 +32,16 @@ const Buysell = () => {
                 const nfts = await getMyNFTs(contractType.membershipNFT, account);
                 console.log(nfts);                        
             }
+
             const tokenSales = await getTokenInfosOnSale(contractType.membershipNFT, 0, 10);
             console.log(tokenSales);  
+            
             const tokenInfo = await getTokenInfo(contractType.membershipNFT, "1")
             console.log(tokenInfo);    
+            
             const tokenIds = await getTokenIdsOnSale(contractType.membershipNFT);
             console.log(tokenIds);    
+            
             for (let i = 0; i < tokenSales.length; i++) {
                 const tokenSaleInfo = await getTokenSaleInfo(contractType.membershipNFT, tokenIds[i]);
                 console.log(tokenSaleInfo);  
