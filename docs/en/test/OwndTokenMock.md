@@ -13,6 +13,23 @@
 
 ## 4.Functions
 
+### constructor
+
+
+
+*Declaration:*
+```solidity
+function constructor(
+) public ERC20
+```
+*Modifiers:*
+| Modifier |
+| --- |
+| ERC20 |
+
+
+
+
 ### mint
 
 
@@ -20,8 +37,12 @@
 *Declaration:*
 ```solidity
 function mint(
-) external
+) external onlyOwner
 ```
+*Modifiers:*
+| Modifier |
+| --- |
+| onlyOwner |
 
 
 

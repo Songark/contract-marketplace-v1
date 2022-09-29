@@ -19,12 +19,14 @@
 ### `MintNFT`
 uint256 price
 ### `SellNFT`
+uint256 tokenId
 address erc20Token
 address seller
 uint256 price
 address[] feeRecipients
 uint32[] feeRates
 ### `AuctionNFT`
+uint256 tokenId
 uint32 bidIncRate
 uint32 bidPeriod
 uint64 endTime

@@ -26,6 +26,7 @@ library LTypes {
 
     /// @dev sell nft request structure
     struct SellNFT {
+        uint256 tokenId;
         address erc20Token;
         address seller;
         uint256 price;        
@@ -35,6 +36,7 @@ library LTypes {
 
     /// @dev auction nft request structure
     struct AuctionNFT {
+        uint256 tokenId;
         uint32 bidIncRate;
         uint32 bidPeriod; 
         uint64 endTime;

@@ -40,19 +40,19 @@ function constructor(
 
 
 
-### safeMint
+### mint
 
 
 
 *Declaration:*
 ```solidity
-function safeMint(
-) external onlyOwner
+function mint(
+) external onlyMarketplace
 ```
 *Modifiers:*
 | Modifier |
 | --- |
-| onlyOwner |
+| onlyMarketplace |
 
 
 

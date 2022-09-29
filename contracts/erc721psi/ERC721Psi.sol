@@ -23,7 +23,10 @@ import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/StorageSlot.sol";
 import "solidity-bits/contracts/BitMaps.sol";
 
-
+/// @title Updated contract of ERC721 for saving gas cost
+/// @dev ERC721Psi is an ERC721 compilant implementation designed for scalable and gas-efficient 
+/// on-chain application with built-in randomized metadata generation. 
+/// Inspired by AzukiZen's awesome ERC721A, ERC721Psi also provides batch minting at a fixed gas cost.
 contract ERC721Psi is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable {
     using Address for address;
     using Strings for uint256;

@@ -519,6 +519,7 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
 
         _nftIdsForSale[nftContract].push(tokenId);
 
+        _nftSales[nftContract][tokenId].tokenId = tokenId;
         _nftSales[nftContract][tokenId].erc20Token = erc20Token;
         _nftSales[nftContract][tokenId].seller = msg.sender;
         _nftSales[nftContract][tokenId].price = sellPrice;        
@@ -745,7 +746,8 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
         feeRecipients.length, feeRates.length
     )
     checkFeeRatesLessThanMaximum(feeRates)
-    {        
+    {   
+        _nftAuctions[nftContract][tokenId].tokenId = tokenId;                 
         _nftAuctions[nftContract][tokenId].erc20Token = erc20Token;            
         _nftAuctions[nftContract][tokenId].feeRecipients = feeRecipients;
         _nftAuctions[nftContract][tokenId].feeRates = feeRates;
@@ -756,12 +758,12 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
         _nftIdsForAuction[nftContract].push(tokenId);
     }
 
+    /// @notice Checking the auction's status. If the Auction's endTime is set to 0, the auction is technically on-going, 
+    /// however the minimum bid price (minPrice) has not yet been met.    
     function _isAuctionOngoing(address nftContract, uint256 tokenId)
     internal
     view returns (bool)
-    {
-        // if the Auction's endTime is set to 0, the auction is technically on-going, however
-        // the minimum bid price (minPrice) has not yet been met.        
+    {            
         return (_nftAuctions[nftContract][tokenId].endTime == 0 ||
             block.timestamp < _nftAuctions[nftContract][tokenId].endTime);
     }
@@ -786,7 +788,7 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
     {
         require(
             _doesBidMeetBidRequirements(nftContract, tokenId, tokenAmount),
-            "Not enough funds to bid on NFT"
+            "Insufficient funds to bid"
         );
 
         _reversePreviousBidAndUpdateHighestBid(
@@ -932,6 +934,7 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
         }
     }
 
+    /// @notice Transferring nft token to auction contract
     function _transferNftToAuctionContract(address nftContract, uint256 tokenId, address nftSeller) 
     internal {
         if (IERC721(nftContract).ownerOf(tokenId) == nftSeller) {
@@ -945,6 +948,8 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
             revert NFTEngineTokenTransferFailed(nftContract, tokenId);
     }
 
+    /// @notice Paying eth or erc20 to seller and transferring nft token to highest buyer,
+    /// clearing the auction request
     function _transferNftAndPaySeller(
         address nftContract, 
         uint256 tokenId
@@ -1108,6 +1113,7 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
         removeNftIdFromAuctions(nftContract, tokenId);
     }
 
+    /// @notice Reset all auction bids related parameters for an NFT.    
     function _resetBids(address nftContract, uint256 tokenId)
     internal
     {
@@ -1123,6 +1129,7 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
         return (_nftAuctions[nftContract][tokenId].whitelistedBuyer != address(0));
     }
 
+    /// @notice Updating the highest bidder and bid price for an Auction request
     function _updateHighestBid(
         address nftContract,
         uint256 tokenId,

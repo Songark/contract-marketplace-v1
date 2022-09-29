@@ -19,7 +19,11 @@ module.exports = {
   },
 
   gasReporter: {
-    enabled: true
+    enabled: process.env.REPORT_GAS !== undefined,
+    currency: "USD",
+    token: "ETH",
+    coinmarketcap: process.env.COINMARKETCAP_API_KEY, 
+    gasPriceApi: "https://api.etherscan.io/api?module=proxy&action=eth_gasPrice"
   },
   
   solidity: {
@@ -37,12 +41,22 @@ module.exports = {
 
     },
 
-    localhost: {
-      chainId: 1337
+    ethermain: {
+      url: process.env.ETHERMAIN_URL,
+      accounts: {
+        mnemonic: process.env.KEY_MNEMONIC
+      }
     },
 
     rinkeby: {
       url: process.env.RINKEBY_URL,
+      accounts: {
+        mnemonic: process.env.KEY_MNEMONIC
+      }
+    },
+
+    goerli: {
+      url: process.env.GOERLI_URL,
       accounts: {
         mnemonic: process.env.KEY_MNEMONIC
       }

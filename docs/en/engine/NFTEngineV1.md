@@ -186,6 +186,24 @@ address treasury
 |`treasury` | address | address of treasury for getting fee
 
 
+### onERC721Received
+
+> Whenever an {IERC721} `tokenId` token is transferred to this contract via {IERC721-safeTransferFrom}
+by `operator` from `from`, this function is called.
+It must return its Solidity selector to confirm the token transfer.
+If any other value is returned or the interface is not implemented by the recipient, the transfer will be reverted.
+The selector can be obtained in Solidity with `IERC721Receiver.onERC721Received.selector`.
+
+*Declaration:*
+```solidity
+function onERC721Received(
+) external returns
+(bytes4)
+```
+
+
+
+
 ### setNFTContracts
 set nft contracts address to marketplace engine
 
@@ -292,8 +310,12 @@ uint128 minPrice,
 uint128 buyNowPrice,
 address[] feeRecipients,
 uint32[] feeRates
-) external
+) external nonReentrant
 ```
+*Modifiers:*
+| Modifier |
+| --- |
+| nonReentrant |
 
 *Args:*
 | Arg | Type | Description |
@@ -318,11 +340,12 @@ settle progressing auction for nft token
 function settleAuction(
 address nftContract,
 uint256 tokenId
-) external onlyTokenOwner auctionOngoing
+) external nonReentrant onlyTokenOwner auctionOngoing
 ```
 *Modifiers:*
 | Modifier |
 | --- |
+| nonReentrant |
 | onlyTokenOwner |
 | auctionOngoing |
 
@@ -344,11 +367,12 @@ withdraw progressing auction for nft token
 function withdrawAuction(
 address nftContract,
 uint256 tokenId
-) external onlyTokenOwner
+) external nonReentrant onlyTokenOwner
 ```
 *Modifiers:*
 | Modifier |
 | --- |
+| nonReentrant |
 | onlyTokenOwner |
 
 *Args:*
@@ -369,11 +393,12 @@ complete progressing auction with current highest bid
 function takeHighestBid(
 address nftContract,
 uint256 tokenId
-) external onlyAuctionSeller
+) external nonReentrant onlyAuctionSeller
 ```
 *Modifiers:*
 | Modifier |
 | --- |
+| nonReentrant |
 | onlyAuctionSeller |
 
 *Args:*
@@ -396,11 +421,12 @@ address nftContract,
 uint256 tokenId,
 address erc20Token,
 uint128 amount
-) external auctionOngoing onlyApplicableBuyer
+) external nonReentrant auctionOngoing onlyApplicableBuyer
 ```
 *Modifiers:*
 | Modifier |
 | --- |
+| nonReentrant |
 | auctionOngoing |
 | onlyApplicableBuyer |
 
@@ -424,8 +450,12 @@ withdraw own bid from on going auction
 function withdrawBid(
 address nftContract,
 uint256 tokenId
-) external
+) external nonReentrant
 ```
+*Modifiers:*
+| Modifier |
+| --- |
+| nonReentrant |
 
 *Args:*
 | Arg | Type | Description |
@@ -449,11 +479,12 @@ address erc20Token,
 uint128 sellPrice,
 address[] feeRecipients,
 uint32[] feeRates
-) external onlyTokenOwner onlyApprovedToken onlyValidPrice onlyNotSale
+) external nonReentrant onlyTokenOwner onlyApprovedToken onlyValidPrice onlyNotSale
 ```
 *Modifiers:*
 | Modifier |
 | --- |
+| nonReentrant |
 | onlyTokenOwner |
 | onlyApprovedToken |
 | onlyValidPrice |
@@ -470,6 +501,53 @@ uint32[] feeRates
 |`feeRates` | uint32[] | respective fee percentages for each recipients
 
 
+### createBatchSale
+create a number of sales request with parameters
+
+> NFT owners can create sales using this function
+
+
+*Declaration:*
+```solidity
+function createBatchSale(
+address nftContract,
+uint256[] tokenIds,
+address erc20Token,
+uint128 sellPrice,
+address[] feeRecipients,
+uint32[] feeRates
+) external nonReentrant onlyValidPrice
+```
+*Modifiers:*
+| Modifier |
+| --- |
+| nonReentrant |
+| onlyValidPrice |
+
+*Args:*
+| Arg | Type | Description |
+| --- | --- | --- |
+|`nftContract` | address | NFT collection's contract address
+|`tokenIds` | uint256[] | array of NFT token id for auction
+|`erc20Token` | address | ERC20 Token for payment (if specified by the seller)
+|`sellPrice` | uint128 | sell price
+|`feeRecipients` | address[] | fee recipients addresses
+|`feeRates` | uint32[] | respective fee percentages for each recipients
+
+
+### _createSale
+
+
+
+*Declaration:*
+```solidity
+function _createSale(
+) internal
+```
+
+
+
+
 ### withdrawSale
 withdraw a progressing sale for nft token
 
@@ -481,11 +559,12 @@ withdraw a progressing sale for nft token
 function withdrawSale(
 address nftContract,
 uint256 tokenId
-) external onlyTokenOwner onlySale
+) external nonReentrant onlyTokenOwner onlySale
 ```
 *Modifiers:*
 | Modifier |
 | --- |
+| nonReentrant |
 | onlyTokenOwner |
 | onlySale |
 
@@ -520,7 +599,35 @@ uint256 nftType
 | --- | --- |
 |`nftContract` | nft contract address
 
-### getTokensOnSale
+### getTokenInfosOnSale
+get saling nft tokens array from contract address
+
+> NFT buyers can get list of sale nfts using this function
+
+
+*Declaration:*
+```solidity
+function getTokenInfosOnSale(
+address nftContract,
+uint256 pageBegin,
+uint256 pageSize
+) external returns
+(struct LTypes.SellNFT[] tokenInfos)
+```
+
+*Args:*
+| Arg | Type | Description |
+| --- | --- | --- |
+|`nftContract` | address | nft contract address
+|`pageBegin` | uint256 | begin index of pagenation
+|`pageSize` | uint256 | size of pagenation
+
+*Returns:*
+| Arg | Description |
+| --- | --- |
+|`tokenInfos` | nftToken Info's array of nft tokenIds
+
+### getTokensIdsOnSale
 get saling nft tokens from contract address
 
 > NFT buyers can get list of sale nfts using this function
@@ -528,7 +635,7 @@ get saling nft tokens from contract address
 
 *Declaration:*
 ```solidity
-function getTokensOnSale(
+function getTokensIdsOnSale(
 address nftContract
 ) external returns
 (uint256[])
@@ -570,7 +677,35 @@ uint256 tokenId
 | --- | --- |
 |`nftSaleInfo` | filled with SellNFT structure object
 
-### getTokensOnAuction
+### getTokenInfosOnAuction
+get auction nft tokens array from contract address
+
+> NFT bidders can get list of auction nfts using this function
+
+
+*Declaration:*
+```solidity
+function getTokenInfosOnAuction(
+address nftContract,
+uint256 pageBegin,
+uint256 pageSize
+) external returns
+(struct LTypes.AuctionNFT[] tokenInfos)
+```
+
+*Args:*
+| Arg | Type | Description |
+| --- | --- | --- |
+|`nftContract` | address | nft contract address
+|`pageBegin` | uint256 | begin index of pagenation
+|`pageSize` | uint256 | size of pagenation
+
+*Returns:*
+| Arg | Description |
+| --- | --- |
+|`tokenInfos` | nftToken Info's array of nft tokenIds
+
+### getTokenIdsOnAuction
 get auction nft tokens from contract address
 
 > NFT bidders can get list of auction nfts using this function
@@ -578,7 +713,7 @@ get auction nft tokens from contract address
 
 *Declaration:*
 ```solidity
-function getTokensOnAuction(
+function getTokenIdsOnAuction(
 address nftContract
 ) external returns
 (uint256[])
@@ -631,11 +766,12 @@ buy one nft token from progressing sale
 function buyNFT(
 address nftContract,
 uint256 tokenId
-) external onlySale onlyNotTokenOwner
+) external nonReentrant onlySale onlyNotTokenOwner
 ```
 *Modifiers:*
 | Modifier |
 | --- |
+| nonReentrant |
 | onlySale |
 | onlyNotTokenOwner |
 
@@ -710,7 +846,8 @@ uint32[] feeRates
 
 
 ### _isAuctionOngoing
-
+Checking the auction's status. If the Auction's endTime is set to 0, the auction is technically on-going, 
+however the minimum bid price (minPrice) has not yet been met.
 
 
 *Declaration:*
@@ -874,7 +1011,7 @@ function _updateOngoingAuction(
 
 
 ### _transferNftToAuctionContract
-
+Transferring nft token to auction contract
 
 
 *Declaration:*
@@ -887,7 +1024,8 @@ function _transferNftToAuctionContract(
 
 
 ### _transferNftAndPaySeller
-
+Paying eth or erc20 to seller and transferring nft token to highest buyer,
+clearing the auction request
 
 
 *Declaration:*
@@ -999,7 +1137,7 @@ function _resetAuction(
 
 
 ### _resetBids
-
+Reset all auction bids related parameters for an NFT.
 
 
 *Declaration:*
@@ -1026,7 +1164,7 @@ function _isWhitelistedAuction(
 
 
 ### _updateHighestBid
-
+Updating the highest bidder and bid price for an Auction request
 
 
 *Declaration:*

@@ -2,6 +2,7 @@ const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
 const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require("chai");
 const { ethers, network, upgrades } = require("hardhat");
+const { increaseTime, oneDaySeconds } = require("./utils");
 
 describe("NFT Marketplace", function () {
   let engineInfo;
@@ -99,7 +100,7 @@ describe("NFT Marketplace", function () {
   it ("Should mint membershipNFT tokens", async () => {
     // mint membership nft tokens
     let tokenOwner = engineInfo.seller.address;
-    let tokenCount = 10;
+    let tokenCount = 20;
     let tx = await engineInfo.membershipNFTMock.mint(
       tokenOwner, tokenCount, 0
     );
@@ -571,15 +572,65 @@ describe("NFT Marketplace", function () {
   });  
 
   it ("Should test settle auction", async () => {
-    let nftContract = engineInfo.membershipNFTMock;
-    let tokenId = 4;
-    
+    // create new auction again for withdraw testing
+    const nftContract = engineInfo.membershipNFTMock;
+    const tokenId = 10;
+    const minPrice = ethers.utils.parseEther("0.1");
+    const buyNowPrice = ethers.utils.parseEther("1");
+    const ethAmount = ethers.utils.parseEther("0.5");
+    const seller = engineInfo.seller;
+
+    await nftContract.connect(seller).approve(
+      nftEngine.address,
+      tokenId
+    );
+
+    await nftEngine.connect(seller).createAuction(
+      nftContract.address,
+      tokenId,
+      getZeroAddress(),
+      minPrice,
+      buyNowPrice,
+      emptyFeeRecipients,
+      emptyFeePercentages
+    );  
+
     await expect(nftEngine.connect(engineInfo.buyer1).settleAuction(
       nftContract.address,
       tokenId
     )).to.be.reverted;
   });   
-  
+
+  it ("Should test withdraw auction", async () => {
+    // create new auction again for withdraw testing
+    const nftContract = engineInfo.membershipNFTMock;
+    const tokenId = 11;
+    const minPrice = ethers.utils.parseEther("0.1");
+    const buyNowPrice = ethers.utils.parseEther("1");
+    const ethAmount = ethers.utils.parseEther("0.5");
+    const seller = engineInfo.seller;
+
+    await nftContract.connect(seller).approve(
+      nftEngine.address,
+      tokenId
+    );
+
+    await nftEngine.connect(seller).createAuction(
+      nftContract.address,
+      tokenId,
+      getZeroAddress(),
+      minPrice,
+      buyNowPrice,
+      emptyFeeRecipients,
+      emptyFeePercentages
+    );  
+
+    // withdraw auction by seller
+    await expect(nftEngine.connect(seller).withdrawAuction(
+      nftContract.address,
+      tokenId
+    )).to.be.emit(nftEngine, 'NFTAuctionWithdrawn');
+  });
 
   function getZeroAddress() {
     return "0x0000000000000000000000000000000000000000";
