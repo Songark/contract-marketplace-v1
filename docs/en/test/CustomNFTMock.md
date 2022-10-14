@@ -10,16 +10,6 @@
 ## 2.Variables
 
 ## 3.Modifiers
-### onlyMarketplace
-
-
-
-*Declaration:*
-```solidity
-modifier onlyMarketplace
-```
-
-
 
 ## 4.Functions
 
@@ -47,69 +37,12 @@ function constructor(
 *Declaration:*
 ```solidity
 function mint(
-) external onlyMarketplace
-```
-*Modifiers:*
-| Modifier |
-| --- |
-| onlyMarketplace |
-
-
-
-
-### setTokenURI
-
-
-
-*Declaration:*
-```solidity
-function setTokenURI(
-) public
-```
-
-
-
-
-### setMarketplace
-
-
-
-*Declaration:*
-```solidity
-function setMarketplace(
 ) public onlyOwner
 ```
 *Modifiers:*
 | Modifier |
 | --- |
 | onlyOwner |
-
-
-
-
-### _burn
-
-
-
-*Declaration:*
-```solidity
-function _burn(
-) internal
-```
-
-
-
-
-### tokenURI
-
-
-
-*Declaration:*
-```solidity
-function tokenURI(
-) public returns
-(string)
-```
 
 
 

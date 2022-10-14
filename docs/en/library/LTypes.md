@@ -43,8 +43,7 @@ address[] feeRecipients
 uint32[] feeRates
 
 ## 7.Enums
-### `NFTTypes`
-
+### `TokenTypes`
 
 
 

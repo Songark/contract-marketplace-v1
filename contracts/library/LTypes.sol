@@ -4,11 +4,10 @@ pragma solidity ^0.8.4;
 library LTypes {
 
     /// @dev 4 types available nft contract
-    enum NFTTypes {
-        customNFT, 
-        fractionalNFT,
+    enum TokenTypes {
         membershipNFT,
-        owndNFT
+        customNFT, 
+        erc20Token
     } 
 
     /// @dev 4 actions in marketplace

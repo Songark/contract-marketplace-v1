@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0;
+pragma solidity ^0.8.4;
 
 library Base64 {
     bytes internal constant TABLE =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
     /// @notice Encodes some bytes to the base64 representation
-    function encode(bytes memory data) internal pure returns (string memory) {
+    function encode(bytes memory data) 
+    internal 
+    pure returns (string memory) {
         uint256 len = data.length;
-        if (len == 0) return "";
 
         // multiply by 4/3 rounded up
         uint256 encodedLen = 4 * ((len + 2) / 3);

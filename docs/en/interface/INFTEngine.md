@@ -15,6 +15,27 @@ Name: Interface for the NFT Marketplace Engine
 ## 4.Functions
 
 ## 5.Events
+### NFTContractUpdated
+
+> when owner set the nft contract address on marketplace, this event would be emitted.
+
+
+
+*Params:*
+| Param | Type | Indexed | Description |
+| --- | --- | :---: | --- |
+|`nftType` | uint256 |  | nft contract's type
+|`nftContract` | address | :white_check_mark: | nft contract's address
+### NFTTreasuryUpdated
+
+> when owner update the treasury address on marketplace, this event would be emitted.
+
+
+
+*Params:*
+| Param | Type | Indexed | Description |
+| --- | --- | :---: | --- |
+|`newTreasury` | address | :white_check_mark: | new treasury address
 ### NFTTokenSaleCreated
 
 > when owner creates sale using his NFT token on marketplace, this event would be emitted.
@@ -68,7 +89,6 @@ Name: Interface for the NFT Marketplace Engine
 |`minPrice` | uint128 |  | minimum price of auction
 |`buyNowPrice` | uint128 |  | maximum price of auction, if someone will bid with buyNoPrice, this auction will end immediately
 |`auctionBidPeriod` | uint32 |  | valid period's seconds of auction, where someone can bid and purchase NFTs
-|`bidIncRate` | uint32 |  | bid increment for next bid request, valid value is between 0 and 10000
 ### NFTAuctionBidMade
 
 > when someone makes a bid in the auction of a special NFT, this event would be emitted.

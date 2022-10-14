@@ -21,7 +21,7 @@ defaultAuctionBidPeriod | uint32 |
 ## 3.Modifiers
 ### onlyValidPrice
 
-> throws if called with invalid price
+> Throws if called with invalid price
 
 *Declaration:*
 ```solidity
@@ -29,19 +29,9 @@ modifier onlyValidPrice
 ```
 
 
-### onlyNotSale
-
-> throws if called with saling nft token id
-
-*Declaration:*
-```solidity
-modifier onlyNotSale
-```
-
-
 ### onlySale
 
-> throws if called with not saling nft token id
+> Throws if called with not saling nft token id
 
 *Declaration:*
 ```solidity
@@ -51,7 +41,7 @@ modifier onlySale
 
 ### onlyAuctionSeller
 
-> throws if called by invalid seller of the auction
+> Throws if called by invalid seller of the auction
 
 *Declaration:*
 ```solidity
@@ -59,9 +49,19 @@ modifier onlyAuctionSeller
 ```
 
 
+### onlySaleSeller
+
+> Throws if called by invalid seller of the sale
+
+*Declaration:*
+```solidity
+modifier onlySaleSeller
+```
+
+
 ### onlyNotAuctionSeller
 
-> throws if called by seller of the auction
+> Throws if called by seller of the auction
 
 *Declaration:*
 ```solidity
@@ -69,9 +69,19 @@ modifier onlyNotAuctionSeller
 ```
 
 
+### onlyNotSaleSeller
+
+> Throws if called by seller of the sale
+
+*Declaration:*
+```solidity
+modifier onlyNotSaleSeller
+```
+
+
 ### onlyTokenOwner
 
-> throws if called by invalid nft token owner
+> Throws if called by invalid nft token owner
 
 *Declaration:*
 ```solidity
@@ -79,19 +89,9 @@ modifier onlyTokenOwner
 ```
 
 
-### onlyNotTokenOwner
-
-> throws if called by nft token owner
-
-*Declaration:*
-```solidity
-modifier onlyNotTokenOwner
-```
-
-
 ### onlyApprovedToken
 
-> throws if nft token is not approved by marketplace
+> Throws if nft token is not approved by marketplace
 
 *Declaration:*
 ```solidity
@@ -99,19 +99,9 @@ modifier onlyApprovedToken
 ```
 
 
-### minPriceNotExceedLimit
-
-> throws if called with the minimum price smaller than some of the buyNowPrice(if set).
-
-*Declaration:*
-```solidity
-modifier minPriceNotExceedLimit
-```
-
-
 ### checkSizeRecipientsAndRates
 
-> throws if called with different length of recipients and rates
+> Throws if called with different length of recipients and rates
 
 *Declaration:*
 ```solidity
@@ -121,7 +111,7 @@ modifier checkSizeRecipientsAndRates
 
 ### checkFeeRatesLessThanMaximum
 
-> throws if called with invalid fee rates, sum of fee rates is smaller than 10000
+> Throws if called with invalid fee rates, sum of fee rates is smaller than 10000
 
 *Declaration:*
 ```solidity
@@ -131,31 +121,11 @@ modifier checkFeeRatesLessThanMaximum
 
 ### auctionOngoing
 
-> throws if called with not on-going auction
+> Throws if called with not on-going auction
 
 *Declaration:*
 ```solidity
 modifier auctionOngoing
-```
-
-
-### onlyApplicableBuyer
-
-> throws if called with not whitelist wallet (if set).
-
-*Declaration:*
-```solidity
-modifier onlyApplicableBuyer
-```
-
-
-### onlyPaymentAcceptable
-
-> throws if called with incorrect payment token and amount for making bid.
-
-*Declaration:*
-```solidity
-modifier onlyPaymentAcceptable
 ```
 
 
@@ -164,7 +134,7 @@ modifier onlyPaymentAcceptable
 
 ### initialize
 
-> see {NFTEngineFactory-createNFTEngine} for more infos about params, initializer for upgradable
+> See {NFTEngineFactory-createNFTEngine} for more infos about params, initializer for upgradable
 
 
 *Declaration:*
@@ -172,7 +142,7 @@ modifier onlyPaymentAcceptable
 function initialize(
 address admin,
 address treasury
-) public initializer
+) external initializer
 ```
 *Modifiers:*
 | Modifier |
@@ -204,33 +174,80 @@ function onERC721Received(
 
 
 
-### setNFTContracts
-set nft contracts address to marketplace engine
+### setNFTContract
+Set nft contracts address to the marketplace engine
 
 > marketplace engine will use these 4 types of nft contracts for sales and auctions
 
 
 *Declaration:*
 ```solidity
-function setNFTContracts(
-address customNFT,
-address fractionalNFT,
-address membershipNFT,
-address owndNFT
-) external
+function setNFTContract(
+uint256 nftType,
+address nftContract
+) external onlyOwner
+```
+*Modifiers:*
+| Modifier |
+| --- |
+| onlyOwner |
+
+*Args:*
+| Arg | Type | Description |
+| --- | --- | --- |
+|`nftType` | uint256 | type of nft contracts, between 0 and 3
+|`nftContract` | address | address of nft contract contract
+
+
+### setPaymentContract
+Set erc20 token contract address to the marketplace engine
+
+> marketplace engine will use this erc20 token for payment option
+
+
+*Declaration:*
+```solidity
+function setPaymentContract(
+address paymentToken
+) external onlyOwner
+```
+*Modifiers:*
+| Modifier |
+| --- |
+| onlyOwner |
+
+*Args:*
+| Arg | Type | Description |
+| --- | --- | --- |
+|`paymentToken` | address | address of erc20 token contract
+
+
+### getContractAddress
+Get nft or erc20 contract address from type
+
+> everyone can get one of 4 types nft contracts using this function
+
+
+*Declaration:*
+```solidity
+function getContractAddress(
+uint256 tokenType
+) external returns
+(address)
 ```
 
 *Args:*
 | Arg | Type | Description |
 | --- | --- | --- |
-|`customNFT` | address | address of custom nft contract for game items
-|`fractionalNFT` | address | address of fractional nft contract for pnft
-|`membershipNFT` | address | address of membership contract
-|`owndNFT` | address | address of ownedtoken contract
+|`tokenType` | uint256 | see the enum values {LTypes::TokenTypes}
 
+*Returns:*
+| Arg | Description |
+| --- | --- |
+|`nftContract` | nft contract address
 
 ### removeNftIdFromSells
-remove token id from sales list
+Remove token id from sales list
 
 > marketplace engine will call this function after finishing sale
 
@@ -251,7 +268,7 @@ uint256 nftId
 
 
 ### removeNftIdFromAuctions
-remove token id from auctions list
+Remove token id from auctions list
 
 > marketplace engine will call this function after finishing auction
 
@@ -272,7 +289,7 @@ uint256 nftId
 
 
 ### changeTreasury
-change treasury address by owner
+Change treasury address by owner
 
 > marketplace engine owner can use this function to change treasury
 
@@ -295,7 +312,7 @@ address newTreasury
 
 
 ### createAuction
-create an auction request with parameters
+Create an auction request with parameters
 
 > NFT owners can create auctions using this function
 
@@ -308,6 +325,7 @@ uint256 tokenId,
 address erc20Token,
 uint128 minPrice,
 uint128 buyNowPrice,
+uint256 bidPeriod,
 address[] feeRecipients,
 uint32[] feeRates
 ) external nonReentrant
@@ -325,12 +343,13 @@ uint32[] feeRates
 |`erc20Token` | address | ERC20 Token for payment (if specified by the seller)
 |`minPrice` | uint128 | minimum price
 |`buyNowPrice` | uint128 | buy now price
+|`bidPeriod` | uint256 | bid period seconds
 |`feeRecipients` | address[] | fee recipients addresses
 |`feeRates` | uint32[] | respective fee percentages for each recipients
 
 
 ### settleAuction
-settle progressing auction for nft token
+Settle progressing auction for nft token
 
 > NFT auction creators can settle their auctions using this function
 
@@ -340,13 +359,12 @@ settle progressing auction for nft token
 function settleAuction(
 address nftContract,
 uint256 tokenId
-) external nonReentrant onlyTokenOwner auctionOngoing
+) external nonReentrant auctionOngoing
 ```
 *Modifiers:*
 | Modifier |
 | --- |
 | nonReentrant |
-| onlyTokenOwner |
 | auctionOngoing |
 
 *Args:*
@@ -357,7 +375,7 @@ uint256 tokenId
 
 
 ### withdrawAuction
-withdraw progressing auction for nft token
+Withdraw progressing auction for nft token
 
 > NFT auction creators can withdraw their auctions using this function
 
@@ -383,7 +401,7 @@ uint256 tokenId
 
 
 ### takeHighestBid
-complete progressing auction with current highest bid
+Complete progressing auction with current highest bid
 
 > NFT auction creators can complete their auctions using this function
 
@@ -409,7 +427,7 @@ uint256 tokenId
 
 
 ### makeBid
-make a bid request for on going auction with payment parameters
+Make a bid request for on going auction with payment parameters
 
 > NFT bidders can make a bid on the specific auction using this function
 
@@ -421,14 +439,14 @@ address nftContract,
 uint256 tokenId,
 address erc20Token,
 uint128 amount
-) external nonReentrant auctionOngoing onlyApplicableBuyer
+) external nonReentrant onlyNotAuctionSeller auctionOngoing
 ```
 *Modifiers:*
 | Modifier |
 | --- |
 | nonReentrant |
+| onlyNotAuctionSeller |
 | auctionOngoing |
-| onlyApplicableBuyer |
 
 *Args:*
 | Arg | Type | Description |
@@ -439,8 +457,33 @@ uint128 amount
 |`amount` | uint128 | ERC20 token amount for payment
 
 
+### _makeBid
+Make a bid request for on going auction with payment parameters
+
+> internal function for makeBid() external
+
+
+*Declaration:*
+```solidity
+function _makeBid(
+address nftContract,
+uint256 tokenId,
+address erc20Token,
+uint128 tokenAmount
+) internal
+```
+
+*Args:*
+| Arg | Type | Description |
+| --- | --- | --- |
+|`nftContract` | address | NFT collection's contract address
+|`tokenId` | uint256 | NFT token id for making bid
+|`erc20Token` | address | ERC20 token for payment (if specified by the seller)
+|`tokenAmount` | uint128 | ERC20 token amount for payment
+
+
 ### withdrawBid
-withdraw own bid from on going auction
+Withdraw own bid from on going auction
 
 > NFT bidders can withdraw their bid on the specific auction using this function
 
@@ -465,7 +508,7 @@ uint256 tokenId
 
 
 ### createSale
-create an sale request with parameters
+Create an sale request with parameters
 
 > NFT owners can create sales using this function
 
@@ -479,7 +522,7 @@ address erc20Token,
 uint128 sellPrice,
 address[] feeRecipients,
 uint32[] feeRates
-) external nonReentrant onlyTokenOwner onlyApprovedToken onlyValidPrice onlyNotSale
+) external nonReentrant onlyTokenOwner onlyApprovedToken onlyValidPrice
 ```
 *Modifiers:*
 | Modifier |
@@ -488,7 +531,6 @@ uint32[] feeRates
 | onlyTokenOwner |
 | onlyApprovedToken |
 | onlyValidPrice |
-| onlyNotSale |
 
 *Args:*
 | Arg | Type | Description |
@@ -501,55 +543,37 @@ uint32[] feeRates
 |`feeRates` | uint32[] | respective fee percentages for each recipients
 
 
-### createBatchSale
-create a number of sales request with parameters
+### _createSale
+Create an sale request with parameters
 
-> NFT owners can create sales using this function
+> internal function for createSale() external
 
 
 *Declaration:*
 ```solidity
-function createBatchSale(
+function _createSale(
 address nftContract,
-uint256[] tokenIds,
+uint256 tokenId,
 address erc20Token,
 uint128 sellPrice,
 address[] feeRecipients,
 uint32[] feeRates
-) external nonReentrant onlyValidPrice
+) internal
 ```
-*Modifiers:*
-| Modifier |
-| --- |
-| nonReentrant |
-| onlyValidPrice |
 
 *Args:*
 | Arg | Type | Description |
 | --- | --- | --- |
 |`nftContract` | address | NFT collection's contract address
-|`tokenIds` | uint256[] | array of NFT token id for auction
+|`tokenId` | uint256 | NFT token id for auction
 |`erc20Token` | address | ERC20 Token for payment (if specified by the seller)
 |`sellPrice` | uint128 | sell price
 |`feeRecipients` | address[] | fee recipients addresses
 |`feeRates` | uint32[] | respective fee percentages for each recipients
 
 
-### _createSale
-
-
-
-*Declaration:*
-```solidity
-function _createSale(
-) internal
-```
-
-
-
-
 ### withdrawSale
-withdraw a progressing sale for nft token
+Withdraw a progressing sale for nft token
 
 > NFT sellers can withdraw their sale using this function
 
@@ -559,14 +583,13 @@ withdraw a progressing sale for nft token
 function withdrawSale(
 address nftContract,
 uint256 tokenId
-) external nonReentrant onlyTokenOwner onlySale
+) external nonReentrant onlySaleSeller
 ```
 *Modifiers:*
 | Modifier |
 | --- |
 | nonReentrant |
-| onlyTokenOwner |
-| onlySale |
+| onlySaleSeller |
 
 *Args:*
 | Arg | Type | Description |
@@ -575,32 +598,8 @@ uint256 tokenId
 |`tokenId` | uint256 | NFT token id for withdraw sale
 
 
-### getNFTContract
-get nft contract address from type
-
-> everyone can get one of 4 types nft contracts using this function
-
-
-*Declaration:*
-```solidity
-function getNFTContract(
-uint256 nftType
-) external returns
-(address)
-```
-
-*Args:*
-| Arg | Type | Description |
-| --- | --- | --- |
-|`nftType` | uint256 | see the enum values {LTypes::NFTTypes}
-
-*Returns:*
-| Arg | Description |
-| --- | --- |
-|`nftContract` | nft contract address
-
 ### getTokenInfosOnSale
-get saling nft tokens array from contract address
+Get saling nft tokens array from contract address
 
 > NFT buyers can get list of sale nfts using this function
 
@@ -608,9 +607,7 @@ get saling nft tokens array from contract address
 *Declaration:*
 ```solidity
 function getTokenInfosOnSale(
-address nftContract,
-uint256 pageBegin,
-uint256 pageSize
+address nftContract
 ) external returns
 (struct LTypes.SellNFT[] tokenInfos)
 ```
@@ -619,40 +616,14 @@ uint256 pageSize
 | Arg | Type | Description |
 | --- | --- | --- |
 |`nftContract` | address | nft contract address
-|`pageBegin` | uint256 | begin index of pagenation
-|`pageSize` | uint256 | size of pagenation
 
 *Returns:*
 | Arg | Description |
 | --- | --- |
 |`tokenInfos` | nftToken Info's array of nft tokenIds
 
-### getTokensIdsOnSale
-get saling nft tokens from contract address
-
-> NFT buyers can get list of sale nfts using this function
-
-
-*Declaration:*
-```solidity
-function getTokensIdsOnSale(
-address nftContract
-) external returns
-(uint256[])
-```
-
-*Args:*
-| Arg | Type | Description |
-| --- | --- | --- |
-|`nftContract` | address | nft contract address
-
-*Returns:*
-| Arg | Description |
-| --- | --- |
-|`nftTokenIds` | array of nft tokenIds
-
 ### getTokenSaleInfo
-get details information about nft token sale from contract and tokenId
+Get details information about nft token sale from contract and tokenId
 
 > NFT buyers can get information about the nft token sale using this function
 
@@ -662,9 +633,13 @@ get details information about nft token sale from contract and tokenId
 function getTokenSaleInfo(
 address nftContract,
 uint256 tokenId
-) external returns
+) external onlySale returns
 (struct LTypes.SellNFT)
 ```
+*Modifiers:*
+| Modifier |
+| --- |
+| onlySale |
 
 *Args:*
 | Arg | Type | Description |
@@ -678,7 +653,7 @@ uint256 tokenId
 |`nftSaleInfo` | filled with SellNFT structure object
 
 ### getTokenInfosOnAuction
-get auction nft tokens array from contract address
+Get auction nft tokens array from contract address
 
 > NFT bidders can get list of auction nfts using this function
 
@@ -686,9 +661,7 @@ get auction nft tokens array from contract address
 *Declaration:*
 ```solidity
 function getTokenInfosOnAuction(
-address nftContract,
-uint256 pageBegin,
-uint256 pageSize
+address nftContract
 ) external returns
 (struct LTypes.AuctionNFT[] tokenInfos)
 ```
@@ -697,40 +670,14 @@ uint256 pageSize
 | Arg | Type | Description |
 | --- | --- | --- |
 |`nftContract` | address | nft contract address
-|`pageBegin` | uint256 | begin index of pagenation
-|`pageSize` | uint256 | size of pagenation
 
 *Returns:*
 | Arg | Description |
 | --- | --- |
 |`tokenInfos` | nftToken Info's array of nft tokenIds
 
-### getTokenIdsOnAuction
-get auction nft tokens from contract address
-
-> NFT bidders can get list of auction nfts using this function
-
-
-*Declaration:*
-```solidity
-function getTokenIdsOnAuction(
-address nftContract
-) external returns
-(uint256[])
-```
-
-*Args:*
-| Arg | Type | Description |
-| --- | --- | --- |
-|`nftContract` | address | nft contract address
-
-*Returns:*
-| Arg | Description |
-| --- | --- |
-|`nftTokenIds` | array of nft tokenIds
-
 ### getTokenAuctionInfo
-get details information about nft token auction from contract and tokenId
+Get details information about nft token auction from contract and tokenId
 
 > NFT bidders can get information about the nft token auction using this function
 
@@ -756,7 +703,7 @@ uint256 tokenId
 |`nftAuctionInfo` | filled with AuctionNFT structure object
 
 ### buyNFT
-buy one nft token from progressing sale
+Buy one nft token from progressing sale
 
 > NFT buyers can purchase nft token from sales using this function
 
@@ -766,47 +713,20 @@ buy one nft token from progressing sale
 function buyNFT(
 address nftContract,
 uint256 tokenId
-) external nonReentrant onlySale onlyNotTokenOwner
+) external nonReentrant onlySale onlyNotSaleSeller
 ```
 *Modifiers:*
 | Modifier |
 | --- |
 | nonReentrant |
 | onlySale |
-| onlyNotTokenOwner |
+| onlyNotSaleSeller |
 
 *Args:*
 | Arg | Type | Description |
 | --- | --- | --- |
 |`nftContract` | address | NFT collection's contract address
 |`tokenId` | uint256 | NFT token id for buying
-
-
-### mintNFT
-
-
-
-*Declaration:*
-```solidity
-function mintNFT(
-) external
-```
-
-
-
-
-### nftOwner
-
-
-
-*Declaration:*
-```solidity
-function nftOwner(
-) external returns
-(address)
-```
-
-
 
 
 ### _setupAuction
@@ -822,14 +742,14 @@ uint256 tokenId,
 address erc20Token,
 uint128 minPrice,
 uint128 buyNowPrice,
+uint256 bidPeriod,
 address[] feeRecipients,
 uint32[] feeRates
-) internal minPriceNotExceedLimit checkSizeRecipientsAndRates checkFeeRatesLessThanMaximum
+) internal checkSizeRecipientsAndRates checkFeeRatesLessThanMaximum
 ```
 *Modifiers:*
 | Modifier |
 | --- |
-| minPriceNotExceedLimit |
 | checkSizeRecipientsAndRates |
 | checkFeeRatesLessThanMaximum |
 
@@ -841,43 +761,32 @@ uint32[] feeRates
 |`erc20Token` | address | ERC20 Token for payment (if specified by the seller)
 |`minPrice` | uint128 | minimum price
 |`buyNowPrice` | uint128 | buy now price
+|`bidPeriod` | uint256 | bid period seconds
 |`feeRecipients` | address[] | fee recipients addresses
 |`feeRates` | uint32[] | respective fee percentages for each recipients
 
 
 ### _isAuctionOngoing
-Checking the auction's status. If the Auction's endTime is set to 0, the auction is technically on-going, 
-however the minimum bid price (minPrice) has not yet been met.
+Checking the auction's status. 
+
+> If the Auction's endTime is set to 0, the auction is technically on-going, 
+however the minimum bid price (minPrice) has not yet been met.   
 
 
 *Declaration:*
 ```solidity
 function _isAuctionOngoing(
+address nftContract,
+uint256 tokenId
 ) internal returns
 (bool)
 ```
 
-
-
-
-### _makeBid
-Make bids with ETH or an ERC20 Token specified by the NFT seller.*
-Additionally, a buyer can pay the asking price to conclude a sale*
-of an NFT.
-
-
-*Declaration:*
-```solidity
-function _makeBid(
-) internal onlyNotAuctionSeller onlyPaymentAcceptable
-```
-*Modifiers:*
-| Modifier |
-| --- |
-| onlyNotAuctionSeller |
-| onlyPaymentAcceptable |
-
-
+*Args:*
+| Arg | Type | Description |
+| --- | --- | --- |
+|`nftContract` | address | NFT collection's contract address
+|`tokenId` | uint256 | NFT token id for auction
 
 
 ### _isAlreadyBidMade
@@ -886,42 +795,63 @@ to ensure that if an auction is created after an early bid, the auction
 begins appropriately or is settled if the buy now price is met.
 
 
+
 *Declaration:*
 ```solidity
 function _isAlreadyBidMade(
+address nftContract,
+uint256 tokenId
 ) internal returns
 (bool)
 ```
 
-
+*Args:*
+| Arg | Type | Description |
+| --- | --- | --- |
+|`nftContract` | address | NFT collection's contract address
+|`tokenId` | uint256 | NFT token id
 
 
 ### _isMinimumBidMade
 If the minPrice is set by the seller, check that the highest bid meets or exceeds that price.
 
 
+
 *Declaration:*
 ```solidity
 function _isMinimumBidMade(
+address nftContract,
+uint256 tokenId
 ) internal returns
 (bool)
 ```
 
-
+*Args:*
+| Arg | Type | Description |
+| --- | --- | --- |
+|`nftContract` | address | NFT collection's contract address
+|`tokenId` | uint256 | NFT token id
 
 
 ### _isBuyNowPriceMet
 If the buy now price is set by the seller, check that the highest bid meets that price.
 
 
+
 *Declaration:*
 ```solidity
 function _isBuyNowPriceMet(
+address nftContract,
+uint256 tokenId
 ) internal returns
 (bool)
 ```
 
-
+*Args:*
+| Arg | Type | Description |
+| --- | --- | --- |
+|`nftContract` | address | NFT collection's contract address
+|`tokenId` | uint256 | NFT token id
 
 
 ### _doesBidMeetBidRequirements
@@ -930,14 +860,23 @@ In the case of a sale: the bid needs to meet the buyNowPrice.
 In the case of an auction: the bid needs to be a % higher than the previous bid.
 
 
+
 *Declaration:*
 ```solidity
 function _doesBidMeetBidRequirements(
+address nftContract,
+uint256 tokenId,
+uint128 tokenAmount
 ) internal returns
 (bool)
 ```
 
-
+*Args:*
+| Arg | Type | Description |
+| --- | --- | --- |
+|`nftContract` | address | NFT collection's contract address
+|`tokenId` | uint256 | NFT token id    
+|`tokenAmount` | uint128 | erc20 token's amount
 
 
 ### _getPortionOfBid
@@ -955,7 +894,7 @@ function _getPortionOfBid(
 
 
 ### _getAuctionBidPeriod
-
+Returns the bid period of an auction from nft contract and token id
 
 
 *Declaration:*
@@ -969,7 +908,7 @@ function _getAuctionBidPeriod(
 
 
 ### _getNftRecipient
-The default value for the NFT recipient is the highest bidder.
+Returns the default value for the NFT recipient is the highest bidder.
 
 
 *Declaration:*
@@ -983,7 +922,7 @@ function _getNftRecipient(
 
 
 ### _getBidIncreasePercentage
-
+Returns the increase percentage property of an auction from nft contract and token id
 
 
 *Declaration:*
@@ -1011,7 +950,7 @@ function _updateOngoingAuction(
 
 
 ### _transferNftToAuctionContract
-Transferring nft token to auction contract
+Transfers nft token to this marketplace contract
 
 
 *Declaration:*
@@ -1024,7 +963,7 @@ function _transferNftToAuctionContract(
 
 
 ### _transferNftAndPaySeller
-Paying eth or erc20 to seller and transferring nft token to highest buyer,
+Pays the ethereum or erc20 to seller and transferring nft token to highest buyer,
 clearing the auction request
 
 
@@ -1038,7 +977,7 @@ function _transferNftAndPaySeller(
 
 
 ### _payFeesAndSeller
-
+Pays the fee to treasury and fee recipients, and then send the rest to seller
 
 
 *Declaration:*
@@ -1051,7 +990,7 @@ function _payFeesAndSeller(
 
 
 ### _payout
-
+Pays the specific amount of ethereum or erc20 tokens to the recipient wallet
 
 
 *Declaration:*
@@ -1082,7 +1021,7 @@ function _isPaymentAccepted(
 
 
 ### _isERC20Auction
-
+Checks the erc20 token's address and return true if it's not zero.
 
 
 *Declaration:*
@@ -1096,7 +1035,7 @@ function _isERC20Auction(
 
 
 ### _updateAuctionEnd
-
+Increase the specific auction's end timestamp with the bid period seconds
 
 
 *Declaration:*
@@ -1110,7 +1049,7 @@ function _updateAuctionEnd(
 
 ### _resetSale
 Reset all sale related parameters for an NFT.
-This effectively removes an EFT as an item up for sale
+this effectively removes an EFT as an item up for sale
 
 
 *Declaration:*
@@ -1150,7 +1089,7 @@ function _resetBids(
 
 
 ### _isWhitelistedAuction
-
+Checks whether the specific auction has whitelisted buyers or not.
 
 
 *Declaration:*
@@ -1164,7 +1103,7 @@ function _isWhitelistedAuction(
 
 
 ### _updateHighestBid
-Updating the highest bidder and bid price for an Auction request
+Updates the highest bidder and bid price for an Auction request
 
 
 *Declaration:*
@@ -1176,21 +1115,9 @@ function _updateHighestBid(
 
 
 
-### _reverseAndResetPreviousBid
-
-
-
-*Declaration:*
-```solidity
-function _reverseAndResetPreviousBid(
-) internal
-```
-
-
-
-
 ### _reversePreviousBidAndUpdateHighestBid
-
+Reverse transfers the ethereum or erc20 token to the previous highest bidder 
+and updating the new highest bidder with tokenAmount
 
 
 *Declaration:*

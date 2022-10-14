@@ -140,12 +140,6 @@
           "internalType": "uint32",
           "name": "auctionBidPeriod",
           "type": "uint32"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint32",
-          "name": "bidIncRate",
-          "type": "uint32"
         }
       ],
       "name": "NFTAuctionCreated",
@@ -305,6 +299,25 @@
         }
       ],
       "name": "NFTAuctionWithdrawn",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "nftType",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "nftContract",
+          "type": "address"
+        }
+      ],
+      "name": "NFTContractUpdated",
       "type": "event"
     },
     {

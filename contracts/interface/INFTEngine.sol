@@ -4,6 +4,14 @@ pragma solidity ^0.8.4;
 ///@title Interface for the NFT Marketplace Engine
 ///@notice {INFTEngine} is the interface inherited by {NFTEngine}
 interface INFTEngine {
+    
+    /// @dev when owner set the nft contract address on marketplace, this event would be emitted.
+    /// @param nftType nft contract's type
+    /// @param nftContract nft contract's address
+    event NFTContractUpdated(
+        uint256 nftType,
+        address indexed nftContract
+    );
 
     /// @dev when owner creates sale using his NFT token on marketplace, this event would be emitted.
     /// @param nftContract nft contract's address
@@ -45,7 +53,6 @@ interface INFTEngine {
     /// @param minPrice minimum price of auction
     /// @param buyNowPrice maximum price of auction, if someone will bid with buyNoPrice, this auction will end immediately
     /// @param auctionBidPeriod valid period's seconds of auction, where someone can bid and purchase NFTs
-    /// @param bidIncRate bid increment for next bid request, valid value is between 0 and 10000
     event NFTAuctionCreated(
         address indexed nftContract,
         uint256 tokenId,
@@ -53,8 +60,7 @@ interface INFTEngine {
         address indexed erc20Token,
         uint128 minPrice,
         uint128 buyNowPrice,
-        uint32 auctionBidPeriod,
-        uint32 bidIncRate
+        uint32 auctionBidPeriod
     );
 
     /// @dev when someone makes a bid in the auction of a special NFT, this event would be emitted.

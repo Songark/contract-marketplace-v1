@@ -60,13 +60,13 @@ These smart contracts can be easily used in a permissionless and flexible manner
 npx hardhat clean
 npx hardhat compile
 npx hardhat test
-npx hardhat run scripts/deploy.js
+npx hardhat run scripts/deployTokensAndEngine.js [--network goerli | rinkeby]
 ```
 
 ### Code coverage and generate the documents
 ```shell
 npx hardhat coverage  
-yarn solidity-docgen --solc-module solc-0.8 -t ./templates -o ./docs/en
+npm run docgen
 ```
 
 ### Generate the class diagram
