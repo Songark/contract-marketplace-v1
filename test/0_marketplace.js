@@ -236,6 +236,19 @@ describe("NFT Marketplace", function () {
     )).to.be.reverted;  // onlyNotSaleSeller
   });
 
+  it ("Should revert the buy nft with insufficient balance", async () => {
+    let seller = engineInfo.seller1;
+    let buyer = engineInfo.buyer1;
+    let nftContract = engineInfo.membershipNFT;
+    let tokenId = 1;
+
+    await expect(nftEngine.connect(buyer).buyNFT(
+      nftContract.address,
+      tokenId,
+      {value: 0}
+    )).to.be.reverted;  // onlyNotSaleSeller
+  });
+
   it ("Should test the withdraw sale", async () => {
     let seller = engineInfo.seller1;
     let nftContract = engineInfo.membershipNFT;
@@ -475,6 +488,17 @@ describe("NFT Marketplace", function () {
 
     emptyFeeRecipients.pop();
     emptyFeePercentages.pop();
+
+    await expect(nftEngine.connect(seller).createAuction(
+      nftContract.address,
+      tokenId,
+      engineInfo.pbrTokenMock.address,
+      minPrice,
+      minPrice,
+      0,
+      emptyFeeRecipients,
+      emptyFeePercentages
+    )).to.be.reverted;  // NFTEngineInvalidMinPrice
   });
 
   it ("Should make a bid pricing pbrtTokens for one membershipNFT token", async () => {

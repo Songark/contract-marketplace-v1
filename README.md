@@ -2,13 +2,14 @@
 
 Smart contracts that allow the flexible auction and sell, buy of NFTs.
 
-
 This repository contains the smart contracts source code of the full featured NFT Marketplace for PlayEstates. 
 The repository uses Hardhat as development enviroment for compilation, testing and deployment tasks.
 
 If you want to learn about the core concepts and engineering structure of the marketplace engine, please explore developer's documents in the /docs/en folder, you can understand about smart contracts and test scripts.
 
 You can see the class diagram [link](classDiagram.svg) for smart contracts to understand the structure.
+
+For smart contract audit, [This](docs/audit/Preparation.md) provides all types of technical and functional requirements documentation.
 
 ## NFT Marketplace functionality work
 
@@ -39,7 +40,7 @@ These smart contracts can be easily used in a permissionless and flexible manner
   - An array of fee recipient addresses who will receive a percentage of the selling price of an auction when the auction is concluded.
   - An array of fee percentages (each in basis points of 10000) which must match the number of fee recipients. This determines the split of the selling price for each fee recipient.
 - Create a default auction, which accepts all of the above parameters except for the bid increase percentage and auction bid period. These values are defaulted to the following
-- Withdraw their auction if the minimum price of the auction has not yet been met, or at anytime when put up for sale as long as the buy now price has not yet been met (in this case, the seller would not be the owner of the NFT as it would be tranferred to the highest bidder or their specified recipient).
+- Withdraw their auction if the minimum price of the auction has not yet been met, or at anytime when put up for sale as long as the buy now price has not yet been met (in this case, the seller would not be the owner of the NFT as it would be tranferred to the highest bidder).
 - Update the minimum price of the auction. This can only be done if no bid has been made that already exceeds the original minimum price. The new minimum price is still limited to 80% of the buy now price if set. if an underbid has been made on the auction, and this update would mean that the minimum price is met by that underbid, then the auction would begin.
 - Update the buy now price of the auction or sale. In the case of an auction the buy now price cannot be set to an amount which would make the minimum price greater than 80% of the buy now price. If a bid has been made on an auction or sale, and this update would mean that this bid now meets the buy now price, then the auction or sale would be concluded and the NFT and bid amount would be distributed accordingly.
 - Take the highest bid amount and conclude the auction or sale.
@@ -47,7 +48,6 @@ These smart contracts can be easily used in a permissionless and flexible manner
 - Make a bid on an NFT put up for auction by specifying
   - The amount of the bid (in either ETH or OwnedToken as specified by the NFT seller). The bidder must make a bid that is higher by the bid increase percentage if another bid has already been made. 
   - However if this is met the bidder does not have to make a bid higher than the minimum price set by the seller (in this case, the auction would not start). Therefore, if no bid has been made on auction, the bidder can specify any amount.
-  - The user can also make a custom bid and specify the NFT recipient who will receive the NFT if their bid is successful.
 - Purchase an NFT put up for sale by specifying
   - The amount of OwnedToken or ETH (as specified by the seller). In this scenario, the purchaser can make an underbid of the buy now price, which will not conclude the sale. The amount sent by the bidder must then be the default percentage higher than the previous underbid. If the bidder specifies an amount equal to or greater than the buy now price, the sale is concluded and the NFT and purchase amount are transferred.
 - Withdraw their bid on auction or sale if the minimum price of the auction has not been met, or in the case of an underbid on a sale.

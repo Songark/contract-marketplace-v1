@@ -17,6 +17,7 @@ defaultBidIncRate | uint32 |
 minSettableIncRate | uint32 | 
 maxMinPriceRate | uint32 | 
 defaultAuctionBidPeriod | uint32 | 
+maxFeeRecipients | uint32 | 
 
 ## 3.Modifiers
 ### onlyValidPrice
@@ -288,29 +289,6 @@ uint256 nftId
 |`nftId` | uint256 | NFT token id
 
 
-### changeTreasury
-Change treasury address by owner
-
-> marketplace engine owner can use this function to change treasury
-
-
-*Declaration:*
-```solidity
-function changeTreasury(
-address newTreasury
-) external onlyOwner
-```
-*Modifiers:*
-| Modifier |
-| --- |
-| onlyOwner |
-
-*Args:*
-| Arg | Type | Description |
-| --- | --- | --- |
-|`newTreasury` | address | address of new treasury
-
-
 ### createAuction
 Create an auction request with parameters
 
@@ -351,7 +329,7 @@ uint32[] feeRates
 ### settleAuction
 Settle progressing auction for nft token
 
-> NFT auction creators can settle their auctions using this function
+> any user can settle the expired auctions using this function, 
 
 
 *Declaration:*
@@ -558,8 +536,13 @@ address erc20Token,
 uint128 sellPrice,
 address[] feeRecipients,
 uint32[] feeRates
-) internal
+) internal checkSizeRecipientsAndRates checkFeeRatesLessThanMaximum
 ```
+*Modifiers:*
+| Modifier |
+| --- |
+| checkSizeRecipientsAndRates |
+| checkFeeRatesLessThanMaximum |
 
 *Args:*
 | Arg | Type | Description |
@@ -921,20 +904,6 @@ function _getNftRecipient(
 
 
 
-### _getBidIncreasePercentage
-Returns the increase percentage property of an auction from nft contract and token id
-
-
-*Declaration:*
-```solidity
-function _getBidIncreasePercentage(
-) internal returns
-(uint32)
-```
-
-
-
-
 ### _updateOngoingAuction
 Settle an auction or sale if the buyNowPrice is met or set
 auction period to begin if the minimum price has been met.
@@ -1083,20 +1052,6 @@ Reset all auction bids related parameters for an NFT.
 ```solidity
 function _resetBids(
 ) internal
-```
-
-
-
-
-### _isWhitelistedAuction
-Checks whether the specific auction has whitelisted buyers or not.
-
-
-*Declaration:*
-```solidity
-function _isWhitelistedAuction(
-) internal returns
-(bool)
 ```
 
 

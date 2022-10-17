@@ -26,16 +26,6 @@ Name: Interface for the NFT Marketplace Engine
 | --- | --- | :---: | --- |
 |`nftType` | uint256 |  | nft contract's type
 |`nftContract` | address | :white_check_mark: | nft contract's address
-### NFTTreasuryUpdated
-
-> when owner update the treasury address on marketplace, this event would be emitted.
-
-
-
-*Params:*
-| Param | Type | Indexed | Description |
-| --- | --- | :---: | --- |
-|`newTreasury` | address | :white_check_mark: | new treasury address
 ### NFTTokenSaleCreated
 
 > when owner creates sale using his NFT token on marketplace, this event would be emitted.

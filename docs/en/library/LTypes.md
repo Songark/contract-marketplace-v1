@@ -27,7 +27,6 @@ address[] feeRecipients
 uint32[] feeRates
 ### `AuctionNFT`
 uint256 tokenId
-uint32 bidIncRate
 uint32 bidPeriod
 uint64 endTime
 uint128 minPrice
@@ -36,7 +35,6 @@ uint128 highestBid
 address highestBidder
 address seller
 address whitelistedBuyer
-address recipient
 address erc20Token
 bool isOnSale
 address[] feeRecipients

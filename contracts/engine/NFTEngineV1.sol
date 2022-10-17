@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.4;
+pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
@@ -47,7 +47,7 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
     error NFTEngineInvalidMinPrice(uint256 minPrice, uint256 buyNowPrice);
 
     /// @notice Emitted when the length of recipients and fee rates are not same"
-    error NFTEngineNotMatchedLength(uint256 recipients, uint256 rates);
+    error NFTEngineIncorrentLength(uint256 recipients, uint256 rates);
 
     /// @notice Emitted when the sum of fee rates exceeds the maximum
     error NFTEngineFeeRatesExceed();
@@ -99,6 +99,9 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
 
     /// @dev Default bid period for auction ( seconds )
     uint32 public constant defaultAuctionBidPeriod = 86400;    // 1 day
+
+    /// @dev Maximum fee recipients length
+    uint32 public constant maxFeeRecipients = 5;  
 
     /// @dev Throws if called with invalid price
     modifier onlyValidPrice(uint256 price) {
@@ -169,8 +172,8 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
     modifier checkSizeRecipientsAndRates(
         uint256 recipients, uint256 rates
     ) {
-        if (recipients != rates)
-            revert NFTEngineNotMatchedLength(recipients, rates);
+        if (recipients != rates || recipients > maxFeeRecipients)
+            revert NFTEngineIncorrentLength(recipients, rates);
         _;
     }
 
@@ -267,15 +270,13 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
     internal {
         uint256 index = _mapSaleIds[nftContract][nftId];
         uint256 length = _arrSales[nftContract].length;
-        if (index > 0 && index <= length) {
-            delete _mapSaleIds[nftContract][nftId];
-            if (index < length) {
-                uint256 lastnftId = _arrSales[nftContract][length - 1].tokenId;
-                _mapSaleIds[nftContract][lastnftId] = index;
-                _arrSales[nftContract][index - 1] = _arrSales[nftContract][length - 1];
-            }
-            _arrSales[nftContract].pop();
-        }    
+        delete _mapSaleIds[nftContract][nftId];
+        if (index < length) {
+            uint256 lastnftId = _arrSales[nftContract][length - 1].tokenId;
+            _mapSaleIds[nftContract][lastnftId] = index;
+            _arrSales[nftContract][index - 1] = _arrSales[nftContract][length - 1];
+        }
+        _arrSales[nftContract].pop();
     }
 
     /// @notice Remove token id from auctions list
@@ -286,15 +287,13 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
     internal {
         uint256 index = _mapAuctionIds[nftContract][nftId];
         uint256 length = _arrAuctions[nftContract].length;
-        if (index > 0 && index <= length) {
-            delete _mapAuctionIds[nftContract][nftId];
-            if (index < length) {
-                uint256 lastnftId = _arrAuctions[nftContract][length - 1].tokenId;
-                _mapAuctionIds[nftContract][lastnftId] = index;
-                _arrAuctions[nftContract][index - 1] = _arrAuctions[nftContract][length - 1];
-            }
-            _arrAuctions[nftContract].pop();
-        }      
+        delete _mapAuctionIds[nftContract][nftId];
+        if (index < length) {
+            uint256 lastnftId = _arrAuctions[nftContract][length - 1].tokenId;
+            _mapAuctionIds[nftContract][lastnftId] = index;
+            _arrAuctions[nftContract][index - 1] = _arrAuctions[nftContract][length - 1];
+        }
+        _arrAuctions[nftContract].pop();
     }
 
     /// @notice Create an auction request with parameters
@@ -355,7 +354,7 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
     }
 
     /// @notice Settle progressing auction for nft token
-    /// @dev NFT auction creators can settle their auctions using this function
+    /// @dev any user can settle the expired auctions using this function, 
     /// @param nftContract NFT collection's contract address
     /// @param tokenId NFT token id for settle auction
     function settleAuction(address nftContract, uint256 tokenId) 
@@ -525,7 +524,11 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
         uint128 sellPrice,
         address[] memory feeRecipients,
         uint32[] memory feeRates
-    ) internal {
+    ) internal
+        checkSizeRecipientsAndRates(
+        feeRecipients.length, feeRates.length
+    )
+    checkFeeRatesLessThanMaximum(feeRates) {
         _transferNftToAuctionContract(nftContract, tokenId, msg.sender);
 
         _mapSaleIds[nftContract][tokenId] = _arrSales[nftContract].length + 1;
@@ -782,7 +785,7 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
 
         //if the NFT is up for auction, the bid needs to be a % higher than the previous bid
         uint256 bidIncreaseAmount = (_arrAuctions[nftContract][_mapAuctionIds[nftContract][tokenId] - 1].highestBid *
-            (10000 + _getBidIncreasePercentage(nftContract, tokenId))) / 10000;
+            (10000 + defaultBidIncRate)) / 10000;
 
         return (msg.value >= bidIncreaseAmount ||
             tokenAmount >= bidIncreaseAmount);
@@ -817,29 +820,7 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
     view
     returns (address)
     {
-        address nftRecipient = _arrAuctions[nftContract][_mapAuctionIds[nftContract][tokenId] - 1].recipient;
-
-        if (nftRecipient == address(0)) {
-            return _arrAuctions[nftContract][_mapAuctionIds[nftContract][tokenId] - 1].highestBidder;
-        } else {
-            return nftRecipient;
-        }
-    }
-
-    /// @notice Returns the increase percentage property of an auction from nft contract and token id
-    function _getBidIncreasePercentage(
-        address nftContract, 
-        uint256 tokenId
-    ) 
-    internal 
-    view returns (uint32) {
-        uint32 bidIncreasePercentage = _arrAuctions[nftContract][_mapAuctionIds[nftContract][tokenId] - 1].bidIncRate;
-
-        if (bidIncreasePercentage == 0) {
-            return defaultBidIncRate;
-        } else {
-            return bidIncreasePercentage;
-        }
+        return _arrAuctions[nftContract][_mapAuctionIds[nftContract][tokenId] - 1].highestBidder;
     }
 
     /// @notice Settle an auction or sale if the buyNowPrice is met or set
@@ -979,8 +960,8 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
                 gas: 20000
             }("");
             // if it failed, update their credit balance so they can pull it later
-            if (!success) {
-            }
+            if (!success) 
+                revert("Failed sending ether to recipient");
         }
     }
 
@@ -1052,15 +1033,6 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
     {
         _arrAuctions[nftContract][_mapAuctionIds[nftContract][tokenId] - 1].highestBidder = address(0);
         _arrAuctions[nftContract][_mapAuctionIds[nftContract][tokenId] - 1].highestBid = 0;
-        _arrAuctions[nftContract][_mapAuctionIds[nftContract][tokenId] - 1].recipient = address(0);
-    }
-
-    /// @notice Checks whether the specific auction has whitelisted buyers or not.
-    function _isWhitelistedAuction(address nftContract, uint256 tokenId)
-    internal
-    view returns (bool)
-    {
-        return (_arrAuctions[nftContract][_mapAuctionIds[nftContract][tokenId] - 1].whitelistedBuyer != address(0));
     }
 
     /// @notice Updates the highest bidder and bid price for an Auction request
