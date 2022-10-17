@@ -5,20 +5,18 @@ export const chain = EvmChain.GOERLI;
 export const chainName = "goerli";
 
 export const moralis_apikey = "7ppyBj1nGG2aydKjrga4UyBTSoj6enVAU0n25zcYLbnYFA4oA4Cn7h6fuYgKg3xw";
-export const nftEngine = "0x0a3159eC4A5a15690fE6A00551bb6f5dB07c3968";
+export const nftEngine = "0xea7b622083bBa4f542a4DFFbCE285B3edff31e0e";
 
 export enum contractType {
     customNFT,
-    fractionalNFT,
     membershipNFT,
-    ownedToken
+    brickToken
 };
 
 export const contractAddress: string[] = [
-    "0x4e3eDbA355A82433f4eCc812B0A30d2c1266c1fF",   // customNFT
-    "0xE55A593606C3c0b17bfC255D273dfAF3900F01b7",   // fractionalNFT
-    "0xbB70C9d0c25EdFAf6Bf03B738756140771d4096E",   // membershipNFT
-    "0x34D76Adbf0951A3fBF3625af68622771850cE36d"    // owned token
+    "0xCBDC5Eb81AF6c156c49341C2B12b998849992463",   // customNFT
+    "0xc08BA1198fA68aA12BBa73C1c5b3FCB6243cbe6a",   // membershipNFT
+    "0xb1677C5639CC483267cC720833d09e0ABd10000A"    // pbrt token
 ]
 
 export enum paymentType {

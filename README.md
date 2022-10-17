@@ -63,6 +63,11 @@ npx hardhat test
 npx hardhat run scripts/deployTokensAndEngine.js [--network goerli | rinkeby]
 ```
 
+### Update NFT contracts ** Pay attension about the NFT contracts address in the updateNfts.js **
+```shell
+npx hardhat run scripts/updateNfts.js [--network goerli | rinkeby]
+```
+
 ### Code coverage and generate the documents
 ```shell
 npx hardhat coverage  

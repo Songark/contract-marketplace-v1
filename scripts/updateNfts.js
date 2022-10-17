@@ -7,16 +7,15 @@
 const { ethers, network, upgrades  } = require("hardhat");
 
 const {
-  nftMints, 
-  ownedMints
+  TokenTypes_membershipNFT, 
+  TokenTypes_customNFT
 } = require("./constants");
 
 const nftEngineV1 = '0x55DA14288c3f81BEBeCe29F593864Ea46a0985D7';
 
-const membershipNFTMock = '0xb33ADf707DD1B911C11dc430826fDc43Ff68d636';
-const fractionalizedNFTMock = '0x3a2cb58527eAB7bd203Bc1bb1548FF2596863746';
-const customNFTMock = '0xdB7C468b7Ff33726B19c4F8b60c2eEc692FB4f61';
-const owndTokenMock = '0x76B17150fC0A65289a5b07dAD2538c26fBf4376c';
+const membershipNFT = '0xb33ADf707DD1B911C11dc430826fDc43Ff68d636';
+const customNFT = '0xdB7C468b7Ff33726B19c4F8b60c2eEc692FB4f61';
+const pbrtToken = '0x76B17150fC0A65289a5b07dAD2538c26fBf4376c';
 
 async function main() {
     const [deployer, admin, treasury] = await ethers.getSigners();
@@ -25,26 +24,18 @@ async function main() {
         "\nAccount balance:", (await deployer.getBalance()).toString());
 
     console.log("Network:", network.name, network.config.chainId);
-    console.log("membershipNFTMock:", membershipNFTMock);
-    console.log("fractionalizedNFTMock:", fractionalizedNFTMock);
-    console.log("customNFTMock:", customNFTMock);
-    console.log("owndTokenMock:", owndTokenMock);
+    console.log("membershipNFT:", membershipNFT);
+    console.log("customNFT:", customNFT);
+    console.log("pbrtToken:", pbrtToken);
 
     try {
       const NFTEngineV1 = await ethers.getContractFactory("NFTEngineV1");
       const contractEngineV1 = await NFTEngineV1.attach(nftEngineV1);
   
       if (contractEngineV1 !== undefined) {
-        await contractEngineV1.setNFTContracts(
-          customNFTMock, 
-          fractionalizedNFTMock, 
-          membershipNFTMock, 
-          owndTokenMock
-        );
-  
-        const CustomNFTMock = await ethers.getContractFactory("CustomNFTMock");
-        const customNFTMockContract = await CustomNFTMock.attach(customNFTMock);
-        await customNFTMockContract.setMarketplace(nftEngineV2.address);
+        await contractEngineV1.setNFTContract(TokenTypes_membershipNFT, membershipNFT);
+        await contractEngineV1.setNFTContract(TokenTypes_customNFT, customNFT);
+        await contractEngineV1.setPaymentContract(pbrtToken);
         console.log("nftEngineV1 updated NFTs:");
       }      
     } catch (error) {

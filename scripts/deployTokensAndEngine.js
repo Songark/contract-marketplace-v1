@@ -11,9 +11,9 @@ const {
   nftBuyers, 
   nftSellers,
   treasury,
+  gameWallet,
   TokenTypes_membershipNFT,
-  TokenTypes_customNFT,
-  TokenTypes_erc20Token
+  TokenTypes_customNFT
 } = require("./constants");
 
 async function main() {
@@ -35,14 +35,14 @@ async function main() {
       const membershipNFT = await MembershipNFT.deploy("Genesis Owner Key", "MNFT");    
   
       const CustomNFTMock = await ethers.getContractFactory("CustomNFTMock");
-      const customNFTMock = await CustomNFTMock.deploy("Custom NFT Token", "CNT");
+      const customNFT = await CustomNFTMock.deploy("Custom NFT Token", "CNT");
   
       const PlayEstatesBrickToken = await ethers.getContractFactory("PlayEstatesBrickToken");
-      const pbrTokenMock = await PlayEstatesBrickToken.deploy("PlayEstates Bricks Token", "PBRT");
+      const pbrtToken = await PlayEstatesBrickToken.deploy("PlayEstates Bricks Token", "PBRT");
       
-      console.log("customNFTMock:", customNFTMock.address);
       console.log("membershipNFT:", membershipNFT.address);
-      console.log("PBRT:", pbrTokenMock.address);
+      console.log("customNFT:", customNFT.address);
+      console.log("PBRT:", pbrtToken.address);
 
       const NFTEngineV1 = await ethers.getContractFactory("NFTEngineV1");
       const nftEngineV1 = await upgrades.deployProxy(
@@ -53,31 +53,25 @@ async function main() {
       console.log("nftEngineV1:", nftEngineV1.address);  
       
       await nftEngineV1.setNFTContract(TokenTypes_membershipNFT, membershipNFT.address);
-      await nftEngineV1.setNFTContract(TokenTypes_customNFT, customNFTMock.address);
-      await nftEngineV1.setPaymentContract(pbrTokenMock.address);
+      await nftEngineV1.setNFTContract(TokenTypes_customNFT, customNFT.address);
+      await nftEngineV1.setPaymentContract(pbrtToken.address);
 
-      await pbrTokenMock.setMarketplaceEngine(nftEngineV1.address);
+      await pbrtToken.setMarketplaceEngine(nftEngineV1.address);
+      await pbrtToken.setGameEngine(gameWallet);
+      await pbrtToken.setMintRole(gameWallet);
 
       if (network.name == 'rinkeby' || network.name == "goerli") {              
         for (let i = 0; i < sellers.length; i++) {
-          let customTokenId = 1;
-          for (let j = 0; j < nftTokenCount; j++) {
-            await customNFTMock.mint(
-              sellers[i], customTokenId
-            );  
-            customTokenId++;
-          }
-
           await membershipNFT.mint(
             sellers[i], nftTokenCount, 0
           );
         }
 
-        await PlayEstatesBrickToken.mint(
-          deployer.address, ownedMints
+        await pbrtToken.mint(
+          deployer.address, pbrtTokenBalance
         );
         for (let i = 0; i < buyers.length; i++) {
-          await pbrTokenMock.mint(
+          await pbrtToken.mint(
             buyers[i], pbrtTokenBalance
           );
         }
