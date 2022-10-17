@@ -474,8 +474,6 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
 
         _resetBids(nftContract, tokenId);
         _payout(
-            nftContract, 
-            tokenId, 
             nftHighestBidder, 
             nftHighestBid,
             erc20Token);
@@ -872,8 +870,6 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
         _resetAuction(nftContract, tokenId);
 
         _payFeesAndSeller(
-            nftContract,
-            tokenId,
             nftSeller,
             nftHighestBid,
             erc20Token,
@@ -898,8 +894,6 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
 
     /// @notice Pays the fee to treasury and fee recipients, and then send the rest to seller
     function _payFeesAndSeller(
-        address nftContract,
-        uint256 tokenId,
         address nftSeller,
         uint256 highestBid,
         address erc20Token,
@@ -910,8 +904,6 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
         highestBid = highestBid - toTreasury;
 
         _payout(
-            nftContract,
-            tokenId,
             _treasury,
             toTreasury,
             erc20Token
@@ -925,16 +917,12 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
             );
             feesPaid = feesPaid + fee;
             _payout(
-                nftContract,
-                tokenId,
                 feeRecipients[i],
                 fee,
                 erc20Token
             );
         }
         _payout(
-            nftContract,
-            tokenId,
             nftSeller,
             (highestBid - feesPaid),
             erc20Token
@@ -943,8 +931,6 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
 
     /// @notice Pays the specific amount of ethereum or erc20 tokens to the recipient wallet
     function _payout(
-        address nftContract,
-        uint256 tokenId,
         address recipient,
         uint256 amount,
         address erc20Token
@@ -1079,8 +1065,6 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
         _updateHighestBid(nftContract, tokenId, tokenAmount);
         if (prevNftHighestBidder != address(0)) {
             _payout(
-                nftContract,
-                tokenId,
                 prevNftHighestBidder,
                 prevNftHighestBid,
                 erc20Token
