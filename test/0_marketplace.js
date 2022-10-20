@@ -145,7 +145,7 @@ describe("NFT Marketplace", function () {
     let tx = await nftEngine.connect(seller).createSale(
       nftContract.address,
       tokenId,
-      getZeroAddress(),
+      ethers.constants.AddressZero,
       tokenPrice,
       emptyFeeRecipients,
       emptyFeePercentages
@@ -387,7 +387,7 @@ describe("NFT Marketplace", function () {
     tx = await nftEngine.connect(seller).createAuction(
       nftContract.address,
       tokenId,
-      getZeroAddress(),
+      ethers.constants.AddressZero,
       minPrice,
       buyNowPrice,
       0,
@@ -603,7 +603,7 @@ describe("NFT Marketplace", function () {
     let tx = await nftEngine.connect(engineInfo.buyer1).makeBid(
       nftContract.address,
       tokenId,
-      getZeroAddress(),
+      ethers.constants.AddressZero,
       0,
       {value: ethAmount}
     );
@@ -615,7 +615,7 @@ describe("NFT Marketplace", function () {
       tokenId,
       engineInfo.buyer1.address,
       ethAmount,
-      getZeroAddress(),
+      ethers.constants.AddressZero,
       0
     ); 
 
@@ -634,7 +634,7 @@ describe("NFT Marketplace", function () {
     tx = await nftEngine.connect(engineInfo.buyer2).makeBid(
       nftContract.address,
       tokenId,
-      getZeroAddress(),
+      ethers.constants.AddressZero,
       0,
       {value: ethAmount}
     );
@@ -646,7 +646,7 @@ describe("NFT Marketplace", function () {
       tokenId,
       engineInfo.buyer2.address,
       ethAmount,
-      getZeroAddress(),
+      ethers.constants.AddressZero,
       0
     ); 
   });  
@@ -660,7 +660,7 @@ describe("NFT Marketplace", function () {
     await expect(nftEngine.connect(engineInfo.buyer1).makeBid(
       nftContract.address,
       tokenId,
-      getZeroAddress(),
+      ethers.constants.AddressZero,
       0,
       {value: ethAmount}
     ))
@@ -691,7 +691,7 @@ describe("NFT Marketplace", function () {
     await expect(nftEngine.connect(buyer).makeBid(
       nftContract.address,
       tokenId,
-      getZeroAddress(),
+      ethers.constants.AddressZero,
       0,
       {value: ethAmount}
     )).to.be.reverted;  // onlyNotAuctionSeller
@@ -704,7 +704,7 @@ describe("NFT Marketplace", function () {
     await nftEngine.connect(seller).createAuction(
       nftContract.address,
       tokenId,
-      getZeroAddress(),
+      ethers.constants.AddressZero,
       minPrice,
       ethAmount,
       oneDaySeconds,
@@ -715,14 +715,14 @@ describe("NFT Marketplace", function () {
     await expect(nftEngine.connect(engineInfo.buyer2).makeBid(
       nftContract.address,
       tokenId,
-      getZeroAddress(),
+      ethers.constants.AddressZero,
       0
     )).to.be.reverted;  // NFTEngineNotAcceptablePayment
 
     await nftEngine.connect(engineInfo.buyer2).makeBid(
       nftContract.address,
       tokenId,
-      getZeroAddress(),
+      ethers.constants.AddressZero,
       0,
       {value: minPrice}
     );
@@ -730,7 +730,7 @@ describe("NFT Marketplace", function () {
     await expect(nftEngine.connect(buyer).makeBid(
       nftContract.address,
       tokenId,
-      getZeroAddress(),
+      ethers.constants.AddressZero,
       0,
       {value: minPrice}
     )).to.be.reverted;  // Insufficient funds to bid
@@ -740,7 +740,7 @@ describe("NFT Marketplace", function () {
     await expect(nftEngine.connect(buyer).makeBid(
       nftContract.address,
       tokenId,
-      getZeroAddress(),
+      ethers.constants.AddressZero,
       0,
       {value: ethAmount}
     )).to.be.reverted;  // NFTEngineAuctionFinished
@@ -763,7 +763,7 @@ describe("NFT Marketplace", function () {
     await nftEngine.connect(seller).createAuction(
       nftContract.address,
       tokenId,
-      getZeroAddress(),
+      ethers.constants.AddressZero,
       minPrice,
       buyNowPrice,
       oneDaySeconds,
@@ -779,7 +779,7 @@ describe("NFT Marketplace", function () {
     await nftEngine.connect(engineInfo.buyer1).makeBid(
       nftContract.address,
       tokenId,
-      getZeroAddress(),
+      ethers.constants.AddressZero,
       0,
       {value: ethAmount}
     );
@@ -806,7 +806,7 @@ describe("NFT Marketplace", function () {
     await nftEngine.connect(seller).createAuction(
       nftContract.address,
       tokenId,
-      getZeroAddress(),
+      ethers.constants.AddressZero,
       minPrice,
       buyNowPrice,
       oneDaySeconds,
@@ -843,7 +843,7 @@ describe("NFT Marketplace", function () {
     await nftEngine.connect(seller).createAuction(
       nftContract.address,
       tokenId,
-      getZeroAddress(),
+      ethers.constants.AddressZero,
       minPrice,
       buyNowPrice,
       oneDaySeconds,
@@ -859,7 +859,7 @@ describe("NFT Marketplace", function () {
     await nftEngine.connect(engineInfo.buyer1).makeBid(
       nftContract.address,
       tokenId,
-      getZeroAddress(),
+      ethers.constants.AddressZero,
       0,
       {value: ethAmount}
     );
@@ -955,10 +955,6 @@ describe("NFT Marketplace", function () {
       );
     }    
   });
-
-  function getZeroAddress() {
-    return "0x0000000000000000000000000000000000000000";
-  }
 
   async function getERC20Balance(wallet) {
     const balance = await engineInfo.pbrTokenMock.balanceOf(wallet);

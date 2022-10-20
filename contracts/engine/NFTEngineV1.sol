@@ -629,32 +629,27 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
         uint256 toTreasury = amount * feeToTreasury / 100;
         uint256 toSeller = amount - toTreasury;
         _resetSale(nftContract, tokenId);
+        bool isSent = false;
 
         if (erc20Token == address(0)) {
             /// paying with ether
             require(msg.value >= amount, "Insufficient ether to buy");
 
-            (bool bSent, ) = payable(seller).call{
+            (isSent, ) = payable(seller).call{
                 value: toSeller
             }("");
-            if (!bSent) {
-                revert("Failed sending ether to seller");
-            }
+            require(isSent, 'failed to send eth to seller');
 
-            (bSent, ) = payable(_treasury).call{
+            payable(_treasury).call{
                 value: toTreasury
-            }("");
-            if (!bSent) {
-                revert("Failed sending ether to treasury");
-            }
+            }("");                            
         }
         else {
             /// paying with erc20 token
-            if (!IERC20(erc20Token).transferFrom(msg.sender, seller, toSeller)) 
-                revert NFTEngineERC20TransferFailed(erc20Token, amount);
-
-            if (!IERC20(erc20Token).transferFrom(msg.sender, _treasury, toTreasury)) 
-                revert NFTEngineERC20TransferFailed(erc20Token, amount);
+            require (
+                IERC20(erc20Token).transferFrom(msg.sender, seller, toSeller) &&
+                IERC20(erc20Token).transferFrom(msg.sender, _treasury, toTreasury),
+                "failed to send pbrt to seller");
         }            
 
         IERC721(nftContract).safeTransferFrom(
@@ -936,9 +931,7 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
         address erc20Token
     ) internal {                
         if (_isERC20Auction(erc20Token)) {
-            if (!IERC20(erc20Token).transfer(recipient, amount)) {
-                revert NFTEngineERC20TransferFailed(erc20Token, amount);
-            }
+            IERC20(erc20Token).transfer(recipient, amount);                
         } else {
             // attempt to send the funds to the recipient
             (bool success, ) = payable(recipient).call{
@@ -946,8 +939,7 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
                 gas: 20000
             }("");
             // if it failed, update their credit balance so they can pull it later
-            if (!success) 
-                revert("Failed sending ether to recipient");
+            require (success, "Failed to send eth to recipient");
         }
     }
 
