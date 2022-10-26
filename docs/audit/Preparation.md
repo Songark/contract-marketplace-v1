@@ -85,7 +85,7 @@ Total trades' payment should be divided into treasury's fee (5%) and customer's 
 #### Goerli network test
 - Already tested on the Goerli network using these deployed contracts and frontend
   - Marketplace Engine contract
-    https://goerli.etherscan.io/address/0xea7b622083bBa4f542a4DFFbCE285B3edff31e0e
+    https://goerli.etherscan.io/address/0x878b6eE9784A6a08BAdc18c140C19C36bdb6e4A7
   - Membership NFT contract
     https://goerli.etherscan.io/address/0xc08BA1198fA68aA12BBa73C1c5b3FCB6243cbe6a
   - PBRT Token contract

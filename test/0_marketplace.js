@@ -131,9 +131,10 @@ describe("NFT Marketplace", function () {
     );
   });
 
-  it ("Should create a sale pricing 1 eth for one membershipNFT token", async () => {
+  it ("Should create a sale pricing 1 PBRT for one membershipNFT token", async () => {
     let seller = engineInfo.seller1;
     let nftContract = engineInfo.membershipNFT;
+    let pbrTokenMock = engineInfo.pbrTokenMock;
     let tokenId = 1;
     let tokenPrice = 1;
     
@@ -145,7 +146,7 @@ describe("NFT Marketplace", function () {
     let tx = await nftEngine.connect(seller).createSale(
       nftContract.address,
       tokenId,
-      ethers.constants.AddressZero,
+      pbrTokenMock.address,
       tokenPrice,
       emptyFeeRecipients,
       emptyFeePercentages
@@ -221,7 +222,7 @@ describe("NFT Marketplace", function () {
   it ("Should revert the buy nft because of several reasons", async () => {
     let seller = engineInfo.seller1;
     let buyer = engineInfo.buyer1;
-    let nftContract = engineInfo.membershipNFT;
+    let nftContract = engineInfo.membershipNFT;    
     let tokenId = 10;
 
     await expect(nftEngine.connect(buyer).buyNFT(
@@ -233,19 +234,6 @@ describe("NFT Marketplace", function () {
     await expect(nftEngine.connect(seller).buyNFT(
       nftContract.address,
       tokenId
-    )).to.be.reverted;  // onlyNotSaleSeller
-  });
-
-  it ("Should revert the buy nft with insufficient balance", async () => {
-    let seller = engineInfo.seller1;
-    let buyer = engineInfo.buyer1;
-    let nftContract = engineInfo.membershipNFT;
-    let tokenId = 1;
-
-    await expect(nftEngine.connect(buyer).buyNFT(
-      nftContract.address,
-      tokenId,
-      {value: 0}
     )).to.be.reverted;  // onlyNotSaleSeller
   });
 
@@ -315,7 +303,7 @@ describe("NFT Marketplace", function () {
     await expect(tokenSales.length).to.be.equal(2, "Failed to create sales, invalid sales count");
   });
 
-  it ("Should buy two NFTs from sales using 1 eth and 10 pbrtTokens", async () => {
+  it ("Should buy NFT from sales using 10 pbrtTokens", async () => {
     let nftContract = engineInfo.membershipNFT;    
     let tokenSales = await nftEngine.getTokenInfosOnSale(nftContract.address);
     for (let i = 0; i < tokenSales.length; i++) {
@@ -374,34 +362,6 @@ describe("NFT Marketplace", function () {
     );      
     expect(await nftContract.ownerOf(tokenId)).to.equal(seller.address);
 
-    /// creating an auction with 0.1 ~ 1 eth pricing
-    tokenId = 4;
-    minPrice = ethers.utils.parseEther("0.1");
-    buyNowPrice = ethers.utils.parseEther("1");
-    
-    await nftContract.connect(seller).approve(
-      nftEngine.address,
-      tokenId
-    );
-
-    tx = await nftEngine.connect(seller).createAuction(
-      nftContract.address,
-      tokenId,
-      ethers.constants.AddressZero,
-      minPrice,
-      buyNowPrice,
-      0,
-      emptyFeeRecipients,
-      emptyFeePercentages
-    );  
-
-    let tokenAuctions = await nftEngine.getTokenInfosOnAuction(nftContract.address);
-    await expect(tokenAuctions.length).to.be.equal(2, "Failed to create auctions, invalid auctions count");
-
-    let tokenAuction = await nftEngine.getTokenAuctionInfo(nftContract.address, tokenId);
-    await expect(tokenAuction.tokenId).to.be.equal(tokenId, "Failed to get token auction info");
-
-    await expect(nftEngine.getTokenAuctionInfo(nftContract.address, 100)).to.be.reverted; // 
   });
 
   it ("Should revert the create auction because of several reasons", async () => {
@@ -594,284 +554,16 @@ describe("NFT Marketplace", function () {
     )
   });
 
-  it ("Should make a bid pricing Eth for one membershipNFT token", async () => {
-    let nftContract = engineInfo.membershipNFT;
-    let tokenId = 4;
-    let ethAmount = ethers.utils.parseEther("0.5");
-    
-    // make bid with 0.5 eth with buyer 1
-    let tx = await nftEngine.connect(engineInfo.buyer1).makeBid(
-      nftContract.address,
-      tokenId,
-      ethers.constants.AddressZero,
-      0,
-      {value: ethAmount}
-    );
-
-    expect(tx)
-    .to.emit(nftEngine, 'NFTAuctionBidMade')
-    .withArgs(
-      nftContract.address, 
-      tokenId,
-      engineInfo.buyer1.address,
-      ethAmount,
-      ethers.constants.AddressZero,
-      0
-    ); 
-
-    await expect(nftEngine.connect(engineInfo.buyer2).withdrawBid(
-      nftContract.address, 
-      tokenId
-    )).to.be.reverted;  // NFTEngineNotHighestBidder
-
-    await expect(nftEngine.connect(engineInfo.buyer1).withdrawBid(
-      nftContract.address, 
-      tokenId
-    )).to.emit(nftEngine, 'NFTAuctionBidWithdrawn');
-
-    // make bid with 0.9 eth with buyer 2
-    ethAmount = ethers.utils.parseEther("0.9");
-    tx = await nftEngine.connect(engineInfo.buyer2).makeBid(
-      nftContract.address,
-      tokenId,
-      ethers.constants.AddressZero,
-      0,
-      {value: ethAmount}
-    );
-    
-    expect(tx)
-    .to.emit(nftEngine, 'NFTAuctionBidMade')
-    .withArgs(
-      nftContract.address, 
-      tokenId,
-      engineInfo.buyer2.address,
-      ethAmount,
-      ethers.constants.AddressZero,
-      0
-    ); 
-  });  
-
-  it ("Should make a bid with buy now price Eth for completion auction", async () => {
-    let nftContract = engineInfo.membershipNFT;
-    let tokenId = 4;
-    let ethAmount = ethers.utils.parseEther("1");
-    
-    // make bid with 1 eth with buyer 1
-    await expect(nftEngine.connect(engineInfo.buyer1).makeBid(
-      nftContract.address,
-      tokenId,
-      ethers.constants.AddressZero,
-      0,
-      {value: ethAmount}
-    ))
-    .to.emit(nftEngine, 'NFTAuctionPaid')
-    .withArgs(
-      nftContract.address, 
-      tokenId,
-      engineInfo.seller1.address,
-      ethAmount,
-      engineInfo.buyer1.address,
-      engineInfo.buyer1.address
-    ); 
-
-    await expect(await nftContract.ownerOf(tokenId)).to.be.equal(
-      engineInfo.buyer1.address,
-      "Failed to transfer membershipNFT to highest bidder"
-    )
-  });  
-
-  it ("Should revert the makebid becase of some reasosn", async () => {
-    let nftContract = engineInfo.membershipNFT;
-    let tokenId = 5;
-    let ethAmount = ethers.utils.parseEther("1");
-    let minPrice = ethers.utils.parseEther("0.5");
-    let seller = engineInfo.seller1;
-    let buyer = engineInfo.buyer1;
-    
-    await expect(nftEngine.connect(buyer).makeBid(
-      nftContract.address,
-      tokenId,
-      ethers.constants.AddressZero,
-      0,
-      {value: ethAmount}
-    )).to.be.reverted;  // onlyNotAuctionSeller
-
-    await nftContract.connect(seller).approve(
-      nftEngine.address,
-      tokenId
-    );
-
-    await nftEngine.connect(seller).createAuction(
-      nftContract.address,
-      tokenId,
-      ethers.constants.AddressZero,
-      minPrice,
-      ethAmount,
-      oneDaySeconds,
-      emptyFeeRecipients,
-      emptyFeePercentages
-    );  
-
-    await expect(nftEngine.connect(engineInfo.buyer2).makeBid(
-      nftContract.address,
-      tokenId,
-      ethers.constants.AddressZero,
-      0
-    )).to.be.reverted;  // NFTEngineNotAcceptablePayment
-
-    await nftEngine.connect(engineInfo.buyer2).makeBid(
-      nftContract.address,
-      tokenId,
-      ethers.constants.AddressZero,
-      0,
-      {value: minPrice}
-    );
-
-    await expect(nftEngine.connect(buyer).makeBid(
-      nftContract.address,
-      tokenId,
-      ethers.constants.AddressZero,
-      0,
-      {value: minPrice}
-    )).to.be.reverted;  // Insufficient funds to bid
-    
-    await increaseTime(oneDaySeconds);
-
-    await expect(nftEngine.connect(buyer).makeBid(
-      nftContract.address,
-      tokenId,
-      ethers.constants.AddressZero,
-      0,
-      {value: ethAmount}
-    )).to.be.reverted;  // NFTEngineAuctionFinished
-  });  
-
   it ("Should test settle auction", async () => {
-    // create new auction again for withdraw testing
-    const nftContract = engineInfo.membershipNFT;
-    const tokenId = 10;
-    const minPrice = ethers.utils.parseEther("0.1");
-    const buyNowPrice = ethers.utils.parseEther("1");
-    const ethAmount = ethers.utils.parseEther("0.5");
-    const seller = engineInfo.seller1;
-
-    await nftContract.connect(seller).approve(
-      nftEngine.address,
-      tokenId
-    );
-
-    await nftEngine.connect(seller).createAuction(
-      nftContract.address,
-      tokenId,
-      ethers.constants.AddressZero,
-      minPrice,
-      buyNowPrice,
-      oneDaySeconds,
-      emptyFeeRecipients,
-      emptyFeePercentages
-    );  
-
-    await expect(nftEngine.connect(seller).settleAuction(
-      nftContract.address,
-      tokenId
-    )).to.be.reverted;
-
-    await nftEngine.connect(engineInfo.buyer1).makeBid(
-      nftContract.address,
-      tokenId,
-      ethers.constants.AddressZero,
-      0,
-      {value: ethAmount}
-    );
-
-    await expect(nftEngine.connect(seller).settleAuction(
-      nftContract.address,
-      tokenId
-    )).to.emit(nftEngine, 'NFTAuctionSettled');
+    
   });   
 
   it ("Should test withdraw auction", async () => {
-    // create new auction again for withdraw testing
-    const nftContract = engineInfo.membershipNFT;
-    const tokenId = 11;
-    const minPrice = ethers.utils.parseEther("0.1");
-    const buyNowPrice = ethers.utils.parseEther("1");
-    const seller = engineInfo.seller1;
-
-    await nftContract.connect(seller).approve(
-      nftEngine.address,
-      tokenId
-    );
-
-    await nftEngine.connect(seller).createAuction(
-      nftContract.address,
-      tokenId,
-      ethers.constants.AddressZero,
-      minPrice,
-      buyNowPrice,
-      oneDaySeconds,
-      emptyFeeRecipients,
-      emptyFeePercentages
-    );  
-
-    // withdraw auction by seller
-    await expect(nftEngine.connect(seller).withdrawAuction(
-      nftContract.address,
-      tokenId
-    )).to.be.emit(nftEngine, 'NFTAuctionWithdrawn');
-
-    await expect(await nftContract.ownerOf(tokenId)).to.be.equal(
-      seller.address, "Failed to withdrawAuction action"
-    );
-
+    
   });
 
   it ("Should test takehighestbid auction", async () => {
-    // create new auction again for withdraw testing
-    const nftContract = engineInfo.membershipNFT;
-    const tokenId = 12;
-    const minPrice = ethers.utils.parseEther("0.1");
-    const buyNowPrice = ethers.utils.parseEther("1");
-    const ethAmount = ethers.utils.parseEther("0.5");
-    const seller = engineInfo.seller1;
-
-    await nftContract.connect(seller).approve(
-      nftEngine.address,
-      tokenId
-    );
-
-    await nftEngine.connect(seller).createAuction(
-      nftContract.address,
-      tokenId,
-      ethers.constants.AddressZero,
-      minPrice,
-      buyNowPrice,
-      oneDaySeconds,
-      emptyFeeRecipients,
-      emptyFeePercentages
-    );  
-
-    await expect(nftEngine.connect(seller).takeHighestBid(
-      nftContract.address,
-      tokenId
-    )).to.be.reverted;  // NFTEngineDidNotBid
-
-    await nftEngine.connect(engineInfo.buyer1).makeBid(
-      nftContract.address,
-      tokenId,
-      ethers.constants.AddressZero,
-      0,
-      {value: ethAmount}
-    );
-
-    await expect(nftEngine.connect(seller).takeHighestBid(
-      nftContract.address,
-      tokenId
-    )).to.emit(nftEngine, 'NFTAuctionHighestBidTaken');
-
-    await expect(await nftContract.ownerOf(tokenId)).to.be.equal(
-      engineInfo.buyer1.address, "Failed to takeHighestBid action"
-    );
+    
   });
 
   it ("Should revert the takehighestbid because of several reasons", async () => {

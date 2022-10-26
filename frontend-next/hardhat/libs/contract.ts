@@ -1,37 +1,39 @@
-import {ethers} from 'ethers';
+import {BigNumber, ethers} from 'ethers';
 import {
     nftEngine, 
     contractType,
     contractAddress,
-    paymentType,
     infuraApiKey,
     chainName
 } from "./constants";
 import NFTEngineV1 from '../artifacts/contracts/engine/NFTEngineV1.sol/NFTEngineV1.json';
 import MembershipNFT from '../artifacts/contracts/token/MembershipNFT.sol/MembershipNFT.json';
 import PBRTToken from '../artifacts/contracts/token/PlayEstatesBrickToken.sol/PlayEstatesBrickToken.json';
-import CustomNFTMock from '../artifacts/contracts/test/CustomNFTMock.sol/CustomNFTMock.json';
 
 export async function createAuction(
     provider, 
     nftType: contractType, 
     tokenId: number, 
-    payType: paymentType,
-    minPrice: string,
-    buyNowPrice: string,
+    minPrice: number,
+    buyNowPrice: number,
     periodSeconds: number) 
 {
     if (provider !== undefined) {
         const nftEngineV1 = new ethers.Contract(nftEngine, NFTEngineV1.abi, provider);
         const signer = provider.getSigner();
+        const nftContract = new ethers.Contract(
+            contractAddress[nftType], 
+            MembershipNFT.abi, 
+            provider);
+        await nftContract.connect(signer).approve(nftEngine, tokenId);
+
         const nftEngineV1WithSigner = nftEngineV1.connect(signer)
         await nftEngineV1WithSigner.createAuction(
             contractAddress[nftType],
             tokenId,
-            payType == paymentType.pay_eth ? 
-                ethers.constants.AddressZero : contractAddress[contractType.brickToken],
-            ethers.utils.parseEther(minPrice),
-            ethers.utils.parseEther(buyNowPrice),
+            contractAddress[contractType.brickToken],
+            minPrice,
+            buyNowPrice,
             periodSeconds,
             [], 
             [],
@@ -87,44 +89,29 @@ export async function takeHighestBid(
 export async function makeBid(
     provider, 
     nftType: contractType, 
-    tokenId: number,
-    payType: paymentType,
-    price: string) 
+    tokenId: number,    
+    price: number) 
 {
     if (provider !== undefined) {
         const nftEngineV1 = new ethers.Contract(nftEngine, NFTEngineV1.abi, provider);
-        if (payType == paymentType.pay_eth) {
-            await nftEngineV1.connect(provider.getSigner()).makeBid(
-                contractAddress[nftType],
-                tokenId,
-                ethers.constants.AddressZero,
-                0,
-                {
-                    value: ethers.utils.parseEther(price),
-                    gasLimit: '1000000'
-                }
-            );
-        }
-        else {
-            const brickTokenContract = new ethers.Contract(
-                contractAddress[contractType.brickToken], 
-                PBRTToken.abi, 
-                provider);
-
-            await brickTokenContract.connect(provider.getSigner()).approve(
-                nftEngineV1.address,
-                ethers.utils.parseEther(price)
-            );
-            await nftEngineV1.connect(provider.getSigner()).makeBid(
-                contractAddress[nftType],
-                tokenId,
-                contractAddress[contractType.brickToken],
-                ethers.utils.parseEther(price),
-                {
-                    gasLimit: '1000000'
-                }
-            );
-        }
+        const brickTokenContract = new ethers.Contract(
+            contractAddress[contractType.brickToken], 
+            PBRTToken.abi, 
+            provider);
+        
+        await brickTokenContract.connect(provider.getSigner()).approve(
+            nftEngineV1.address,
+            price
+        );
+        await nftEngineV1.connect(provider.getSigner()).makeBid(
+            contractAddress[nftType],
+            tokenId,
+            contractAddress[contractType.brickToken],
+            price,
+            {
+                gasLimit: '1000000'
+            }
+        );        
     }
 }
 
@@ -146,8 +133,7 @@ export async function createSale(
     provider, 
     nftType: contractType, 
     tokenId: number, 
-    payType: paymentType,
-    sellPrice: string) 
+    sellPrice: number) 
 {
     if (provider !== undefined) {
         const signer = provider.getSigner();
@@ -162,9 +148,8 @@ export async function createSale(
         await nftEngineV1WithSigner.createSale(
             contractAddress[nftType],
             tokenId,
-            payType == paymentType.pay_eth ? 
-                ethers.constants.AddressZero : contractAddress[contractType.brickToken],
-            ethers.utils.parseEther(sellPrice),
+            contractAddress[contractType.brickToken],
+            sellPrice,
             [], 
             [],
             {

@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: Unlicense
-pragma solidity 0.8.4;
+pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
@@ -320,8 +320,8 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
             nftContract == _tokenContracts[LTypes.TokenTypes.customNFT], 
             "Unregistered nft contract");
 
-        require(erc20Token == _tokenContracts[LTypes.TokenTypes.erc20Token] || 
-            erc20Token == address(0), "Unregistered payment contract");
+        require(erc20Token == _tokenContracts[LTypes.TokenTypes.erc20Token], 
+            "Unregistered payment contract");
 
         if (msg.sender != IERC721(nftContract).ownerOf(tokenId))
             revert NFTEngineNotTokenOwner(nftContract, tokenId);
@@ -500,8 +500,8 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
     onlyTokenOwner(nftContract, tokenId)
     onlyApprovedToken(nftContract, tokenId)
     onlyValidPrice(sellPrice) {        
-        require(erc20Token == _tokenContracts[LTypes.TokenTypes.erc20Token] || 
-            erc20Token == address(0), "Unregistered payment contract");
+        require(erc20Token == _tokenContracts[LTypes.TokenTypes.erc20Token],
+            "Unregistered payment contract");
 
         _createSale(nftContract, tokenId, erc20Token, sellPrice, feeRecipients, feeRates);
         
