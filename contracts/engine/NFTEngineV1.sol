@@ -640,9 +640,10 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
             }("");
             require(isSent, 'failed to send eth to seller');
 
-            payable(_treasury).call{
+            (isSent, ) = payable(_treasury).call{
                 value: toTreasury
-            }("");                            
+            }("");              
+            require(isSent, 'failed to send eth to treasury');              
         }
         else {
             /// paying with erc20 token

@@ -5,7 +5,7 @@ export const chain = EvmChain.GOERLI;
 export const chainName = "goerli";
 
 export const moralis_apikey = "7ppyBj1nGG2aydKjrga4UyBTSoj6enVAU0n25zcYLbnYFA4oA4Cn7h6fuYgKg3xw";
-export const nftEngine = "0xea7b622083bBa4f542a4DFFbCE285B3edff31e0e";
+export const nftEngine = "0x878b6eE9784A6a08BAdc18c140C19C36bdb6e4A7";
 
 export enum contractType {
     customNFT,

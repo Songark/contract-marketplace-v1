@@ -3,13 +3,13 @@
 ## Functionality requirements
 This smart contract can be easily used in a permissionless and flexible manner to buy/sell/auction NFTs. Sellers, buyers, and bidders can make customized auctions and sales, and also bids that allow for a holistic NFT auction/sale mechanism.
 There are only two types of NFT contracts available to this contract; MembershipNFT and CustomNFT.
-There are only two types of payment options available in this contract; ETH and PlayEstatesBrickToken erc20 tokens.
+There are only one payment option available in this contract; PlayEstatesBrickToken erc20 tokens.
 Total trades' payment should be divided into treasury's fee (5%) and customer's receivers fee (95% will be divided by parameters).
 
 ## NFT sale features:
 - Create a sale for their single NFT and customize their sell option by specifying the following:
   - The token contract and id for their single NFT
-  - The accepted payment type (ETH or ERC20 token named PBRT)
+  - The accepted payment type (ERC20 token named PBRT)
   - The fee receivers and rates as array
   - Create a sale by calling the "createSale" function
 - Withdraw the created sale by calling the "withdrawSale" if not sold.
@@ -23,7 +23,7 @@ Total trades' payment should be divided into treasury's fee (5%) and customer's 
 ## NFT auction features:
 ### NFT sellers can perform the following actions to auction their NFTs:
 - Create an auction for their single NFT and customize their auction by calling the "createAuction" function
-  - The accepted payment type (ETH or ERC20 token named PBRT)
+  - The accepted payment type (ERC20 token named PBRT)
   - The minimum price of the auction (when this is met, the auction begins and users have a specific time to make a subsequent higher bid). If the buy now price is also set, the minimum price cannot be greater than 80% of the price.
   - A buy now price, which when met by a buyer will automatically conclude the auction. The seller can set this value to zero, in which case the auction will only end when the minimum price is met and the auction bid period has concluded.
   - The auction bid period, which specifies the amount of time the auction will last after the minimum price is met. Every time a higher bid is then met, the auction will continue again for this time.

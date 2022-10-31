@@ -13,7 +13,7 @@ const nftSellers = [
 
 const treasury = "0xF0d096D33559cDc5f527435b82073c108D6c3107";
 const gameWallet = "0xd5439F21fd46f2eA74563443626f0246E268983f";
-const gamePlayV2 = "0x8004422baEb59146d548fb0C238848CCe4B1B31F";
+const gamePlayV2 = "0x36e584200b0488D44454312348E894096B445a18";
 const TokenTypes_membershipNFT = 0;
 const TokenTypes_customNFT = 1;
 const TokenTypes_erc20Token = 2;
@@ -23,6 +23,7 @@ module.exports = {
     nftSellers, 
     treasury, 
     gameWallet,
+    gamePlayV2,
     TokenTypes_membershipNFT,
     TokenTypes_customNFT,
     TokenTypes_erc20Token

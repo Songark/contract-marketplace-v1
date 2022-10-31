@@ -8,10 +8,10 @@ const { ethers, network, upgrades } = require("hardhat");
 
 const {
   pbrtTokenBalance, 
+  gamePlayV2
 } = require("./constants");
 
 const PBRTaddr = "0xb1677C5639CC483267cC720833d09e0ABd10000A";
-const GamePlayV2 = "0x8004422baEb59146d548fb0C238848CCe4B1B31F";  // from Dai
 
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -28,7 +28,7 @@ async function main() {
       console.log("PBRT:", pbrtToken.address);
 
       if (network.name == 'rinkeby' || network.name == "goerli") {   
-        await pbrtToken.setGameEngine(GamePlayV2);           
+        await pbrtToken.setGameEngine(gamePlayV2);           
       }
   } catch (error) {
       console.log(error);

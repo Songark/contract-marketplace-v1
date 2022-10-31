@@ -17,7 +17,7 @@ These smart contracts can be easily used in a permissionless and flexible manner
 
 ## NFT sellers' features:
 - Create a sale for their single NFT and customize their sell option by specifying the following:
-  - The accepted payment type (ETH or ERC20 token named PBRT Token)
+  - The accepted payment type (ERC20 token named PBRT Token)
   - The fee receivers and rates as array
   - The token id for their single NFT
   - Create an sale by calling createSale function
@@ -32,7 +32,7 @@ These smart contracts can be easily used in a permissionless and flexible manner
 ## NFT auction users' features:
 ### NFT sellers can perform the following actions to auction their NFTs:
 - Create an auction for their single NFT and customize their auction
-  - The accepted payment type (ETH or ERC20 token named PBRT Token)
+  - The accepted payment type (ERC20 token named PBRT Token)
   - The minimum price of the auction (when this is met, the auction begins and users have a specific time to make a subsequent higher bid). If the buy now price is also set, the minimum price cannot be greater than 80% of the price.
   - A buy now price, which when met by a buyer will automatically conclude the auction. The seller can set this value to zero, in which case the auction will only end when the minimum price is met and the auction bid period has concluded.
   - The auction bid period, which specifies the amount of time the auction will last after the minimum price is met. Every time a higher bid is then met, the auction will continue again for this time.

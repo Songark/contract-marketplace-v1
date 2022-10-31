@@ -12,6 +12,7 @@ const {
   nftSellers,
   treasury,
   gameWallet,
+  gamePlayV2,
   TokenTypes_membershipNFT,
   TokenTypes_customNFT
 } = require("./constants");
@@ -57,6 +58,7 @@ async function main() {
       await nftEngineV1.setPaymentContract(pbrtToken.address);
 
       await pbrtToken.setMarketplaceEngine(nftEngineV1.address);
+      await pbrtToken.grantRole(0x00, gamePlayV2);  
       await pbrtToken.setGameEngine(gameWallet);
       await pbrtToken.setMintRole(gameWallet);
 
