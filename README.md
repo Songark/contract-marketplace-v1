@@ -17,7 +17,7 @@ These smart contracts can be easily used in a permissionless and flexible manner
 
 ## NFT sellers' features:
 - Create a sale for their single NFT and customize their sell option by specifying the following:
-  - The accepted payment type (ETH or ERC20 token named PBRT Token)
+  - The accepted payment type (ETH / MATIC or ERC20 token named PBRT Token / USDC)
   - The fee receivers and rates as array
   - The token id for their single NFT
   - Create an sale by calling createSale function
@@ -32,7 +32,7 @@ These smart contracts can be easily used in a permissionless and flexible manner
 ## NFT auction users' features:
 ### NFT sellers can perform the following actions to auction their NFTs:
 - Create an auction for their single NFT and customize their auction
-  - The accepted payment type (ETH or ERC20 token named PBRT Token)
+  - The accepted payment type (ETH / MATIC or ERC20 token named PBRT Token / USDC)
   - The minimum price of the auction (when this is met, the auction begins and users have a specific time to make a subsequent higher bid). If the buy now price is also set, the minimum price cannot be greater than 80% of the price.
   - A buy now price, which when met by a buyer will automatically conclude the auction. The seller can set this value to zero, in which case the auction will only end when the minimum price is met and the auction bid period has concluded.
   - The auction bid period, which specifies the amount of time the auction will last after the minimum price is met. Every time a higher bid is then met, the auction will continue again for this time.
@@ -46,7 +46,7 @@ These smart contracts can be easily used in a permissionless and flexible manner
 - Take the highest bid amount and conclude the auction or sale.
 ### NFT bidders can perform the following actions using Marketplace contract:
 - Make a bid on an NFT put up for auction by specifying
-  - The amount of the bid (in either ETH or PBRT Token as specified by the NFT seller). The bidder must make a bid that is higher by the bid increase percentage if another bid has already been made. 
+  - The amount of the bid (in either ETH / MATIC or PBRT / USDC Token as specified by the NFT seller). The bidder must make a bid that is higher by the bid increase percentage if another bid has already been made. 
   - However if this is met the bidder does not have to make a bid higher than the minimum price set by the seller (in this case, the auction would not start). Therefore, if no bid has been made on auction, the bidder can specify any amount.
 - Purchase an NFT put up for sale by specifying
   - The amount of PBRT Token or ETH (as specified by the seller). In this scenario, the purchaser can make an underbid of the buy now price, which will not conclude the sale. The amount sent by the bidder must then be the default percentage higher than the previous underbid. If the bidder specifies an amount equal to or greater than the buy now price, the sale is concluded and the NFT and purchase amount are transferred.

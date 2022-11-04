@@ -43,7 +43,7 @@ module.exports = {
     },
 
     ethermain: {
-      url: process.env.ETHERMAIN_URL,
+      url: process.env.ETH_MAINNET_URL,
       accounts: {
         mnemonic: process.env.KEY_MNEMONIC
       }
@@ -62,6 +62,20 @@ module.exports = {
         mnemonic: process.env.KEY_MNEMONIC
       }
     },
+
+    mumbai: {
+      url: process.env.POLYGON_MUMBAI_URL || "",
+      accounts: {
+        mnemonic: process.env.KEY_MNEMONIC
+      }
+    },
+
+    polygonmain: {
+      url: process.env.POLYGON_MAINNET_URL || "",
+      accounts: {
+        mnemonic: process.env.KEY_MNEMONIC
+      }
+    }
   },
 
   contractSizer: {

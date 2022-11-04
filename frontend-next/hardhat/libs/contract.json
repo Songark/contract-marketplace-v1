@@ -1,0 +1,46 @@
+{
+    "MembershipNFT": {
+      "goerli": {
+        "address": "0xc08BA1198fA68aA12BBa73C1c5b3FCB6243cbe6a",
+        "deployer": "0x09671368DdB64405d3F2E029E8c0DB9c80Ee7234"
+      },
+      "mumbai": {
+        "address": "",
+        "deployer": "0x09671368DdB64405d3F2E029E8c0DB9c80Ee7234"
+      }
+    },
+    "CustomNFT": {
+      "goerli": {
+        "address": "0xCBDC5Eb81AF6c156c49341C2B12b998849992463",
+        "deployer": "0x09671368DdB64405d3F2E029E8c0DB9c80Ee7234"
+      },
+      "mumbai": {
+        "address": "",
+        "deployer": "0x09671368DdB64405d3F2E029E8c0DB9c80Ee7234"
+      }
+    },
+    "PBRT": {
+      "goerli": {
+        "address": "0x76B17150fC0A65289a5b07dAD2538c26fBf4376c",
+        "deployer": "0x09671368DdB64405d3F2E029E8c0DB9c80Ee7234"
+      },
+      "mumbai": {
+        "address": "",
+        "deployer": "0x09671368DdB64405d3F2E029E8c0DB9c80Ee7234"
+      }
+    },
+    "PeasNFT": {
+      "polygonmain": {
+        "address": "0xc5FB1710908216eA7187B784b69187B02Cb667F3",
+        "deployer": "0x09671368DdB64405d3F2E029E8c0DB9c80Ee7234"
+      },
+      "mumbai": {
+        "address": "0x86e1B6aB7752Ac84DF42CdaA0962f775800d1c4E",
+        "deployer": "0x09671368DdB64405d3F2E029E8c0DB9c80Ee7234"
+      },
+      "goerli": {
+        "address": "0x21256337a7b5521004ac898E1a48c99E860f4FD4",
+        "deployer": "0x09671368DdB64405d3F2E029E8c0DB9c80Ee7234"
+      }
+    }
+  }

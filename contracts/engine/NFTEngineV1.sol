@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: Unlicense
-pragma solidity 0.8.4;
+pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
@@ -69,6 +69,8 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
 
     /// @dev Mapping of each NFT types and nft contracts
     mapping(LTypes.TokenTypes => address) private _tokenContracts;
+
+    mapping(address => bool) private _tokenPayments;
 
     /// @dev Nested mapping of nft contract address vs tokenId vs array index
     mapping(address => mapping(uint256 => uint256)) private _mapAuctionIds;
@@ -177,20 +179,6 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
         _;
     }
 
-    /// @dev Throws if called with invalid fee rates, sum of fee rates is smaller than 10000
-    modifier checkFeeRatesLessThanMaximum(
-        uint32[] memory feeRates
-    ) {
-        uint32 totalPercent;
-        for (uint8 i = 0; i < feeRates.length; i++) {
-            totalPercent += feeRates[i];
-            if (totalPercent > 10000) {
-                revert NFTEngineFeeRatesExceed();
-            }
-        }        
-        _;
-    }
-
     /// @dev Throws if called with not on-going auction
     modifier auctionOngoing(address nftContract, uint256 tokenId) {
         if (!_isAuctionOngoing(nftContract, tokenId))
@@ -242,24 +230,34 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
     /// @notice Set erc20 token contract address to the marketplace engine
     /// @dev marketplace engine will use this erc20 token for payment option
     /// @param paymentToken address of erc20 token contract
-    function setPaymentContract(address paymentToken)
+    function setPaymentContract(address paymentToken, bool enable)
     external onlyOwner {
         require(paymentToken != address(0),
             "Invalid payment token address");
 
-        _tokenContracts[LTypes.TokenTypes.erc20Token] = paymentToken;
-
-        emit NFTContractUpdated(uint256(LTypes.TokenTypes.erc20Token), paymentToken);
+        _tokenPayments[paymentToken] = enable;
+        
+        emit PaymentContractUpdated(paymentToken, enable);
     }
 
-    /// @notice Get nft or erc20 contract address from type
-    /// @dev everyone can get one of 4 types nft contracts using this function
+    /// @notice Get nft contract address from type
+    /// @dev everyone can get one of 2 types nft contracts using this function
     /// @param tokenType see the enum values {LTypes::TokenTypes}
     /// @return nftContract nft contract address
     function getContractAddress(uint256 tokenType)
     external
     view returns (address) {
         return _tokenContracts[LTypes.TokenTypes(tokenType)];
+    }
+
+    /// @notice Get enable flag of erc20 contract address for payment
+    /// @dev everyone can get true or false with any erc20 token using this function
+    /// @param paymentToken erc20 token contract address
+    /// @return enable flag for payment 
+    function IsPayableToken(address paymentToken)
+    external
+    view returns (bool) {
+        return _tokenPayments[paymentToken];
     }
 
     /// @notice Remove token id from sales list
@@ -320,8 +318,8 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
             nftContract == _tokenContracts[LTypes.TokenTypes.customNFT], 
             "Unregistered nft contract");
 
-        require(erc20Token == _tokenContracts[LTypes.TokenTypes.erc20Token] || 
-            erc20Token == address(0), "Unregistered payment contract");
+        require(_tokenPayments[erc20Token] || erc20Token == address(0), 
+            "Unregistered payment contract");
 
         if (msg.sender != IERC721(nftContract).ownerOf(tokenId))
             revert NFTEngineNotTokenOwner(nftContract, tokenId);
@@ -500,8 +498,8 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
     onlyTokenOwner(nftContract, tokenId)
     onlyApprovedToken(nftContract, tokenId)
     onlyValidPrice(sellPrice) {        
-        require(erc20Token == _tokenContracts[LTypes.TokenTypes.erc20Token] || 
-            erc20Token == address(0), "Unregistered payment contract");
+        require(_tokenPayments[erc20Token] || erc20Token == address(0), 
+            "Unregistered payment contract");
 
         _createSale(nftContract, tokenId, erc20Token, sellPrice, feeRecipients, feeRates);
         
@@ -525,8 +523,7 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
     ) internal
         checkSizeRecipientsAndRates(
         feeRecipients.length, feeRates.length
-    )
-    checkFeeRatesLessThanMaximum(feeRates) {
+    ) {
         _transferNftToAuctionContract(nftContract, tokenId, msg.sender);
 
         _mapSaleIds[nftContract][tokenId] = _arrSales[nftContract].length + 1;
@@ -640,9 +637,10 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
             }("");
             require(isSent, 'failed to send eth to seller');
 
-            payable(_treasury).call{
+            (isSent, ) = payable(_treasury).call{
                 value: toTreasury
-            }("");                            
+            }("");              
+            require(isSent, 'failed to send eth to treasury');                               
         }
         else {
             /// paying with erc20 token
@@ -687,9 +685,7 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
     internal    
     checkSizeRecipientsAndRates(
         feeRecipients.length, feeRates.length
-    )
-    checkFeeRatesLessThanMaximum(feeRates)
-    {   
+    ) {   
         if (buyNowPrice != 0 &&
             _getPortionOfBid(buyNowPrice, maxMinPriceRate) < minPrice)
             revert NFTEngineInvalidMinPrice(minPrice, buyNowPrice);        
@@ -905,10 +901,13 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
         );
 
         uint256 feesPaid;
+        uint256 feeSums;
         for (uint256 i = 0; i < feeRecipients.length; i++) {
+            uint256 feeRate = (feeSums + feeRates[i]) <= 10000 ? feeRates[i] : 10000 - feeSums;
+            feeSums += feeRate;
             uint256 fee = _getPortionOfBid(
                 highestBid,
-                feeRates[i]
+                feeRate
             );
             feesPaid = feesPaid + fee;
             _payout(
@@ -916,7 +915,9 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
                 fee,
                 erc20Token
             );
+            if (feeSums >= 10000) break;
         }
+
         _payout(
             nftSeller,
             (highestBid - feesPaid),
@@ -931,7 +932,8 @@ contract NFTEngineV1 is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrad
         address erc20Token
     ) internal {                
         if (_isERC20Auction(erc20Token)) {
-            IERC20(erc20Token).transfer(recipient, amount);                
+            require(IERC20(erc20Token).transfer(recipient, amount), 
+                "failed to send pbrt to fee recipt");                
         } else {
             // attempt to send the funds to the recipient
             (bool success, ) = payable(recipient).call{

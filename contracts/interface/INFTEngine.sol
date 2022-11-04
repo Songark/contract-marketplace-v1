@@ -13,6 +13,14 @@ interface INFTEngine {
         address indexed nftContract
     );
 
+    /// @dev when owner set the payment contract address on marketplace, this event would be emitted.
+    /// @param paymentContract payment contract address
+    /// @param enable enable flag
+    event PaymentContractUpdated(
+        address indexed paymentContract,
+        bool enable
+    );
+
     /// @dev when owner creates sale using his NFT token on marketplace, this event would be emitted.
     /// @param nftContract nft contract's address
     /// @param tokenId nft token's id

@@ -2,7 +2,8 @@ import {ethers} from 'ethers';
 import {
     nftEngine, 
     contractType,
-    contractAddress,
+    nftAddress,
+    payTokenAddress,
     paymentType,
     infuraApiKey,
     chainName
@@ -10,7 +11,11 @@ import {
 import NFTEngineV1 from '../artifacts/contracts/engine/NFTEngineV1.sol/NFTEngineV1.json';
 import MembershipNFT from '../artifacts/contracts/token/MembershipNFT.sol/MembershipNFT.json';
 import PBRTToken from '../artifacts/contracts/token/PlayEstatesBrickToken.sol/PlayEstatesBrickToken.json';
+import USDCToken from './usdcABI.json';
 import CustomNFTMock from '../artifacts/contracts/test/CustomNFTMock.sol/CustomNFTMock.json';
+import Contracts from './contract.json';
+
+const payTokenAbis: any[] = [null, PBRTToken.abi, USDCToken];
 
 export async function createAuction(
     provider, 
@@ -26,10 +31,9 @@ export async function createAuction(
         const signer = provider.getSigner();
         const nftEngineV1WithSigner = nftEngineV1.connect(signer)
         await nftEngineV1WithSigner.createAuction(
-            contractAddress[nftType],
+            nftAddress[nftType],
             tokenId,
-            payType == paymentType.pay_eth ? 
-                ethers.constants.AddressZero : contractAddress[contractType.brickToken],
+            payTokenAddress[payType],
             ethers.utils.parseEther(minPrice),
             ethers.utils.parseEther(buyNowPrice),
             periodSeconds,
@@ -50,7 +54,7 @@ export async function settleAuction(
     if (provider !== undefined) {
         const nftEngineV1 = new ethers.Contract(nftEngine, NFTEngineV1.abi, provider);
         await nftEngineV1.settleAuction(
-            contractAddress[nftType],
+            nftAddress[nftType],
             tokenId
         );
     }
@@ -64,7 +68,7 @@ export async function withdrawAuction(
     if (provider !== undefined) {
         const nftEngineV1 = new ethers.Contract(nftEngine, NFTEngineV1.abi, provider);
         await nftEngineV1.withdrawAuction(
-            contractAddress[nftType],
+            nftAddress[nftType],
             tokenId
         );
     }
@@ -78,7 +82,7 @@ export async function takeHighestBid(
     if (provider !== undefined) {
         const nftEngineV1 = new ethers.Contract(nftEngine, NFTEngineV1.abi, provider);
         await nftEngineV1.takeHighestBid(
-            contractAddress[nftType],
+            nftAddress[nftType],
             tokenId
         );
     }
@@ -95,7 +99,7 @@ export async function makeBid(
         const nftEngineV1 = new ethers.Contract(nftEngine, NFTEngineV1.abi, provider);
         if (payType == paymentType.pay_eth) {
             await nftEngineV1.connect(provider.getSigner()).makeBid(
-                contractAddress[nftType],
+                nftAddress[nftType],
                 tokenId,
                 ethers.constants.AddressZero,
                 0,
@@ -106,19 +110,19 @@ export async function makeBid(
             );
         }
         else {
-            const brickTokenContract = new ethers.Contract(
-                contractAddress[contractType.brickToken], 
-                PBRTToken.abi, 
+            const payTokenContract = new ethers.Contract(
+                payTokenAddress[payType], 
+                payTokenAbis[payType], 
                 provider);
 
-            await brickTokenContract.connect(provider.getSigner()).approve(
+            await payTokenContract.connect(provider.getSigner()).approve(
                 nftEngineV1.address,
                 ethers.utils.parseEther(price)
             );
             await nftEngineV1.connect(provider.getSigner()).makeBid(
-                contractAddress[nftType],
+                nftAddress[nftType],
                 tokenId,
-                contractAddress[contractType.brickToken],
+                payTokenAddress[payType],
                 ethers.utils.parseEther(price),
                 {
                     gasLimit: '1000000'
@@ -136,7 +140,7 @@ export async function withdrawBid(
     if (provider !== undefined) {
         const nftEngineV1 = new ethers.Contract(nftEngine, NFTEngineV1.abi, provider);
         await nftEngineV1.withdrawBid(
-            contractAddress[nftType],
+            nftAddress[nftType],
             tokenId
         );
     }
@@ -152,7 +156,7 @@ export async function createSale(
     if (provider !== undefined) {
         const signer = provider.getSigner();
         const nftContract = new ethers.Contract(
-            contractAddress[nftType], 
+            nftAddress[nftType], 
             MembershipNFT.abi, 
             provider);
         await nftContract.connect(signer).approve(nftEngine, tokenId);
@@ -160,10 +164,9 @@ export async function createSale(
         const nftEngineV1 = new ethers.Contract(nftEngine, NFTEngineV1.abi, provider);        
         const nftEngineV1WithSigner = nftEngineV1.connect(signer)
         await nftEngineV1WithSigner.createSale(
-            contractAddress[nftType],
+            nftAddress[nftType],
             tokenId,
-            payType == paymentType.pay_eth ? 
-                ethers.constants.AddressZero : contractAddress[contractType.brickToken],
+            payTokenAddress[payType],
             ethers.utils.parseEther(sellPrice),
             [], 
             [],
@@ -182,7 +185,7 @@ export async function withdrawSale(
     if (provider !== undefined) {
         const nftEngineV1 = new ethers.Contract(nftEngine, NFTEngineV1.abi, provider);
         await nftEngineV1.withdrawSale(
-            contractAddress[nftType],
+            nftAddress[nftType],
             tokenId
         );
     }
@@ -198,7 +201,7 @@ export async function getTokenInfosOnSale(
         chainName, 
         infuraApiKey);
     const nftEngineV1 = new ethers.Contract(nftEngine, NFTEngineV1.abi, _provider);
-    const allTokenInfos = await nftEngineV1.getTokenInfosOnSale(contractAddress[nftType]);
+    const allTokenInfos = await nftEngineV1.getTokenInfosOnSale(nftAddress[nftType]);
     if (allTokenInfos.length > begin) {
         if (allTokenInfos.length >= begin + size) {
             tokenInfos = allTokenInfos.slice(begin, begin + size);
@@ -219,7 +222,7 @@ export async function getTokenSaleInfo(
         chainName, 
         infuraApiKey);
     const nftEngineV1 = new ethers.Contract(nftEngine, NFTEngineV1.abi, _provider);
-    tokenSaleInfo = await nftEngineV1.getTokenSaleInfo(contractAddress[nftType], tokenId);    
+    tokenSaleInfo = await nftEngineV1.getTokenSaleInfo(nftAddress[nftType], tokenId);    
     return tokenSaleInfo;
 }
 
@@ -233,7 +236,7 @@ export async function getTokenInfosOnAuction(
         chainName, 
         infuraApiKey);
     const nftEngineV1 = new ethers.Contract(nftEngine, NFTEngineV1.abi, _provider);
-    const allTokenInfos = await nftEngineV1.getTokenInfosOnAuction(contractAddress[nftType]);
+    const allTokenInfos = await nftEngineV1.getTokenInfosOnAuction(nftAddress[nftType]);
     if (allTokenInfos.length > begin) {
         if (allTokenInfos.length >= begin + size) {
             tokenInfos = allTokenInfos.slice(begin, begin + size);
@@ -254,7 +257,7 @@ export async function getTokenAuctionInfo(
         chainName, 
         infuraApiKey);
     const nftEngineV1 = new ethers.Contract(nftEngine, NFTEngineV1.abi, _provider);
-    tokenAuctionInfo = await nftEngineV1.getTokenAuctionInfo(contractAddress[nftType], tokenId);    
+    tokenAuctionInfo = await nftEngineV1.getTokenAuctionInfo(nftAddress[nftType], tokenId);    
     return tokenAuctionInfo;
 }
 
@@ -266,13 +269,13 @@ export async function buyNFT(
     if (provider !== undefined) {
         const nftEngineV1 = new ethers.Contract(nftEngine, NFTEngineV1.abi, provider);
         const saleInfo = await nftEngineV1.getTokenSaleInfo(
-            contractAddress[nftType], tokenId
+            nftAddress[nftType], tokenId
         );
 
         if (saleInfo.erc20Token == 0) 
         {
             await nftEngineV1.connect(provider.getSigner()).buyNFT(
-                contractAddress[nftType],
+                nftAddress[nftType],
                 tokenId,
                 {
                     value: saleInfo.price,
@@ -281,17 +284,18 @@ export async function buyNFT(
             );
         }
         else {
-            const brickTokenContract = new ethers.Contract(
+            const payTokenContract = new ethers.Contract(
                 saleInfo.erc20Token, 
                 PBRTToken.abi, 
                 provider);
 
-            await brickTokenContract.connect(provider.getSigner()).approve(
+            await payTokenContract.connect(provider.getSigner()).approve(
                 nftEngineV1.address,
                 saleInfo.price
             );
+
             await nftEngineV1.connect(provider.getSigner()).buyNFT(
-                contractAddress[nftType],
+                nftAddress[nftType],
                 tokenId,
                 {
                     gasLimit: '1000000'

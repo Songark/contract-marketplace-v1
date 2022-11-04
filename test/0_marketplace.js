@@ -38,14 +38,12 @@ describe("NFT Marketplace", function () {
     await nftEngine.deployed();
     await nftEngine.setNFTContract(TokenTypes_membershipNFT, membershipNFT.address);
     await nftEngine.setNFTContract(TokenTypes_customNFT, customNFTMock.address);
-    await nftEngine.setPaymentContract(pbrTokenMock.address);
+    await nftEngine.setPaymentContract(pbrTokenMock.address, true);
 
     await expect(await nftEngine.getContractAddress(TokenTypes_membershipNFT))
       .to.be.equal(membershipNFT.address, "Failed to set membershipNFT");
     await expect(await nftEngine.getContractAddress(TokenTypes_customNFT))
       .to.be.equal(customNFTMock.address, "Failed to set customNFTMock");
-    await expect(await nftEngine.getContractAddress(TokenTypes_erc20Token))
-      .to.be.equal(pbrTokenMock.address, "Failed to set pbrToken");
     
     await pbrTokenMock.setMarketplaceEngine(nftEngine.address);
 
@@ -85,7 +83,8 @@ describe("NFT Marketplace", function () {
     )).to.be.reverted;  // Invalid nft type
 
     await expect(nftEngine.setPaymentContract(
-      ethers.constants.AddressZero
+      ethers.constants.AddressZero,
+      true
     )).to.be.reverted;  // Invalid payment token address
   });
 
@@ -474,19 +473,6 @@ describe("NFT Marketplace", function () {
       emptyFeePercentages
     )).to.be.reverted;  // checkSizeRecipientsAndRates
 
-    emptyFeeRecipients.push(engineInfo.treasury1.address);
-    await expect(nftEngine.connect(seller).createAuction(
-      nftContract.address,
-      tokenId,
-      engineInfo.pbrTokenMock.address,
-      minPrice,
-      buyNowPrice,
-      0,
-      emptyFeeRecipients,
-      emptyFeePercentages
-    )).to.be.reverted;  // checkFeeRatesLessThanMaximum
-
-    emptyFeeRecipients.pop();
     emptyFeePercentages.pop();
 
     await expect(nftEngine.connect(seller).createAuction(

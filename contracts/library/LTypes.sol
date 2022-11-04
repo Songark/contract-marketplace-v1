@@ -6,8 +6,7 @@ library LTypes {
     /// @dev 4 types available nft contract
     enum TokenTypes {
         membershipNFT,
-        customNFT, 
-        erc20Token
+        customNFT
     } 
 
     /// @dev 4 actions in marketplace
