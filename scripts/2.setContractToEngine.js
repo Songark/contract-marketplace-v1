@@ -35,7 +35,7 @@ async function main() {
       if (contractEngineV1 !== undefined) {
         await contractEngineV1.setNFTContract(TokenTypes_membershipNFT, membershipNFT);
         await contractEngineV1.setNFTContract(TokenTypes_customNFT, customNFT);
-        await contractEngineV1.setPaymentContract(pbrtToken);
+        await contractEngineV1.setPaymentContract(pbrtToken, true);
         console.log("nftEngineV1 updated NFTs:");
       }      
     } catch (error) {

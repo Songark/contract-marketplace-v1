@@ -10,8 +10,10 @@ const {
   nftTokenCount, pbrtTokenBalance, 
   nftBuyers, 
   nftSellers,
+  usdcAddresses,
   treasury,
   gameWallet,
+  gamePlayV2,
   TokenTypes_membershipNFT,
   TokenTypes_customNFT
 } = require("./constants");
@@ -54,13 +56,19 @@ async function main() {
       
       await nftEngineV1.setNFTContract(TokenTypes_membershipNFT, membershipNFT.address);
       await nftEngineV1.setNFTContract(TokenTypes_customNFT, customNFT.address);
-      await nftEngineV1.setPaymentContract(pbrtToken.address);
-
+      await nftEngineV1.setPaymentContract(pbrtToken.address, true);
+      if (network.name == 'mumbai') {
+        await nftEngineV1.setPaymentContract(usdcAddresses[0], true);
+      }
+      else if (network.name == "goerli") {
+        await nftEngineV1.setPaymentContract(usdcAddresses[1], true);
+      }
       await pbrtToken.setMarketplaceEngine(nftEngineV1.address);
-      await pbrtToken.setGameEngine(gameWallet);
+      await pbrtToken.setGameEngine(gamePlayV2);
       await pbrtToken.setMintRole(gameWallet);
+      await pbrtToken.grantRole(ethers.constants.HashZero, gameWallet);
 
-      if (network.name == 'rinkeby' || network.name == "goerli") {              
+      if (network.name == 'mumbai' || network.name == "goerli") {              
         for (let i = 0; i < sellers.length; i++) {
           await membershipNFT.mint(
             sellers[i], nftTokenCount, 0

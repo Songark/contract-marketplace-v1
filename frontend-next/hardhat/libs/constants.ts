@@ -10,7 +10,9 @@ export const nftEngine = "0xea7b622083bBa4f542a4DFFbCE285B3edff31e0e";
 
 export enum contractType {
     customNFT,
-    membershipNFT
+    membershipNFT,
+    pbrtToken,
+    usdtToken
 };
 
 export const nftAddress: string[] = [

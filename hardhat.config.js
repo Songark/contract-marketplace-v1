@@ -1,10 +1,12 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("@nomicfoundation/hardhat-chai-matchers");
-require('hardhat-contract-sizer');
 require('@openzeppelin/hardhat-upgrades');
 require('hardhat-deploy-ethers');
 require('hardhat-deploy');
 require('solidity-coverage');
+require('hardhat-contract-sizer');
+require('hardhat-gas-reporter');
+require('hardhat-abi-exporter');
 
 const dotenv = require("dotenv");
 dotenv.config();
@@ -19,14 +21,6 @@ module.exports = {
     "artifacts": './frontend-next/hardhat/artifacts',
   },
 
-  gasReporter: {
-    enabled: process.env.REPORT_GAS !== undefined,
-    currency: "USD",
-    token: "ETH",
-    coinmarketcap: process.env.COINMARKETCAP_API_KEY, 
-    gasPriceApi: "https://api.etherscan.io/api?module=proxy&action=eth_gasPrice"
-  },
-  
   solidity: {
     version: "0.8.4",
     settings: {
@@ -83,6 +77,26 @@ module.exports = {
     disambiguatePaths: false,
     runOnCompile: true,
     strict: true,
-    //only: [':ERC20$'],
+  },
+  
+  abiExporter: {
+    path: './abi',
+    runOnCompile: true,
+    clear: true,
+    flat: true,
+    only: [],
+    spacing: 2
+  },
+
+  gasReporter: {
+    enabled: process.env.REPORT_GAS !== undefined,
+    currency: "USD",
+    token: "ETH",
+    coinmarketcap: process.env.COINMARKETCAP_API_KEY, 
+    gasPriceApi: "https://api.etherscan.io/api?module=proxy&action=eth_gasPrice"
+  },
+
+  etherscan: {
+    apiKey: process.env.ETHERSCAN_API_KEY,
   },
 };

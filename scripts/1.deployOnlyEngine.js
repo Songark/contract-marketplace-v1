@@ -47,7 +47,7 @@ async function main() {
       
       await nftEngineV1.setNFTContract(TokenTypes_membershipNFT, membershipNFT);
       await nftEngineV1.setNFTContract(TokenTypes_customNFT, customNFT);
-      await nftEngineV1.setPaymentContract(pbrtToken);
+      await nftEngineV1.setPaymentContract(pbrtToken, true);
 
       const PlayEstatesBrickToken = await ethers.getContractFactory("PlayEstatesBrickToken");
       const pbrtTokenContract = await PlayEstatesBrickToken.attach(pbrtToken);
