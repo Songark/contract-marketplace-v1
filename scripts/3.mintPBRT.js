@@ -11,7 +11,7 @@ const {
 } = require("./constants");
 
 const PBRTaddr = "0xb1677C5639CC483267cC720833d09e0ABd10000A";
-const PBRTto = "0xD15E7FCB36f27399f74493D5F48541909169af1a";  // angry silver
+const PBRTto = "0x0E16542669B76C9551eDa5c88056DaBC68014Bc7";  // angry silver
 
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -27,7 +27,7 @@ async function main() {
       
       console.log("PBRT:", pbrtToken.address);
 
-      if (network.name == 'rinkeby' || network.name == "goerli") {              
+      if (network.name == 'mumbai' || network.name == "goerli") {              
         await pbrtToken.mint(
           PBRTto, pbrtTokenBalance
         );

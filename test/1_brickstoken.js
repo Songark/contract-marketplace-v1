@@ -58,7 +58,7 @@ describe("PlayEstates Bricks Token", function () {
     )).to.emit(bricksToken, 'Transfer').withArgs(
       ethers.constants.AddressZero,
       engineInfo.user1.address,
-      pbrtTokenBalance
+      ethers.utils.parseEther(pbrtTokenBalance.toString()) 
     );
 
     await expect(bricksToken.connect(engineInfo.minter).mint(
@@ -80,7 +80,7 @@ describe("PlayEstates Bricks Token", function () {
     )).to.emit(bricksToken, 'Transfer').withArgs(
       ethers.constants.AddressZero,
       engineInfo.user2.address,
-      pbrtTokenBalance
+      ethers.utils.parseEther(pbrtTokenBalance.toString()) 
     );
   });
 

@@ -316,11 +316,20 @@ export async function getEventObject(transaction, eventName: string) {
 
 export async function getContractAddress(_type: contractType) {
     let contractAddress: any;
-    const _provider = await new ethers.providers.InfuraProvider(
-        chainName, 
-        infuraApiKey);
-    const nftEngineV1 = new ethers.Contract(nftEngine, NFTEngineV1.abi, _provider);
-    contractAddress = await nftEngineV1.getNFTContract(_type);
+    if (_type == contractType.pbrtToken) {
+        contractAddress = payTokenAddress[1];
+    }
+    else if (_type == contractType.usdtToken) {
+        contractAddress = payTokenAddress[2];
+    }
+    else {
+        const _provider = await new ethers.providers.InfuraProvider(
+            chainName, 
+            infuraApiKey);
+        const nftEngineV1 = new ethers.Contract(nftEngine, NFTEngineV1.abi, _provider);
+        contractAddress = await nftEngineV1.getNFTContract(_type);    
+    }
+    
     console.log(contractAddress);
     return contractAddress;
 }

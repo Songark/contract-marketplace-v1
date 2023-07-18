@@ -14,24 +14,24 @@ interface INFTEngine {
     );
 
     /// @dev when owner set the payment contract address on marketplace, this event would be emitted.
+    /// @param payType type of payment token
     /// @param paymentContract payment contract address
-    /// @param enable enable flag
     event PaymentContractUpdated(
-        address indexed paymentContract,
-        bool enable
+        uint256 payType,
+        address indexed paymentContract
     );
 
     /// @dev when owner creates sale using his NFT token on marketplace, this event would be emitted.
     /// @param nftContract nft contract's address
     /// @param tokenId nft token's id
     /// @param from seller's address
-    /// @param erc20Token ERC20 token's address for payment, if address(0), seller needs payment using ether
+    /// @param payType payment type
     /// @param price nft's price for sale
     event NFTTokenSaleCreated(
         address indexed nftContract, 
         uint256 tokenId, 
         address indexed from, 
-        address indexed erc20Token, 
+        uint256 payType,
         uint256 price
     );
 
@@ -57,7 +57,6 @@ interface INFTEngine {
     /// @param nftContract nft contract's address
     /// @param tokenId nft token's id
     /// @param seller nft owner's address
-    /// @param erc20Token ERC20 token's address for payment, if address(0), seller needs payment using ether
     /// @param minPrice minimum price of auction
     /// @param buyNowPrice maximum price of auction, if someone will bid with buyNoPrice, this auction will end immediately
     /// @param auctionBidPeriod valid period's seconds of auction, where someone can bid and purchase NFTs
@@ -65,25 +64,23 @@ interface INFTEngine {
         address indexed nftContract,
         uint256 tokenId,
         address indexed seller,
-        address indexed erc20Token,
-        uint128 minPrice,
-        uint128 buyNowPrice,
-        uint32 auctionBidPeriod
+        uint256 payType,
+        uint256 minPrice,
+        uint256 buyNowPrice,
+        uint256 auctionBidPeriod
     );
 
     /// @dev when someone makes a bid in the auction of a special NFT, this event would be emitted.
     /// @param nftContract nft contract's address
     /// @param tokenId nft token's id
     /// @param bidder address of offer to buy an NFT from the auction at a specific price.
-    /// @param ethAmount offered price with ether
-    /// @param erc20Token ERC20 token's address for payment
+    /// @param payType payment type
     /// @param tokenAmount offered price with ERC20 token amount
     event NFTAuctionBidMade(
         address indexed nftContract,
         uint256 tokenId,
         address indexed bidder,
-        uint256 ethAmount,
-        address indexed erc20Token,
+        uint256 payType,
         uint256 tokenAmount
     );
 
@@ -104,7 +101,7 @@ interface INFTEngine {
     event NFTAuctionUpdated(
         address indexed nftContract,
         uint256 tokenId,
-        uint64 auctionEndPeriod
+        uint256 auctionEndPeriod
     );
 
     /// @dev when the NFT will be sold to someone in this auction, this event would be emitted.
@@ -118,7 +115,7 @@ interface INFTEngine {
         address indexed nftContract,
         uint256 tokenId,
         address indexed seller,
-        uint128 highestBid,
+        uint256 highestBid,
         address indexed highestBidder,
         address buyer
     );
@@ -167,5 +164,13 @@ interface INFTEngine {
     event NFTAuctionHighestBidTaken(
         address indexed nftContract, 
         uint256 tokenId
+    );
+
+    /// @dev when need to pay fiat USD to the NFT seller, this event would be emitted.
+    /// @param nftSeller nft seller's address
+    /// @param price USD price balance
+    event NFTPayFiatToSeller(
+        address indexed nftSeller,
+        uint256 price
     );
 }

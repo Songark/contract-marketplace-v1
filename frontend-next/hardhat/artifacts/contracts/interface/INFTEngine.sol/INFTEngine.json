@@ -27,14 +27,8 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "ethAmount",
+          "name": "payType",
           "type": "uint256"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "erc20Token",
-          "type": "address"
         },
         {
           "indexed": false,
@@ -118,28 +112,28 @@
           "type": "address"
         },
         {
-          "indexed": true,
-          "internalType": "address",
-          "name": "erc20Token",
-          "type": "address"
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "payType",
+          "type": "uint256"
         },
         {
           "indexed": false,
-          "internalType": "uint128",
+          "internalType": "uint256",
           "name": "minPrice",
-          "type": "uint128"
+          "type": "uint256"
         },
         {
           "indexed": false,
-          "internalType": "uint128",
+          "internalType": "uint256",
           "name": "buyNowPrice",
-          "type": "uint128"
+          "type": "uint256"
         },
         {
           "indexed": false,
-          "internalType": "uint32",
+          "internalType": "uint256",
           "name": "auctionBidPeriod",
-          "type": "uint32"
+          "type": "uint256"
         }
       ],
       "name": "NFTAuctionCreated",
@@ -212,9 +206,9 @@
         },
         {
           "indexed": false,
-          "internalType": "uint128",
+          "internalType": "uint256",
           "name": "highestBid",
-          "type": "uint128"
+          "type": "uint256"
         },
         {
           "indexed": true,
@@ -274,9 +268,9 @@
         },
         {
           "indexed": false,
-          "internalType": "uint64",
+          "internalType": "uint256",
           "name": "auctionEndPeriod",
-          "type": "uint64"
+          "type": "uint256"
         }
       ],
       "name": "NFTAuctionUpdated",
@@ -326,6 +320,25 @@
         {
           "indexed": true,
           "internalType": "address",
+          "name": "nftSeller",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        }
+      ],
+      "name": "NFTPayFiatToSeller",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
           "name": "nftContract",
           "type": "address"
         },
@@ -367,10 +380,10 @@
           "type": "address"
         },
         {
-          "indexed": true,
-          "internalType": "address",
-          "name": "erc20Token",
-          "type": "address"
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "payType",
+          "type": "uint256"
         },
         {
           "indexed": false,
@@ -405,16 +418,16 @@
       "anonymous": false,
       "inputs": [
         {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "payType",
+          "type": "uint256"
+        },
+        {
           "indexed": true,
           "internalType": "address",
           "name": "paymentContract",
           "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "bool",
-          "name": "enable",
-          "type": "bool"
         }
       ],
       "name": "PaymentContractUpdated",
