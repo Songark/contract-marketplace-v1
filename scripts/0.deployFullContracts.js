@@ -7,15 +7,20 @@
 const { ethers, network, upgrades } = require("hardhat");
 
 const {
-  nftTokenCount, pbrtTokenBalance, 
+  treasury,
+  pbrtTokenBalance, 
+  nftTokenCount, 
   nftBuyers, 
   nftSellers,
   usdcAddresses,
-  treasury,
+  pbrtAddresses,
+  ownkAddresses,
+  peasAddresses,
+  pnftAddresses,
   gameWallet,
   gamePlayV2,
-  TokenTypes_membershipNFT,
-  TokenTypes_customNFT
+  TokenTypes,
+  PayTypes
 } = require("./constants");
 
 async function main() {
@@ -31,20 +36,26 @@ async function main() {
 
   console.log("Network:", network.name);
 
+  let addrIndex = 0;
+  if (network.name == 'goerli' || network.name == 'hardhat') {
+    addrIndex = 1;
+  } 
+  else if (network.name != 'mumbai') {
+    console.log("Unsupported network: exit");
+    return;
+  }
+
   try {
       // hardhat test | ganache chain
-      const MembershipNFT = await ethers.getContractFactory("MembershipNFT");
-      const membershipNFT = await MembershipNFT.deploy("Genesis Owner Key", "MNFT");    
-  
       const CustomNFTMock = await ethers.getContractFactory("CustomNFTMock");
-      const customNFT = await CustomNFTMock.deploy("Custom NFT Token", "CNT");
-  
-      const PlayEstatesBrickToken = await ethers.getContractFactory("PlayEstatesBrickToken");
-      const pbrtToken = await PlayEstatesBrickToken.deploy("PlayEstates Bricks Token", "PBRT");
-      
-      console.log("membershipNFT:", membershipNFT.address);
-      console.log("customNFT:", customNFT.address);
-      console.log("PBRT:", pbrtToken.address);
+      const customNFT = await CustomNFTMock.deploy("Custom NFT Token", "CUST");
+
+      console.log("ownk:", ownkAddresses[addrIndex]);
+      console.log("peas:", peasAddresses[addrIndex]);
+      console.log("custom:", customNFT.address);
+      console.log("pnft:", pnftAddresses[addrIndex]);
+      console.log("pbrt:", pbrtAddresses[addrIndex]);
+      console.log("usdc:", usdcAddresses[addrIndex]);
 
       const NFTEngineV1 = await ethers.getContractFactory("NFTEngineV1");
       const nftEngineV1 = await upgrades.deployProxy(
@@ -54,36 +65,14 @@ async function main() {
       await nftEngineV1.deployed();
       console.log("nftEngineV1:", nftEngineV1.address);  
       
-      await nftEngineV1.setNFTContract(TokenTypes_membershipNFT, membershipNFT.address);
-      await nftEngineV1.setNFTContract(TokenTypes_customNFT, customNFT.address);
-      await nftEngineV1.setPaymentContract(pbrtToken.address, true);
-      if (network.name == 'mumbai') {
-        await nftEngineV1.setPaymentContract(usdcAddresses[0], true);
-      }
-      else if (network.name == "goerli") {
-        await nftEngineV1.setPaymentContract(usdcAddresses[1], true);
-      }
-      await pbrtToken.setMarketplaceEngine(nftEngineV1.address);
-      await pbrtToken.setGameEngine(gamePlayV2);
-      await pbrtToken.setMintRole(gameWallet);
-      await pbrtToken.grantRole(ethers.constants.HashZero, gameWallet);
+      await nftEngineV1.setNFTContract(TokenTypes.membershipNFT, ownkAddresses[addrIndex]);
+      await nftEngineV1.setNFTContract(TokenTypes.peasNFT, peasAddresses[addrIndex]);
+      await nftEngineV1.setNFTContract(TokenTypes.customNFT, customNFT.address);
+      await nftEngineV1.setNFTContract(TokenTypes.pnftSSNFT, pnftAddresses[addrIndex]);
 
-      if (network.name == 'mumbai' || network.name == "goerli") {              
-        for (let i = 0; i < sellers.length; i++) {
-          await membershipNFT.mint(
-            sellers[i], nftTokenCount, 0
-          );
-        }
+      await nftEngineV1.setPaymentContract(PayTypes.payUSDC, usdcAddresses[addrIndex]);
+      await nftEngineV1.setPaymentContract(PayTypes.payPBRT, pbrtAddresses[addrIndex]);
 
-        await pbrtToken.mint(
-          deployer.address, pbrtTokenBalance
-        );
-        for (let i = 0; i < buyers.length; i++) {
-          await pbrtToken.mint(
-            buyers[i], pbrtTokenBalance
-          );
-        }
-      }
   } catch (error) {
       console.log(error);
   }

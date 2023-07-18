@@ -124,22 +124,6 @@
         "type": "uint256"
       }
     ],
-    "name": "NFTEngineNotAcceptablePayment",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "nftContract",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      }
-    ],
     "name": "NFTEngineNotApprovedToken",
     "type": "error"
   },
@@ -298,14 +282,8 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "ethAmount",
+        "name": "payType",
         "type": "uint256"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "erc20Token",
-        "type": "address"
       },
       {
         "indexed": false,
@@ -389,28 +367,28 @@
         "type": "address"
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "erc20Token",
-        "type": "address"
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "payType",
+        "type": "uint256"
       },
       {
         "indexed": false,
-        "internalType": "uint128",
+        "internalType": "uint256",
         "name": "minPrice",
-        "type": "uint128"
+        "type": "uint256"
       },
       {
         "indexed": false,
-        "internalType": "uint128",
+        "internalType": "uint256",
         "name": "buyNowPrice",
-        "type": "uint128"
+        "type": "uint256"
       },
       {
         "indexed": false,
-        "internalType": "uint32",
+        "internalType": "uint256",
         "name": "auctionBidPeriod",
-        "type": "uint32"
+        "type": "uint256"
       }
     ],
     "name": "NFTAuctionCreated",
@@ -483,9 +461,9 @@
       },
       {
         "indexed": false,
-        "internalType": "uint128",
+        "internalType": "uint256",
         "name": "highestBid",
-        "type": "uint128"
+        "type": "uint256"
       },
       {
         "indexed": true,
@@ -545,9 +523,9 @@
       },
       {
         "indexed": false,
-        "internalType": "uint64",
+        "internalType": "uint256",
         "name": "auctionEndPeriod",
-        "type": "uint64"
+        "type": "uint256"
       }
     ],
     "name": "NFTAuctionUpdated",
@@ -597,6 +575,25 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "nftSeller",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "price",
+        "type": "uint256"
+      }
+    ],
+    "name": "NFTPayFiatToSeller",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "nftContract",
         "type": "address"
       },
@@ -638,10 +635,10 @@
         "type": "address"
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "erc20Token",
-        "type": "address"
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "payType",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -695,39 +692,20 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "payType",
+        "type": "uint256"
+      },
+      {
         "indexed": true,
         "internalType": "address",
         "name": "paymentContract",
         "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "enable",
-        "type": "bool"
       }
     ],
     "name": "PaymentContractUpdated",
     "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "paymentToken",
-        "type": "address"
-      }
-    ],
-    "name": "IsPayableToken",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
   },
   {
     "inputs": [
@@ -739,6 +717,11 @@
       {
         "internalType": "uint256",
         "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "payType",
         "type": "uint256"
       }
     ],
@@ -760,34 +743,52 @@
         "type": "uint256"
       },
       {
+        "internalType": "uint256",
+        "name": "paidPrice",
+        "type": "uint256"
+      },
+      {
         "internalType": "address",
-        "name": "erc20Token",
+        "name": "buyer",
+        "type": "address"
+      }
+    ],
+    "name": "buyNFTwithFiat",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "nftContract",
         "type": "address"
       },
       {
-        "internalType": "uint128",
-        "name": "minPrice",
-        "type": "uint128"
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
       },
       {
-        "internalType": "uint128",
+        "internalType": "uint256",
+        "name": "payType",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "minPrice",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
         "name": "buyNowPrice",
-        "type": "uint128"
+        "type": "uint256"
       },
       {
         "internalType": "uint256",
         "name": "bidPeriod",
         "type": "uint256"
-      },
-      {
-        "internalType": "address[]",
-        "name": "feeRecipients",
-        "type": "address[]"
-      },
-      {
-        "internalType": "uint32[]",
-        "name": "feeRates",
-        "type": "uint32[]"
       }
     ],
     "name": "createAuction",
@@ -808,24 +809,14 @@
         "type": "uint256"
       },
       {
-        "internalType": "address",
-        "name": "erc20Token",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "payType",
+        "type": "uint256"
       },
       {
-        "internalType": "uint128",
+        "internalType": "uint256",
         "name": "sellPrice",
-        "type": "uint128"
-      },
-      {
-        "internalType": "address[]",
-        "name": "feeRecipients",
-        "type": "address[]"
-      },
-      {
-        "internalType": "uint32[]",
-        "name": "feeRates",
-        "type": "uint32[]"
+        "type": "uint256"
       }
     ],
     "name": "createSale",
@@ -838,9 +829,9 @@
     "name": "defaultAuctionBidPeriod",
     "outputs": [
       {
-        "internalType": "uint32",
+        "internalType": "uint256",
         "name": "",
-        "type": "uint32"
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -875,6 +866,30 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "nftContract",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getAuctionNextBiddablePrice",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "tokenType",
         "type": "uint256"
@@ -886,6 +901,25 @@
         "internalType": "address",
         "name": "",
         "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "usdPrice",
+        "type": "uint256"
+      }
+    ],
+    "name": "getEthFromUsd",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -914,29 +948,34 @@
             "type": "uint256"
           },
           {
-            "internalType": "uint32",
-            "name": "bidPeriod",
-            "type": "uint32"
-          },
-          {
-            "internalType": "uint64",
-            "name": "endTime",
-            "type": "uint64"
-          },
-          {
-            "internalType": "uint128",
+            "internalType": "uint256",
             "name": "minPrice",
-            "type": "uint128"
+            "type": "uint256"
           },
           {
-            "internalType": "uint128",
+            "internalType": "uint256",
             "name": "buyNowPrice",
-            "type": "uint128"
+            "type": "uint256"
           },
           {
-            "internalType": "uint128",
+            "internalType": "uint256",
+            "name": "bidPeriod",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "endTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "payType",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
             "name": "highestBid",
-            "type": "uint128"
+            "type": "uint256"
           },
           {
             "internalType": "address",
@@ -947,31 +986,6 @@
             "internalType": "address",
             "name": "seller",
             "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "whitelistedBuyer",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "erc20Token",
-            "type": "address"
-          },
-          {
-            "internalType": "bool",
-            "name": "isOnSale",
-            "type": "bool"
-          },
-          {
-            "internalType": "address[]",
-            "name": "feeRecipients",
-            "type": "address[]"
-          },
-          {
-            "internalType": "uint32[]",
-            "name": "feeRates",
-            "type": "uint32[]"
           }
         ],
         "internalType": "struct LTypes.AuctionNFT",
@@ -1000,29 +1014,34 @@
             "type": "uint256"
           },
           {
-            "internalType": "uint32",
-            "name": "bidPeriod",
-            "type": "uint32"
-          },
-          {
-            "internalType": "uint64",
-            "name": "endTime",
-            "type": "uint64"
-          },
-          {
-            "internalType": "uint128",
+            "internalType": "uint256",
             "name": "minPrice",
-            "type": "uint128"
+            "type": "uint256"
           },
           {
-            "internalType": "uint128",
+            "internalType": "uint256",
             "name": "buyNowPrice",
-            "type": "uint128"
+            "type": "uint256"
           },
           {
-            "internalType": "uint128",
+            "internalType": "uint256",
+            "name": "bidPeriod",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "endTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "payType",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
             "name": "highestBid",
-            "type": "uint128"
+            "type": "uint256"
           },
           {
             "internalType": "address",
@@ -1033,31 +1052,6 @@
             "internalType": "address",
             "name": "seller",
             "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "whitelistedBuyer",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "erc20Token",
-            "type": "address"
-          },
-          {
-            "internalType": "bool",
-            "name": "isOnSale",
-            "type": "bool"
-          },
-          {
-            "internalType": "address[]",
-            "name": "feeRecipients",
-            "type": "address[]"
-          },
-          {
-            "internalType": "uint32[]",
-            "name": "feeRates",
-            "type": "uint32[]"
           }
         ],
         "internalType": "struct LTypes.AuctionNFT[]",
@@ -1087,28 +1081,18 @@
           },
           {
             "internalType": "address",
-            "name": "erc20Token",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
             "name": "seller",
             "type": "address"
           },
           {
             "internalType": "uint256",
-            "name": "price",
+            "name": "payType",
             "type": "uint256"
           },
           {
-            "internalType": "address[]",
-            "name": "feeRecipients",
-            "type": "address[]"
-          },
-          {
-            "internalType": "uint32[]",
-            "name": "feeRates",
-            "type": "uint32[]"
+            "internalType": "uint256",
+            "name": "price",
+            "type": "uint256"
           }
         ],
         "internalType": "struct LTypes.SellNFT[]",
@@ -1143,28 +1127,18 @@
           },
           {
             "internalType": "address",
-            "name": "erc20Token",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
             "name": "seller",
             "type": "address"
           },
           {
             "internalType": "uint256",
-            "name": "price",
+            "name": "payType",
             "type": "uint256"
           },
           {
-            "internalType": "address[]",
-            "name": "feeRecipients",
-            "type": "address[]"
-          },
-          {
-            "internalType": "uint32[]",
-            "name": "feeRates",
-            "type": "uint32[]"
+            "internalType": "uint256",
+            "name": "price",
+            "type": "uint256"
           }
         ],
         "internalType": "struct LTypes.SellNFT",
@@ -1179,7 +1153,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "admin",
+        "name": "newOwner",
         "type": "address"
       },
       {
@@ -1206,14 +1180,14 @@
         "type": "uint256"
       },
       {
-        "internalType": "address",
-        "name": "erc20Token",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "payType",
+        "type": "uint256"
       },
       {
-        "internalType": "uint128",
-        "name": "amount",
-        "type": "uint128"
+        "internalType": "uint256",
+        "name": "payPrice",
+        "type": "uint256"
       }
     ],
     "name": "makeBid",
@@ -1317,6 +1291,32 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "admin",
+        "type": "address"
+      }
+    ],
+    "name": "setAdmin",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "feed",
+        "type": "address"
+      }
+    ],
+    "name": "setAggregatorV3",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "nftType",
         "type": "uint256"
@@ -1335,14 +1335,14 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "payType",
+        "type": "uint256"
+      },
+      {
         "internalType": "address",
         "name": "paymentToken",
         "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "enable",
-        "type": "bool"
       }
     ],
     "name": "setPaymentContract",

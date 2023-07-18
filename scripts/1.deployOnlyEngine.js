@@ -20,23 +20,12 @@ const pbrtToken = '0xb1677C5639CC483267cC720833d09e0ABd10000A';
 
 async function main() {
   const [deployer] = await ethers.getSigners();
-  const buyers = nftBuyers;
-  buyers.push(deployer.address);
-
-  const sellers = nftSellers;
-  sellers.push(deployer.address);
-
   console.log("Deploying Engine with this \nAccount address:", deployer.address,
     "\nAccount balance:", (await deployer.getBalance()).toString());
 
   console.log("Network:", network.name);
 
   try {
-      // hardhat test | ganache chain
-      console.log("membershipNFT:", membershipNFT);
-      console.log("customNFT:", customNFT);
-      console.log("PBRT:", pbrtToken);
-
       const NFTEngineV1 = await ethers.getContractFactory("NFTEngineV1");
       const nftEngineV1 = await upgrades.deployProxy(
           NFTEngineV1, 
@@ -44,16 +33,6 @@ async function main() {
           { initializer: 'initialize' });
       await nftEngineV1.deployed();
       console.log("nftEngineV1:", nftEngineV1.address);  
-      
-      await nftEngineV1.setNFTContract(TokenTypes_membershipNFT, membershipNFT);
-      await nftEngineV1.setNFTContract(TokenTypes_customNFT, customNFT);
-      await nftEngineV1.setPaymentContract(pbrtToken, true);
-
-      const PlayEstatesBrickToken = await ethers.getContractFactory("PlayEstatesBrickToken");
-      const pbrtTokenContract = await PlayEstatesBrickToken.attach(pbrtToken);
-
-      await pbrtTokenContract.setMarketplaceEngine(nftEngineV1.address);
-
   } catch (error) {
       console.log(error);
   }
